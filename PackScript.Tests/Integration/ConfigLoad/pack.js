@@ -1,0 +1,1 @@
+﻿Test.AddValue('root folder loaded');

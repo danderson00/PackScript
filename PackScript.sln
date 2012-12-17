@@ -1,0 +1,74 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio 2012
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackScript.Console", "PackScript.Console\PackScript.Console.csproj", "{F00D522A-B6BF-4D3D-9A28-ABCE46CF6F07}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackScript.Tests", "PackScript.Tests\PackScript.Tests.csproj", "{68FBF7A9-F003-4E2A-8001-84AC5FED11AC}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencies", "{27854F4B-4ECE-407D-84A7-C4436CF17473}"
+	ProjectSection(SolutionItems) = preProject
+		Dependencies\msvcp100.dll = Dependencies\msvcp100.dll
+		Dependencies\msvcr100.dll = Dependencies\msvcr100.dll
+		Dependencies\Noesis.Javascript.Console.exe = Dependencies\Noesis.Javascript.Console.exe
+		Dependencies\Noesis.Javascript.dll = Dependencies\Noesis.Javascript.dll
+		Dependencies\Noesis.Javascript.Dynamic.dll = Dependencies\Noesis.Javascript.Dynamic.dll
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackScript.Api", "PackScript.Api\PackScript.Api.csproj", "{D8D13DAC-C70B-4C7F-80DA-2E52D52A2CA8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackScript.Core", "PackScript.Core\PackScript.Core.csproj", "{1F79B176-1D08-4DB8-BC58-20566C9C8FBB}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackScript.Api.AjaxMin", "PackScript.Api.AjaxMin\PackScript.Api.AjaxMin.csproj", "{B50399E1-9776-4951-9C8C-4AF96A6B2D62}"
+EndProject
+Global
+	GlobalSection(TeamFoundationVersionControl) = preSolution
+		SccNumberOfProjects = 6
+		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
+		SccTeamFoundationServer = http://tfs:8080/yoursportsstats
+		SccLocalPath0 = .
+		SccProjectUniqueName1 = PackScript.Console\\PackScript.Console.csproj
+		SccProjectName1 = PackScript.Console
+		SccLocalPath1 = PackScript.Console
+		SccProjectUniqueName2 = PackScript.Tests\\PackScript.Tests.csproj
+		SccProjectName2 = PackScript.Tests
+		SccLocalPath2 = PackScript.Tests
+		SccProjectUniqueName3 = PackScript.Api\\PackScript.Api.csproj
+		SccProjectName3 = PackScript.Api
+		SccLocalPath3 = PackScript.Api
+		SccProjectUniqueName4 = PackScript.Core\\PackScript.Core.csproj
+		SccProjectName4 = PackScript.Core
+		SccLocalPath4 = PackScript.Core
+		SccProjectUniqueName5 = PackScript.Api.AjaxMin\\PackScript.Api.AjaxMin.csproj
+		SccProjectName5 = PackScript.Api.AjaxMin
+		SccLocalPath5 = PackScript.Api.AjaxMin
+	EndGlobalSection
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{F00D522A-B6BF-4D3D-9A28-ABCE46CF6F07}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F00D522A-B6BF-4D3D-9A28-ABCE46CF6F07}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F00D522A-B6BF-4D3D-9A28-ABCE46CF6F07}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F00D522A-B6BF-4D3D-9A28-ABCE46CF6F07}.Release|Any CPU.Build.0 = Release|Any CPU
+		{68FBF7A9-F003-4E2A-8001-84AC5FED11AC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{68FBF7A9-F003-4E2A-8001-84AC5FED11AC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{68FBF7A9-F003-4E2A-8001-84AC5FED11AC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{68FBF7A9-F003-4E2A-8001-84AC5FED11AC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D8D13DAC-C70B-4C7F-80DA-2E52D52A2CA8}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D8D13DAC-C70B-4C7F-80DA-2E52D52A2CA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D8D13DAC-C70B-4C7F-80DA-2E52D52A2CA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D8D13DAC-C70B-4C7F-80DA-2E52D52A2CA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1F79B176-1D08-4DB8-BC58-20566C9C8FBB}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1F79B176-1D08-4DB8-BC58-20566C9C8FBB}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1F79B176-1D08-4DB8-BC58-20566C9C8FBB}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1F79B176-1D08-4DB8-BC58-20566C9C8FBB}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B50399E1-9776-4951-9C8C-4AF96A6B2D62}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B50399E1-9776-4951-9C8C-4AF96A6B2D62}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B50399E1-9776-4951-9C8C-4AF96A6B2D62}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B50399E1-9776-4951-9C8C-4AF96A6B2D62}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+EndGlobal
