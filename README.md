@@ -5,6 +5,8 @@ PackScript is a powerful open source (MIT license) resource build system that co
 
 For an introduction to PackScript and worked example, check out http://danderson00.blogspot.com.au/2013/01/packscript-next-generation-build-for-web.html.
 
+You can see the core unit tests at http://danderson00.github.com/PackScript/PackScript.Tests/Core/Resources/runner.htm.
+
 Command Line Usage
 ==================
 
