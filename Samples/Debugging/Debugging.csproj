@@ -51,7 +51,6 @@
     <Content Include="Source\animate.js" />
     <Content Include="Source\controller.js" />
     <Content Include="index.html" />
-    <Content Include="Source\newStuff.js" />
     <Content Include="Source\jquery.js" />
     <Content Include="pack.js" />
     <Content Include="Source\global.css" />
