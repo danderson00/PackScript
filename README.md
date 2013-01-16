@@ -8,7 +8,7 @@ For an introduction to PackScript and worked example, check out http://danderson
 Command Line Usage
 ==================
 
-PackScript.exe [/watch] <target_folder>
+PackScript.exe [/watch] <"target_folder">
 
 PackScript will scan the target folder recursively for files matching the configurationFileFilter and packFileFilter options and execute them, configuration files first. 
 Templates are also loaded from files with the extension specified in the templateFileExtension option.
@@ -18,6 +18,7 @@ Templates are also loaded from files with the extension specified in the templat
 
 Main Configuration API
 ======================
+<pre>
 pack({
 	to: 'path/filename.ext',
 	include: 'filespec' || {
@@ -35,20 +36,24 @@ pack({
 	prioritise: 'filename.ext' || [],
 	minify: true/false
 });
+</pre>
 
 
 Configuration Options
 =====================
+<pre>
 Pack.options = {
     configurationFileFilter: '*pack.config.js',
     packFileFilter: '*pack.js',
     templateFileExtension: '.template.*',
     logLevel: 'debug'
 };
+</pre>
 
 
 Default Template Data
 =====================
+<pre>
 {
 	path: 'full/path/to/source/file.ext',
 	content: 'file content',
@@ -57,6 +62,7 @@ Default Template Data
 	includePath: 'full/path/to/source/',
 	pathRelativeToInclude: 'file.ext'
 }
+</pre>
 
 
 Path Methods
@@ -64,6 +70,7 @@ Path Methods
 
 Path objects are objects containing a set of methods for manipulation of paths. They are created as follows:
 
+<pre>
 Path(inputPath) =
 {
 	filename: function() { },
@@ -74,3 +81,4 @@ Path(inputPath) =
 	match: function(spec) { },
 	asMarkupIdentifier: function () { }
 }
+</pre>
