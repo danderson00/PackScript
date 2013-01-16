@@ -88,6 +88,15 @@
         equal(Path("c:\\test\\test.js").match(".js"), ".js");
     });
 
+    test("matchFolder", function() {
+        equal(Path("c:\\path\\to\\test.txt").matchFolder("\\path"), "\\path");
+        equal(Path("c:\\path\\to\\test.txt").matchFolder("/path"), "\\path");
+        equal(Path("c:\\path\\to\\test.txt").matchFolder("\\path\\to"), "\\path\\to");
+        equal(Path("c:\\path\\to\\test.txt").matchFolder("/path/to"), "\\path\\to");
+        equal(Path("c:\\path\\to\\test.txt").matchFolder("c:\\path\\to"), "c:\\path\\to");
+        equal(Path("c:\\path\\to\\test.txt").matchFolder("c:\\path/to"), "c:\\path\\to");
+    });
+
     test("normalise", function () {
         equal(Path('test').toString(), 'test');
         equal(Path('../test').toString(), '../test');
@@ -100,5 +109,10 @@
         equal(Path('C:\\test\\..\\test.txt').toString(), 'C:\\test.txt');
         equal(Path('C:\\test\\..\\.\\test.txt').toString(), 'C:\\test.txt');
         equal(Path('..\\..\\test\\').toString(), '..\\..\\test\\');
+    });
+
+    test("asPathIdentifier", function() {
+        equal(Path('test.txt').asMarkupIdentifier().toString(), 'test');
+        equal(Path('test/test.txt').asMarkupIdentifier().toString(), 'test-test');
     });
 })();

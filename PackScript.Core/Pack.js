@@ -6,7 +6,8 @@
 }
 
 Pack.options = {
-    configurationFileFilter: '*pack.js',
+    configurationFileFilter: '*pack.config.js',
+    packFileFilter: '*pack.js',
     templateFileExtension: '.template.*',
     logLevel: 'debug'
 };

@@ -15,11 +15,12 @@ namespace PackScript.Tests.Integration
             var api = Substitute.For<IFilesApi>();
             api.Name.Returns("Files");
             ContextFactory.Create(@"..\..\Integration\ConfigLoad", api, new TestApi()).ScanForResources();
+            api.Received().getFilenames(@"..\..\Integration\ConfigLoad\*pack.config.js", true);
             api.Received().getFilenames(@"..\..\Integration\ConfigLoad\*pack.js", true);
         }
 
         [Test]
-        public void Config_files_are_loaded_recursively_and_evaluated()
+        public void Pack_files_are_loaded_recursively_and_evaluated()
         {
             var test = new TestApi();
             ContextFactory.Create(@"..\..\Integration\ConfigLoad", test).ScanForResources();
@@ -28,11 +29,19 @@ namespace PackScript.Tests.Integration
         }
 
         [Test]
-        public void Named_config_files_are_loaded_and_evaluated()
+        public void Named_pack_files_are_loaded_and_evaluated()
         {
             var test = new TestApi();
             ContextFactory.Create(@"..\..\Integration\ConfigLoad", test).ScanForResources();
             test.Values.Should().Contain("named config loaded");
+        }
+
+        [Test]
+        public void Config_files_are_loaded_before_pack_files()
+        {
+            var test = new TestApi();
+            ContextFactory.Create(@"..\..\Integration\ConfigLoad", test).ScanForResources();
+            test.Values.Should().ContainInOrder(new [] { "subfolder config loaded", "named config loaded", "root folder loaded", "subfolder loaded" });
         }
     }
 }

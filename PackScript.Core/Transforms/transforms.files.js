@@ -38,7 +38,8 @@
                 return _.map(getFileNames(filespec), function (file) {
                     return {
                         path: file,
-                        template: value.template
+                        template: value.template,
+                        filespec: filespec
                     };
                 });
             }

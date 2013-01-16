@@ -7,7 +7,10 @@
     };
 
     Pack.prototype.scanForConfigs = function (path) {
-        this.loadedConfigs = Files.getFilenames(path + options.configurationFileFilter, true);
+        var allConfigs = _.union(
+            Files.getFilenames(path + options.configurationFileFilter, true),
+            Files.getFilenames(path + options.packFileFilter, true));
+        this.loadedConfigs = allConfigs;
         var configs = Files.getFileContents(this.loadedConfigs);
         for (var configPath in configs)
             this.loadConfig(configPath, configs[configPath]);
@@ -25,6 +28,7 @@
     };
 
     Pack.prototype.scanForTemplates = function (path) {
+        Log.info("Loading template from " + path);
         var files = Files.getFilenames(path + '*' + options.templateFileExtension, true);
         var loadedTemplates = Files.getFileContents(files);
         for (var templatePath in loadedTemplates)

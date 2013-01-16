@@ -11,7 +11,7 @@
         
         function filenames() {
             return _.map(output.files.paths(), function (path) {
-                return path.replace(output.basePath, '');
+                return Path(path).filename();
             }).join(', ');;
         }
     });

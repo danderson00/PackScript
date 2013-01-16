@@ -11,7 +11,7 @@ Pack.prototype.build = function (outputs) {
 };
 
 Pack.prototype.fileChanged = function (path) {
-    if (Path(path).match(Pack.options.configurationFileFilter)) {
+    if (Path(path).match(Pack.options.configurationFileFilter) || Path(path).match(Pack.options.packFileFilter)) {
         this.cleanConfig(path);
         this.loadConfig(path, Files.getFileContents([path])[path]);
         this.build(this.configOutputs(path));

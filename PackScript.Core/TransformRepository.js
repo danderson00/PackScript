@@ -2,7 +2,7 @@
     var self = this;
 
     this.events = ['files', 'content', 'output', 'finalise'];
-    this.defaultTransforms = { load: true, combine: true };
+    this.defaultTransforms = { load: true, combine: true, template: true };
     
     this.add = function (name, event, func) {
         self[name] = { event: event, func: func };

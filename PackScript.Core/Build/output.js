@@ -1159,7 +1159,7 @@ Pack.TransformRepository = function () {
     var self = this;
 
     this.events = ['files', 'content', 'output', 'finalise'];
-    this.defaultTransforms = { load: true, combine: true };
+    this.defaultTransforms = { load: true, combine: true, template: true };
     
     this.add = function (name, event, func) {
         self[name] = { event: event, func: func };
@@ -1183,7 +1183,8 @@ Pack.TransformRepository = function () {
 }
 
 Pack.options = {
-    configurationFileFilter: '*pack.js',
+    configurationFileFilter: '*pack.config.js',
+    packFileFilter: '*pack.js',
     templateFileExtension: '.template.*',
     logLevel: 'debug'
 };
@@ -1210,13 +1211,17 @@ function Path(path) {
                 path.substring(1, 3) == ':\\';
         },
         match: function(spec) {
-            var regex = new RegExp('(' + spec
-                .replace(/[\\\/]/g, '[\\\\\\\/]')
-                .replace(/\*/g, '[^\\\\\\\/]*')
-                .replace(/\?/g, '[^\\\\\\\/]?')
-                .replace(/\./g, '\\.') + '$)');
+            var regex = new RegExp(baseMatchRegex(spec) + '$');
             var result = regex.exec('\\' + path);
-            return result && result[1];
+            return result && result[0];
+        },
+        matchFolder: function(spec) {
+            var regex = new RegExp(baseMatchRegex(spec));
+            var result = regex.exec('\\' + path);
+            return result && result[0];
+        },
+        asMarkupIdentifier: function() {
+            return Path(this.withoutExtension().toString().replace(/[\\\/]/g, '-'));
         },
         toString: function() {
             return path.toString();
@@ -1231,6 +1236,8 @@ function Path(path) {
         return input;
     }
     
+    // These cater for both forward and back slashes. 
+    // Implemented before I changed normalise to change them all to forward slashes
     function removeDoubleSlashes(input) {
         return input.replace(/\/\//g, '/')
             .replace(/\\\\/g, '\\');
@@ -1247,8 +1254,8 @@ function Path(path) {
     
     function removeCurrentPaths(input) {
         var regex = /\.[\/\\]/g;
-        // ignore leading parent paths - the rest will have been stripped
-        // i can't figure out a regex that won't strip the ./ out of ../
+        // Ignore leading parent paths - the rest will have been stripped
+        // I can't figure out a regex that won't strip the ./ out of ../
         var startIndex = pathWithSlashes(input).lastIndexOf('../');
         startIndex = startIndex == -1 ? 0 : startIndex + 3;
         return input.substring(0, startIndex) + input.substring(startIndex).replace(regex, '');
@@ -1256,6 +1263,14 @@ function Path(path) {
     
     function pathWithSlashes(path) {
         return path.replace(/\\/g, '/');
+    }
+    
+    function baseMatchRegex(spec) {
+        return spec && spec.toString()
+            .replace(/[\\\/]/g, '[\\\\\\\/]')
+            .replace(/\*/g, '[^\\\\\\\/]*')
+            .replace(/\?/g, '[^\\\\\\\/]?')
+            .replace(/\./g, '\\.');
     }
 };Pack.utils = {};
 
@@ -1382,10 +1397,16 @@ Pack.utils.invokeSingleOrArray = function (value, method) {
 };
 
 Pack.prototype.addOutput = function (transforms, configPath) {
-    if (transforms && transforms.to) {
-        var output = new Pack.Output(transforms, configPath);
-        this.outputs.push(output);
-        return output;
+    var self = this;
+    
+    if (transforms)
+        return Pack.utils.executeSingleOrArray(transforms, addSingleOutput);
+    
+    function addSingleOutput(transforms) {
+        if (transforms && transforms.to)
+            var output = new Pack.Output(transforms, configPath);
+            self.outputs.push(output);
+            return output;
     }
 };
 
@@ -1421,7 +1442,10 @@ Pack.prototype.configOutputs = function(path) {
     };
 
     Pack.prototype.scanForConfigs = function (path) {
-        this.loadedConfigs = Files.getFilenames(path + options.configurationFileFilter, true);
+        var allConfigs = _.union(
+            Files.getFilenames(path + options.configurationFileFilter, true),
+            Files.getFilenames(path + options.packFileFilter, true));
+        this.loadedConfigs = allConfigs;
         var configs = Files.getFileContents(this.loadedConfigs);
         for (var configPath in configs)
             this.loadConfig(configPath, configs[configPath]);
@@ -1439,6 +1463,7 @@ Pack.prototype.configOutputs = function(path) {
     };
 
     Pack.prototype.scanForTemplates = function (path) {
+        Log.info("Loading template from " + path);
         var files = Files.getFilenames(path + '*' + options.templateFileExtension, true);
         var loadedTemplates = Files.getFileContents(files);
         for (var templatePath in loadedTemplates)
@@ -1464,7 +1489,7 @@ Pack.prototype.build = function (outputs) {
 };
 
 Pack.prototype.fileChanged = function (path) {
-    if (Path(path).match(Pack.options.configurationFileFilter)) {
+    if (Path(path).match(Pack.options.configurationFileFilter) || Path(path).match(Pack.options.packFileFilter)) {
         this.cleanConfig(path);
         this.loadConfig(path, Files.getFileContents([path])[path]);
         this.build(this.configOutputs(path));
@@ -1531,7 +1556,8 @@ _.extend(pack, new Pack());
                 return _.map(getFileNames(filespec), function (file) {
                     return {
                         path: file,
-                        template: value.template
+                        template: value.template,
+                        filespec: filespec
                     };
                 });
             }
@@ -1600,7 +1626,7 @@ _.extend(pack, new Pack());
         
         function filenames() {
             return _.map(output.files.paths(), function (path) {
-                return path.replace(output.basePath, '');
+                return Path(path).filename();
             }).join(', ');;
         }
     });
@@ -1611,16 +1637,18 @@ _.extend(pack, new Pack());
         _.each(output.files.list, applyTemplate);
 
         function applyTemplate(file) {
-            var templateName = templateName();
-            var template = pack.templates[templateName];
+            var template = pack.templates[templateName()];
+            var path = Path(file.path);
             if (template) {
-                Log.debug('Applying template ' + templateName + ' to ' + (output.transforms && output.transforms.to));
+                Log.debug('Applying template ' + templateName() + ' to ' + Path(file.path).filename());
                 var templateData = _.extend({
                     content: file.content,
-                    path: file.path,
-                    configPath: output.basePath,
-                    pathRelativeToConfig: file.path.replace(output.basePath, '')
-                }, value.data);
+                    path: path,
+                    configPath: Path(output.basePath),
+                    pathRelativeToConfig: Path(file.path.replace(path.matchFolder(output.basePath), '')),
+                    includePath: includePath(),
+                    pathRelativeToInclude: Path(file.path.replace(path.matchFolder(includePath()), ''))
+                }, value.data, file.template && file.template.data);
                 file.content = _.template(template, templateData);
             }
             
@@ -1628,6 +1656,10 @@ _.extend(pack, new Pack());
                 if (file.template)
                     return file.template.name || file.template;
                 return value.name || value;
+            }
+            
+            function includePath() {
+                return Path(output.basePath + file.filespec).withoutFilename();
             }
         }
     });    

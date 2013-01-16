@@ -3,16 +3,18 @@
         _.each(output.files.list, applyTemplate);
 
         function applyTemplate(file) {
-            var templateName = templateName();
-            var template = pack.templates[templateName];
+            var template = pack.templates[templateName()];
+            var path = Path(file.path);
             if (template) {
-                Log.debug('Applying template ' + templateName + ' to ' + (output.transforms && output.transforms.to));
+                Log.debug('Applying template ' + templateName() + ' to ' + Path(file.path).filename());
                 var templateData = _.extend({
                     content: file.content,
-                    path: file.path,
-                    configPath: output.basePath,
-                    pathRelativeToConfig: file.path.replace(output.basePath, '')
-                }, value.data);
+                    path: path,
+                    configPath: Path(output.basePath),
+                    pathRelativeToConfig: Path(file.path.replace(path.matchFolder(output.basePath), '')),
+                    includePath: includePath(),
+                    pathRelativeToInclude: Path(file.path.replace(path.matchFolder(includePath()), ''))
+                }, value.data, file.template && file.template.data);
                 file.content = _.template(template, templateData);
             }
             
@@ -20,6 +22,10 @@
                 if (file.template)
                     return file.template.name || file.template;
                 return value.name || value;
+            }
+            
+            function includePath() {
+                return Path(output.basePath + file.filespec).withoutFilename();
             }
         }
     });    

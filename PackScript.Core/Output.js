@@ -18,10 +18,16 @@
 };
 
 Pack.prototype.addOutput = function (transforms, configPath) {
-    if (transforms && transforms.to) {
-        var output = new Pack.Output(transforms, configPath);
-        this.outputs.push(output);
-        return output;
+    var self = this;
+    
+    if (transforms)
+        return Pack.utils.executeSingleOrArray(transforms, addSingleOutput);
+    
+    function addSingleOutput(transforms) {
+        if (transforms && transforms.to)
+            var output = new Pack.Output(transforms, configPath);
+            self.outputs.push(output);
+            return output;
     }
 };
 

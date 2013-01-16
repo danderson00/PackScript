@@ -31,7 +31,7 @@ namespace PackScript.Core.Infrastructure
 
         public PackContext AddDefaultApis()
         {
-            return AddApi(new FilesApi())
+            return AddApi(new FilesApi(new DebugLogApi()))
                   .AddApi(new DebugLogApi());
         }
     }

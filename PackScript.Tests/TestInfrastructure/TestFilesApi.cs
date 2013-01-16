@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
 using PackScript.Api.Files;
+using PackScript.Api.Log;
 
 namespace PackScript.Tests.TestInfrastructure
 {
@@ -10,7 +11,7 @@ namespace PackScript.Tests.TestInfrastructure
         public List<Call<string[]>> getFileContentsCalls { get; private set; }
         public List<Call<string, string>> writeFileCalls { get; private set; }
 
-        public TestFilesApi()
+        public TestFilesApi() : base(new DebugLogApi())
         {
             getFilenamesCalls = new List<Call<string, bool>>();
             getFileContentsCalls = new List<Call<string[]>>();

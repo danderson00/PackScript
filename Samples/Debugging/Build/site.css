@@ -1,0 +1,15 @@
+.animateTarget {
+    position: absolute;
+    top: 50%;
+}
+.pane {
+    width: 50%;
+    float: left;
+    height: 200px;
+    border: 1px solid blue;
+}
+
+.output.pane {
+    position: relative;
+    overflow: hidden;
+}

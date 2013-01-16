@@ -1,0 +1,61 @@
+Main Configuration API
+----------------------
+pack({
+	to: 'path/filename.ext',
+	include: 'filespec' || {
+		files: 'filespec',
+		recursive: true/false,
+		template:'template name' || { name: 'template name', data: { value: 'passedToTemplate' } },
+		prioritise: 'filename.ext'
+	} || [],
+	exclude: 'filespec' || {
+		files: 'filespec',
+		recursive: true/false
+	} || [],
+	template: 'template name' || { name: 'template name', data: { value: 'passedToTemplate' } },
+	recursive: true/false,
+	prioritise: 'filename.ext' || [],
+	minify: true/false
+});
+
+
+Configuration Options
+---------------------
+Pack.options = {
+    configurationFileFilter: '*pack.config.js',
+    packFileFilter: '*pack.js',
+    templateFileExtension: '.template.*',
+    logLevel: 'debug'
+};
+
+
+Default Template Data
+---------------------
+{
+	path: 'full/path/to/source/file.ext',
+	content: 'file content',
+	configPath: 'full/path/to/pack.js',
+	pathRelativeToConfig: 'source/file.ext'
+}
+
+
+Path Methods
+------------
+Path(inputPath) =
+{
+	filename: function() { },
+	withoutFilename: function() { },
+	extension: function() { },
+	withoutExtension: function() { },
+	isAbsolute: function() { },
+	match: function(spec) { },
+	asMarkupIdentifier: function () { }
+}
+
+
+Repositories
+------------
+pack.outputs = [];
+pack.templates = {};
+pack.loadedConfigs = [];
+pack.transforms = Pack.TransformRepository();

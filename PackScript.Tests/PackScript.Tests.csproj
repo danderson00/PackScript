@@ -133,6 +133,7 @@
     <Content Include="Integration\Combine\root.js" />
     <Content Include="Integration\ConfigLoad\named.pack.js" />
     <Content Include="Integration\ConfigLoad\pack.js" />
+    <Content Include="Integration\ConfigLoad\Subfolder\pack.config.js" />
     <Content Include="Integration\ConfigLoad\Subfolder\pack.js" />
     <Content Include="Integration\ExcludeConfigAndTarget\output.js" />
     <Content Include="Integration\ExcludeConfigAndTarget\pack.js" />
@@ -146,6 +147,8 @@
     <Content Include="Integration\Recursive\pack.js" />
     <Content Include="Integration\Recursive\1.js" />
     <Content Include="Integration\Template\pack.js" />
+    <Content Include="Integration\Template\Subfolder\Subfolder2\subfolder2.js" />
+    <Content Include="Integration\Template\Templates\template3.template.htm" />
     <Content Include="Integration\Template\Templates\template2.template.js" />
     <Content Include="Integration\Template\Templates\template1.template.htm" />
     <Content Include="Integration\Template\root.txt" />

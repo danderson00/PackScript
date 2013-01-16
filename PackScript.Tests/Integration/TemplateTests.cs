@@ -38,5 +38,12 @@ namespace PackScript.Tests.Integration
             api.Output("separateTemplates").Should().Contain("root1");
             api.Output("separateTemplates").Should().Contain("subfolder2");
         }
+
+        [Test]
+        public void Path_relative_to_include()
+        {
+            api.Output("pathRelativeToInclude").Should().Contain("subfolder.txt\r\n");
+            api.Output("pathRelativeToInclude").Should().Contain("Subfolder2\\subfolder2.js\r\n");
+        }
     }
 }

@@ -2,12 +2,21 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
+using System.Threading;
+using PackScript.Api.Log;
 
 namespace PackScript.Api.Files
 {
     public class FilesApi : IFilesApi
     {
         public string Name { get { return "Files"; } }
+        private ILogApi Log { get; set; }
+        private int[] RetryWaits = new[] {100, 500, 1000};
+
+        public FilesApi(ILogApi log)
+        {
+            Log = log;
+        }
 
         public virtual string[] getFilenames(string filespec, bool recursive = false)
         {
@@ -19,13 +28,51 @@ namespace PackScript.Api.Files
 
         public virtual Dictionary<string, string> getFileContents(string[] files)
         {
-            return files.ToDictionary(x => x, File.ReadAllText);
+            return files.ToDictionary(x => x, TryRead);
         }
 
         public virtual void writeFile(string path, string content)
         {
-            using(var writer = File.CreateText(path))
-                writer.Write(content);
+            TryWrite(path, content);
+        }
+
+        private string TryRead(string path)
+        {
+            for (int i = 0; i < 3; i++)
+                try
+                {
+                    return File.ReadAllText(path);
+                }
+                catch (Exception ex)
+                {
+                    LogException("read", ex, path, i + 1);
+                    Thread.Sleep(RetryWaits[i]);
+                }
+            return "";
+        }
+
+        private void TryWrite(string path, string content)
+        {
+            for (int i = 0; i < 3; i++)
+                try
+                {
+                    using (var writer = File.CreateText(path))
+                        writer.Write(content);
+                    return;
+                }
+                catch (Exception ex)
+                {
+                    LogException("write", ex, path, i + 1);
+                    Thread.Sleep(RetryWaits[i]);
+                }
+        }
+
+        private void LogException(string operation, Exception ex, string path, int i)
+        {
+            if (i < 2)
+                Log.warn(string.Format("Unable to {0} file on attempt #{1}: {2} ({3})", operation, i, path, ex.Message));
+            else
+                Log.error(string.Format("Unable to {0} file on attempt #{1}: {2} ({3})", operation, i, path, ex.Message));
         }
     }
 }
