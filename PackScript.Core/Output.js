@@ -13,7 +13,9 @@
     };
 
     this.matches = function (path) {
-        return self.files.paths().indexOf(path) > -1;
+        return _.any(self.files.paths(), function(filePath) {
+            return Path(path).match(filePath);
+        });
     };
 };
 

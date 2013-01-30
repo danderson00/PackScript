@@ -1221,7 +1221,7 @@ function Path(path) {
             return result && result[0];
         },
         asMarkupIdentifier: function() {
-            return Path(this.withoutExtension().toString().replace(/[\\\/]/g, '-'));
+            return Path(this.withoutExtension().toString().replace(/[\\\/]/g, '-').replace(/\./g, ''));
         },
         toString: function() {
             return path.toString();
@@ -1292,6 +1292,12 @@ Pack.utils.executeSingleOrArray = function (value, func, reverse) {
 Pack.utils.invokeSingleOrArray = function (value, method) {
     return Pack.utils.executeSingleOrArray(value, function(target) {
         return target[method]();
+    });
+};
+
+Pack.prototype.outputsFor = function(path) {
+    return _.filter(this.outputs, function(output) {
+        return output.transforms.to && Path(output.transforms.to).match(path);
     });
 };function FileList() {
     var self = this;
@@ -1392,7 +1398,9 @@ Pack.utils.invokeSingleOrArray = function (value, method) {
     };
 
     this.matches = function (path) {
-        return self.files.paths().indexOf(path) > -1;
+        return _.any(self.files.paths(), function(filePath) {
+            return Path(path).match(filePath);
+        });
     };
 };
 
@@ -1583,13 +1591,22 @@ _.extend(pack, new Pack());
         var path = Path(output.basePath + output.transforms.to);
         Files.writeFile(path.toString(), output.output);
         Log.info('Wrote file ' + path);
+        clean(output);
     });
+    
+    function clean(output) {
+        delete output.output;
+        _.each(output.files.list, function(file) {
+            delete file.content;
+        });
+    }
 })();
 
 (function () {
     pack.transforms.add('minify', 'output', function (value, output) {
-        Log.debug('Minifying ' + output.transforms.to);
-        switch (Path(output.transforms.to).extension().toString()) {
+        if (value) {
+            Log.debug('Minifying ' + output.transforms.to);
+            switch (Path(output.transforms.to).extension().toString()) {
             case 'js':
                 minify(typeof MinifyJavascript !== 'undefined' ? MinifyJavascript : null, output);
                 break;
@@ -1602,6 +1619,7 @@ _.extend(pack, new Pack());
                 break;
             default:
                 Log.warn('Minification requested but not supported for ' + output.transforms.to);
+            }
         }
     });
     

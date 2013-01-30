@@ -20,3 +20,9 @@ Pack.utils.invokeSingleOrArray = function (value, method) {
         return target[method]();
     });
 };
+
+Pack.prototype.outputsFor = function(path) {
+    return _.filter(this.outputs, function(output) {
+        return output.transforms.to && Path(output.transforms.to).match(path);
+    });
+};

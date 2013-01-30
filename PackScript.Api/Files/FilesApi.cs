@@ -20,10 +20,16 @@ namespace PackScript.Api.Files
 
         public virtual string[] getFilenames(string filespec, bool recursive = false)
         {
-            return Directory.GetFiles(Path.GetDirectoryName(filespec), Path.GetFileName(filespec),
-                          recursive
-                              ? SearchOption.AllDirectories
-                              : SearchOption.TopDirectoryOnly);
+            try
+            {
+                return Directory.GetFiles(Path.GetDirectoryName(filespec), Path.GetFileName(filespec),
+                                          recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+            }
+            catch (Exception ex)
+            {
+                Log.warn(string.Format("Couldn't retrieve file list for {0} - {1}", filespec, ex.Message));
+                return new string[] {};
+            }
         }
 
         public virtual Dictionary<string, string> getFileContents(string[] files)
@@ -69,10 +75,11 @@ namespace PackScript.Api.Files
 
         private void LogException(string operation, Exception ex, string path, int i)
         {
+            var message = string.Format("Unable to {0} file on attempt #{1}: {2} ({3})", operation, i, path, ex.Message);
             if (i < 2)
-                Log.warn(string.Format("Unable to {0} file on attempt #{1}: {2} ({3})", operation, i, path, ex.Message));
+                Log.warn(message);
             else
-                Log.error(string.Format("Unable to {0} file on attempt #{1}: {2} ({3})", operation, i, path, ex.Message));
+                Log.error(message);
         }
     }
 }

@@ -1,0 +1,2 @@
+"$(SolutionDir)ILMerge\ILMerge.exe" /out:"$(TargetDir)$(TargetName).all.exe" "$(TargetDir)$(TargetName).exe" "$(TargetDir)*.dll" /target:exe /targetplatform:v4,C:\Windows\Microsoft.NET\Framework64\v4.0.30319 /wildcards
+..\..\..\Dependencies\ILMerge.exe /target:exe /targetplatform:v4,C:\Windows\Microsoft.NET\Framework64\v4.0.30319 /zeroPeKind /out:test.exe PackScript.exe AjaxMin.dll Newtonsoft.Json.dll Noesis.Javascript.Console.exe Noesis.Javascript.Dynamic.dll PackScript.Api.AjaxMin.dll PackScript.Api.dll PackScript.Core.dll

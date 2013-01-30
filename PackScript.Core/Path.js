@@ -31,7 +31,7 @@
             return result && result[0];
         },
         asMarkupIdentifier: function() {
-            return Path(this.withoutExtension().toString().replace(/[\\\/]/g, '-'));
+            return Path(this.withoutExtension().toString().replace(/[\\\/]/g, '-').replace(/\./g, ''));
         },
         toString: function() {
             return path.toString();

@@ -39,35 +39,32 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <None Include="pack.config" />
-    <None Include="Transforms\pack.config" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Build\output.js" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="Libraries\underscore.js" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Transforms\transforms.content.js" />
+    <None Include="pack.config" />
+    <None Include="Transforms\content.js" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Transforms\transforms.files.js" />
+    <None Include="Transforms\files.js" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Transforms\transforms.finalise.js" />
+    <None Include="Transforms\finalise.js" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TransformRepository.js" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Transforms\transforms.minify.js" />
+    <None Include="Transforms\minify.js" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Transforms\transforms.output.js" />
+    <None Include="Transforms\output.js" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Transforms\transforms.template.js" />
+    <None Include="Transforms\template.js" />
   </ItemGroup>
   <ItemGroup>
     <None Include="commands.js" />
@@ -113,7 +110,13 @@
   <ItemGroup>
     <None Include="setup.js" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="build.pack.js" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>rem if exist "$(SolutionDir)PackScript.Console\bin\Debug\PackScript.exe" "$(SolutionDir)PackScript.Console\bin\Debug\PackScript.exe" "$(ProjectDir)"</PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">
