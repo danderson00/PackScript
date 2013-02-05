@@ -2,9 +2,9 @@
     module("transforms.minify", { setup: minifierAsSpy });
     
     test("minify calls appropriate API functions", function () {        
-        pack.transforms.minify.func(true, { output: 'js', transforms: { to: 'test.js' } });
-        pack.transforms.minify.func(true, { output: 'htm', transforms: { to: 'test.htm' } });
-        pack.transforms.minify.func(true, { output: 'css', transforms: { to: 'test.css' } });
+        pack.transforms.minify.apply(wrap(true, { transforms: { to: 'test.js' } }, { output: 'js' }));
+        pack.transforms.minify.apply(wrap(true, { transforms: { to: 'test.htm' } }, { output: 'htm' }));
+        pack.transforms.minify.apply(wrap(true, { transforms: { to: 'test.css' } }, { output: 'css' }));
 
         ok(MinifyJavascript.minify.calledWithExactly('js'));
         ok(MinifyMarkup.minify.calledWithExactly('htm'));

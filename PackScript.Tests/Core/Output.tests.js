@@ -1,41 +1,31 @@
 ﻿(function () {
     module("Output", { setup: filesAsMock });
 
-    test("build creates full output", function() {
-        Files.files = {
-            'test.js': 'var test = "test";'
-        };
-        var output = new Pack.Output({ to: "output.js", include: "test.js" }, "path/").build().output;
-        equal(output, 'var test = "test";');
-    });
-
     test("matches returns true if file list contains file", function() {
-        var output = new Pack.Output({}, '');
-        output.files = new FileList('1', '1', '2', '3');
-        ok(output.matches('2'));
+        var output = new Pack.Output({ include: '*.*' }, '');
+        Files.files = ['1', '1', '2', '3'];
+        ok(output.matches('2', pack.transforms));
     });
 
     test("matchingOutputs returns array of outputs matching file", function() {
         var p = new Pack();
-        createOutput('1', '1', '2', '3');
-        createOutput('2', '1', '2');
-        createOutput('3', '2');
-        equal(p.matchingOutputs('1').length, 2);
-        equal(p.matchingOutputs('2').length, 3);
-        equal(p.matchingOutputs('3').length, 1);
+        createOutput('1', true);
+        createOutput('2', true);
+        createOutput('3', false);
+        equal(p.matchingOutputs().length, 2);
 
-        function createOutput(name) {
+        function createOutput(name, matches) {
             var output = p.addOutput({ to: name }, '');
-            output.files = new FileList();
-            output.files.include(_.toArray(arguments).slice(1));
-            return output;
+            output.matches = function() {
+                return matches;
+            };
         }
     });
 
-    test("cleanConfig removes outputs with matching config file", function() {
+    test("removeConfigOutputs removes outputs with matching config file", function() {
         var p = new Pack();
         p.outputs = [{ configPath: 'config' }, { configPath: 'config' }, { configPath: 'config2' }];
-        p.cleanConfig('config');
+        p.removeConfigOutputs('config');
         equal(p.outputs.length, 1);
     });
 
@@ -44,5 +34,14 @@
         p.outputs = [{ configPath: 'config' }, { configPath: 'config' }, { configPath: 'config2' }];
         var outputs = p.configOutputs('config');
         equal(outputs.length, 2);
+    });
+
+    test("executeTransform executes the appropriate transform", function () {
+        expect(1);
+        var output = new Pack.Output({ test: 'value' }, '', pack.transforms);
+        pack.transforms.add('test', '', function(value) {
+            equal(value, 'value');
+        });
+        pack.executeTransform('test', output);
     });
 })();

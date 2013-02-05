@@ -3,6 +3,19 @@
     
     module("commands", { setup: setup });
 
+    test("build writes full output", function () {
+        Files.files = {
+            'test.js': 'var test = "test";'
+        };
+        Files.writeFile = sinon.spy();
+        Pack.options.clean = false;
+        var output = new Pack.Output({ to: "output.js", include: "test.js" }, "path/");
+        pack.build(output);
+        ok(Files.writeFile.calledOnce);
+        equal(Files.writeFile.firstCall.args[1], 'var test = "test";');
+        //equal(output.output, 'var test = "test";');
+    });
+
     test("build recurses when output path matches other outputs", function () {
         Files.getFilenames = getFilenames;
         Files.getFileContents = getFileContents;
@@ -12,7 +25,7 @@
         child.build = spy;
 
         p.all();
-        ok(spy.calledOnce);
+        ok(spy.called);
 
         function getFilenames(name) {
             return name === 'parent' ? ['parent'] : ['child'];

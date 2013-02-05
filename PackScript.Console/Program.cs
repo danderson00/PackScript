@@ -42,7 +42,8 @@ namespace PackScript.Console
                 {
                     var change = watcher.WaitForChanged(WatcherChangeTypes.All);
                     var changedFilePath = Path.Combine(path, change.Name);
-                    context.FileChanged(changedFilePath);
+                    var oldFilePath = Path.Combine(path, change.OldName ?? change.Name);
+                    context.FileChanged(changedFilePath, oldFilePath, change.ChangeType.ToStringChangeType());
                 }
             }).Start();
 

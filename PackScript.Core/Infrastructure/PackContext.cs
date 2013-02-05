@@ -23,9 +23,9 @@ namespace PackScript.Core.Infrastructure
             return this;
         }
 
-        public PackContext FileChanged(string path)
+        public PackContext FileChanged(string path, string oldPath, string changeType)
         {
-            Execute(string.Format("pack.fileChanged('{0}')", path.Replace("\\", "\\\\")));
+            Execute(string.Format("pack.fileChanged('{0}', '{1}', '{2}')", path.Replace("\\", "\\\\"), oldPath.Replace("\\", "\\\\"), changeType));
             return this;
         }
 

@@ -1155,25 +1155,33 @@
   });
 
 }).call(this);
-Pack.TransformRepository = function () {
+Pack.Container = function() {
+    this.files = new FileList();
+    this.output = '';
+};Pack.TransformRepository = function () {
     var self = this;
 
-    this.events = ['files', 'content', 'output', 'finalise'];
-    this.defaultTransforms = { load: true, combine: true, template: true };
+    this.events = ['includeFiles', 'excludeFiles', 'content', 'output', 'finalise'];
+    this.defaultTransforms = { excludeDefaults: true, load: true, combine: true, template: true };
     
     this.add = function (name, event, func) {
-        self[name] = { event: event, func: func };
+        self[name] = { event: event, apply: func };
     };
 
-    this.applyTo = function(output) {
+    this.applyTo = function (output, options) {
+        return self.applyEventsTo(self.events, output, options);
+    };
+
+    this.applyEventsTo = function(events, output, options) {
+        var target = new Pack.Container();
         var transforms = _.extend({}, self.defaultTransforms, output.transforms);
-        _.each(self.events, function (event) {
-            _.each(transforms, function (value, name) {
+        _.each(events, function(event) {
+            _.each(transforms, function(value, name) {
                 if (self[name] && self[name].event === event)
-                    self[name].func(value, output);
+                    self[name].apply({ value: value, output: output, target: target, options: options || {} });
             });
         });
-        return output;
+        return target;
     };
 };function Pack() {
     this.outputs = [];
@@ -1186,9 +1194,35 @@ Pack.options = {
     configurationFileFilter: '*pack.config.js',
     packFileFilter: '*pack.js',
     templateFileExtension: '.template.*',
-    logLevel: 'debug'
+    logLevel: 'debug',
+    clean: true
 };
-function Path(path) {
+
+Pack.prototype.matchingOutputs = function (paths, refresh) {
+    var self = this;
+    var outputs = this.outputs;
+    return _.union.apply(_, Pack.utils.executeSingleOrArray(paths, matchSingle));
+
+    function matchSingle(item) {
+        return _.filter(outputs, function (output) {
+            return output.constructor === Pack.Output && output.matches(item, self.transforms, refresh);
+        });
+    }
+};
+
+Pack.prototype.removeConfigOutputs = function (path) {
+    var outputs = this.outputs;
+    _.each(outputs.slice(0), function(output) {
+        if (output.configPath === path)
+            outputs.splice(outputs.indexOf(output), 1);
+    });
+};
+
+Pack.prototype.configOutputs = function(path) {
+    return _.filter(this.outputs, function (output) {
+        return output.configPath === path;
+    });
+};function Path(path) {
     path = path ? normalise(path.toString()) : '';
     var filenameIndex = pathWithSlashes(path).lastIndexOf("/") + 1;
     var extensionIndex = path.lastIndexOf(".");
@@ -1389,19 +1423,21 @@ Pack.prototype.outputsFor = function(path) {
     this.configPath = configPath;
     this.basePath = Path(configPath).withoutFilename().toString();
     this.outputPath = Path(this.basePath + (transforms && transforms.to)).toString();
-
-    this.files = new FileList();
     this.transforms = transforms;
+};
 
-    this.build = function () {
-        return pack.transforms.applyTo(self);
-    };
+Pack.Output.prototype.matches = function (path, transformRepository, refresh) {
+    if(refresh || !this.currentPaths)
+        // this is a bit nasty, along with the finalise transform
+        this.currentPaths = transformRepository.applyEventsTo(['includeFiles', 'excludeFiles'], this, { log: false }).files.paths();
+    
+    return _.any(this.currentPaths, function(filePath) {
+        return Path(path).match(filePath);
+    });
+};
 
-    this.matches = function (path) {
-        return _.any(self.files.paths(), function(filePath) {
-            return Path(path).match(filePath);
-        });
-    };
+Pack.Output.prototype.build = function(transformRepository) {
+    return transformRepository.applyTo(this);
 };
 
 Pack.prototype.addOutput = function (transforms, configPath) {
@@ -1416,31 +1452,6 @@ Pack.prototype.addOutput = function (transforms, configPath) {
             self.outputs.push(output);
             return output;
     }
-};
-
-Pack.prototype.matchingOutputs = function (path) {
-    var outputs = this.outputs;
-    return _.union.apply(_, Pack.utils.executeSingleOrArray(path, matchSingle));
-
-    function matchSingle(item) {
-        return _.filter(outputs, function (output) {
-            return output.constructor === Pack.Output && output.matches(item);
-        });
-    }
-};
-
-Pack.prototype.cleanConfig = function (path) {
-    var outputs = this.outputs;
-    _.each(outputs.slice(0), function(output) {
-        if (output.configPath === path)
-            outputs.splice(outputs.indexOf(output), 1);
-    });
-};
-
-Pack.prototype.configOutputs = function(path) {
-    return _.filter(this.outputs, function (output) {
-        return output.configPath === path;
-    });
 };(function () {
     var options = Pack.options;
 
@@ -1489,38 +1500,75 @@ Pack.prototype.all = function () {
 };
 
 Pack.prototype.build = function (outputs) {
-    Pack.utils.invokeSingleOrArray(outputs, 'build');
+    var self = this;
+    
+    Pack.utils.executeSingleOrArray(outputs, buildOutput);
+    
     var outputPaths = _.isArray(outputs) ? _.pluck(outputs, 'outputPath') : outputs.outputPath;
     var matchingOutputs = this.matchingOutputs(outputPaths);
     if (matchingOutputs.length > 0)
         this.build(matchingOutputs);
+    
+    function buildOutput(output) {
+        return output.build(self.transforms);
+    }
 };
 
-Pack.prototype.fileChanged = function (path) {
-    if (Path(path).match(Pack.options.configurationFileFilter) || Path(path).match(Pack.options.packFileFilter)) {
-        this.cleanConfig(path);
-        this.loadConfig(path, Files.getFileContents([path])[path]);
-        this.build(this.configOutputs(path));
-    } else
-        this.build(this.matchingOutputs(path));
-};var pack = function (transforms) {
+Pack.prototype.fileChanged = function (path, oldPath, changeType) {
+    if (Path(path).match(Pack.options.configurationFileFilter) || Path(path).match(Pack.options.packFileFilter))
+        this.handleConfigChange(path, oldPath, changeType);
+    else
+        this.handleFileChange(path, oldPath, changeType);
+};
+
+Pack.prototype.handleFileChange = function (path, oldPath, changeType) {
+    var refresh = changeType === 'add';
+    var pathToTest = changeType === 'rename' ? oldPath : path;
+    this.build(this.matchingOutputs(pathToTest, refresh));
+};
+
+Pack.prototype.handleConfigChange = function (path, oldPath, changeType) {
+    this.removeConfigOutputs(oldPath);
+    this.loadConfig(path, Files.getFileContents([path])[path]);
+    this.build(this.configOutputs(path));
+};
+
+Pack.prototype.executeTransform = function (name, output) {
+    if(this.transforms[name])
+        return this.transforms[name].apply(output.transforms[name], output);
+};
+// define our static pack function
+var pack = function (transforms) {
     pack.addOutput(transforms, Context.configPath);
 };
 
+// extend the static function with an instance of Pack
 // this seems to be the only way of getting the config API I want - pack({ ... }); and pack.outputs etc.
 // the only way to have a function with extra properties is to extend a named function
 _.extend(pack, new Pack());
 (function () {
-    pack.transforms.add('load', 'content', function (value, output) {
-        output.files.exclude(pack.loadedConfigs).exclude(output.outputPath);
+    pack.transforms.add('combine', 'output', function (data) {
+        var target = data.target;
+        var output = data.output;
         
-        var fileContents = Files.getFileContents(output.files.paths());
-        output.files.setProperty('content', fileContents);
+        log();
+        target.output = _.pluck(target.files.list, 'content').join('');
+        
+        function log() {
+            if (data.options.log !== false) {
+                if (Pack.options.logLevel === 'debug')
+                    Log.debug('(' + filenames() + ') -> ' + (output.transforms && output.transforms.to));
+                if (target.files.list.length === 0)
+                    Log.warn('No files to include for ' + (output.transforms && output.transforms.to));
+            }
 
-        var fileCount = output.files && _.keys(output.files.list).length;
-        Log.debug(fileCount ? 
-            'Loaded content for ' + fileCount + ' files for ' + (output.transforms && output.transforms.to) :
-            'No content to load for ' + (output.transforms && output.transforms.to));
+        }
+        
+        function filenames() {
+            return _.map(target.files.paths(), function (path) {
+                return Path(path).filename();
+            }).join(', ');;
+        }
     });
 })();
 
@@ -1528,18 +1576,42 @@ _.extend(pack, new Pack());
     var utils = Pack.utils;
     var transforms = pack.transforms;
     
-    transforms.add('include', 'files', function (value, output) {
-        Log.debug('Including ' + value + ' in ' + (output.transforms && output.transforms.to));
-        output.files.include(loadFileList(value, output));
-    });
-    
-    transforms.add('exclude', 'files', function (value, output) {
-        Log.debug('Excluding ' + value + ' from ' + (output.transforms && output.transforms.to));
-        output.files.exclude(loadFileList(value, output));
+    transforms.add('prioritise', 'includeFiles', function (data) {
+        utils.executeSingleOrArray(data.value, data.target.files.prioritise);
     });
 
-    transforms.add('prioritise', 'files', function(value, output) {
-        utils.executeSingleOrArray(value, output.files.prioritise);
+    transforms.add('excludeDefaults', 'excludeFiles', function(data) {
+        data.target.files
+            .exclude(pack.loadedConfigs)
+            .exclude(data.output.outputPath);
+    });
+})();
+
+(function () {
+    pack.transforms.add('to', 'finalise', function (data) {
+        var path = Path(data.output.basePath + data.output.transforms.to);
+        Files.writeFile(path.toString(), data.target.output);
+        Log.info('Wrote file ' + path);
+
+        // this is a bit nasty
+        data.output.currentPaths = data.target.files && data.target.files.paths();
+    });
+})();
+
+(function () {
+    var utils = Pack.utils;
+    var transforms = pack.transforms;
+    
+    transforms.add('include', 'includeFiles', function (data) {
+        if(data.options.log !== false)
+            Log.debug('Including ' + data.value + ' in ' + (data.output.transforms && data.output.transforms.to));
+        data.target.files.include(loadFileList(data.value, data.output));
+    });
+    
+    transforms.add('exclude', 'excludeFiles', function (data) {
+        if (data.options.log !== false)
+            Log.debug('Excluding ' + data.value + ' from ' + (data.output.transforms && data.output.transforms.to));
+        data.target.files.exclude(loadFileList(data.value, data.output));
     });
 
     function loadFileList(values, output) {
@@ -1587,35 +1659,37 @@ _.extend(pack, new Pack());
 })();
 
 (function () {
-    pack.transforms.add('to', 'finalise', function (value, output) {
-        var path = Path(output.basePath + output.transforms.to);
-        Files.writeFile(path.toString(), output.output);
-        Log.info('Wrote file ' + path);
-        clean(output);
+    pack.transforms.add('load', 'content', function (data) {
+        var target = data.target;
+        var output = data.output;
+        var fileContents = Files.getFileContents(target.files.paths());
+        
+        target.files.setProperty('content', fileContents);
+
+        var fileCount = target.files && _.keys(target.files.list).length;
+        Log.debug(fileCount ? 
+            'Loaded content for ' + fileCount + ' files for ' + (output.transforms && output.transforms.to) :
+            'No content to load for ' + (output.transforms && output.transforms.to));
     });
-    
-    function clean(output) {
-        delete output.output;
-        _.each(output.files.list, function(file) {
-            delete file.content;
-        });
-    }
 })();
 
 (function () {
-    pack.transforms.add('minify', 'output', function (value, output) {
-        if (value) {
+    pack.transforms.add('minify', 'output', function (data) {
+        var output = data.output;
+        var target = data.target;
+        
+        if (data.value) {
             Log.debug('Minifying ' + output.transforms.to);
             switch (Path(output.transforms.to).extension().toString()) {
             case 'js':
-                minify(typeof MinifyJavascript !== 'undefined' ? MinifyJavascript : null, output);
+                minify(typeof MinifyJavascript !== 'undefined' ? MinifyJavascript : null, output, target);
                 break;
             case 'htm':
             case 'html':
-                minify(typeof MinifyMarkup !== 'undefined' ? MinifyMarkup : null, output);
+                minify(typeof MinifyMarkup !== 'undefined' ? MinifyMarkup : null, output, target);
                 break;
             case 'css':
-                minify(typeof MinifyStylesheet !== 'undefined' ? MinifyStylesheet : null, output);
+                minify(typeof MinifyStylesheet !== 'undefined' ? MinifyStylesheet : null, output, target);
                 break;
             default:
                 Log.warn('Minification requested but not supported for ' + output.transforms.to);
@@ -1623,36 +1697,21 @@ _.extend(pack, new Pack());
         }
     });
     
-    function minify(api, output) {
+    function minify(api, output, target) {
         if (api)
-            output.output = api.minify(output.output);
+            target.output = api.minify(target.output);
         else
             Log.warn("Minification was requested but no appropriate API was provided for " + output.transforms.to);
     }
 })();
 
 (function () {
-    pack.transforms.add('combine', 'output', function (value, output) {
-        log();
-        output.output = _.pluck(output.files.list, 'content').join('');
+    pack.transforms.add('template', 'content', function (data) {
+        var value = data.value;
+        var output = data.output;
+        var target = data.target;
         
-        function log() {
-            // expensive operation, only do if logging is in debug mode
-            if (Pack.options.logLevel === 'debug')
-                Log.debug('(' + filenames() + ') -> ' + (output.transforms && output.transforms.to));
-        }
-        
-        function filenames() {
-            return _.map(output.files.paths(), function (path) {
-                return Path(path).filename();
-            }).join(', ');;
-        }
-    });
-})();
-
-(function () {
-    pack.transforms.add('template', 'content', function (value, output) {
-        _.each(output.files.list, applyTemplate);
+        _.each(target.files.list, applyTemplate);
 
         function applyTemplate(file) {
             var template = pack.templates[templateName()];

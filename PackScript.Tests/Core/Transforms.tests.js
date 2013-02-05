@@ -14,8 +14,8 @@
         t.applyTo(new Pack.Output({ name: 'test' }, 'path/config'));
 
         ok(spy.calledOnce);
-        equal(spy.firstCall.args[0], 'test');
-        equal(spy.firstCall.args[1].basePath, 'path/');
+        equal(spy.firstCall.args[0].value, 'test');
+        equal(spy.firstCall.args[0].output.basePath, 'path/');
     });
 
     test("transform functions are executed in event order", function() {
@@ -26,8 +26,8 @@
         t.applyTo(new Pack.Output({ transform2: '2', transform1: '1' }));
 
         ok(spy.calledTwice);
-        equal(spy.firstCall.args[0], '1');
-        equal(spy.secondCall.args[0], '2');
+        equal(spy.firstCall.args[0].value, '1');
+        equal(spy.secondCall.args[0].value, '2');
     });
 
     test("transform functions are executed in order specified", function() {
@@ -38,8 +38,8 @@
         t.applyTo(new Pack.Output({ transform2: '2', transform1: '1' }));
 
         ok(spy.calledTwice);
-        equal(spy.firstCall.args[0], '2');
-        equal(spy.secondCall.args[0], '1');
+        equal(spy.firstCall.args[0].value, '2');
+        equal(spy.secondCall.args[0].value, '1');
     });
 
     test("defaultTransforms are executed before others in event", function () {
@@ -52,8 +52,8 @@
         t.applyTo(new Pack.Output({ transform1: '1', transform2: '2' }));
 
         ok(spy.calledThrice);
-        ok(spy.firstCall.calledWith('1'));
-        ok(spy.secondCall.calledWith('default'));
-        ok(spy.thirdCall.calledWith('2'));
+        equal(spy.firstCall.args[0].value, '1');
+        equal(spy.secondCall.args[0].value, 'default');
+        ok(spy.thirdCall.args[0].value, '2');
     });
 })();

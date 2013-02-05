@@ -1,1 +1,0 @@
-function name(n){var t=n}

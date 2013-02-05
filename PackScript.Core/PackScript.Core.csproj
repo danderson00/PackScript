@@ -46,10 +46,10 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="pack.config" />
-    <None Include="Transforms\content.js" />
+    <None Include="Transforms\load.js" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Transforms\files.js" />
+    <None Include="Transforms\include.js" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Transforms\finalise.js" />
@@ -61,7 +61,7 @@
     <None Include="Transforms\minify.js" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Transforms\output.js" />
+    <None Include="Transforms\combine.js" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Transforms\template.js" />
@@ -112,6 +112,8 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="build.pack.js" />
+    <Content Include="Container.js" />
+    <None Include="Transforms\files.js" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>

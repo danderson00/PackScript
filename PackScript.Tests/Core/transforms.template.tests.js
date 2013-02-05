@@ -4,16 +4,17 @@
     test("template renders underscore template", function () {
         var data = { files: new FileList({ path: 'filepath', content: 'filecontent' }) };
         pack.templates = { 'template': 'templatecontent' };
-        pack.transforms.template.func('template', data);
+        pack.transforms.template.apply(wrap('template', {}, data));
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, 'templatecontent');
     });
 
     test("template renders built-in data", function () {
-        var data = { files: new FileList({ path: '/test/files/file', content: 'content', filespec: '/files/*.*' }), basePath: '/test/' };
+        var output = { basePath: '/test/' };
+        var data = { files: new FileList({ path: '/test/files/file', content: 'content', filespec: '/files/*.*' }) };
         pack.templates = { 'template': '<%=path%>|<%=content%>|<%=configPath%>|<%=pathRelativeToConfig%>|<%=includePath%>|<%=pathRelativeToInclude%>' };
-        pack.transforms.template.func('template', data);
+        pack.transforms.template.apply(wrap('template', output, data));
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, '/test/files/file|content|/test/|files/file|/test/files/|file');
@@ -22,7 +23,7 @@
     test("template name can be specified with an object", function () {
         var data = { files: new FileList({ path: 'filepath', content: 'filecontent' }) };
         pack.templates = { 'template': 'templatecontent' };
-        pack.transforms.template.func({ name: 'template' }, data);
+        pack.transforms.template.apply(wrap({ name: 'template' }, {}, data));
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, 'templatecontent');
@@ -31,7 +32,7 @@
     test("data specified in include transform overrides data in template transform", function() {
         var data = { files: new FileList({ path: 'filepath', content: 'filecontent', template: { name: 'template', data: { additionalData: 'add1' } } }) };
         pack.templates = { 'template': '<%=additionalData%>' };
-        pack.transforms.template.func({ name: 'template', data: { additionalData: 'add2' } }, data);
+        pack.transforms.template.apply(wrap({ name: 'template', data: { additionalData: 'add2' } }, {}, data));
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, 'add1');
@@ -40,7 +41,7 @@
     test("Path objects can be used in templates", function () {
         var data = { files: new FileList({ path: 'path/file.txt', content: 'filecontent' }) };
         pack.templates = { 'template': '<%=path.withoutFilename()%>' };
-        pack.transforms.template.func('template', data);
+        pack.transforms.template.apply(wrap('template', {}, data));
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, 'path/');

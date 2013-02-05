@@ -1,6 +1,10 @@
 ﻿(function () {
-    pack.transforms.add('template', 'content', function (value, output) {
-        _.each(output.files.list, applyTemplate);
+    pack.transforms.add('template', 'content', function (data) {
+        var value = data.value;
+        var output = data.output;
+        var target = data.target;
+        
+        _.each(target.files.list, applyTemplate);
 
         function applyTemplate(file) {
             var template = pack.templates[templateName()];

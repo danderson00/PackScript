@@ -26,7 +26,7 @@ namespace PackScript.Tests.Integration
         [Test]
         public void FileChanged()
         {
-            context.FileChanged(@"..\..\Integration\Recursive\1.js");
+            context.FileChanged(@"..\..\Integration\Recursive\1.js", @"..\..\Integration\Recursive\1.js", "modify");
             api.writeFileCalls.Count.Should().Be(5);
         }
     }

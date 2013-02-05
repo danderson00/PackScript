@@ -25,9 +25,9 @@ namespace PackScript.Api.Files
                 return Directory.GetFiles(Path.GetDirectoryName(filespec), Path.GetFileName(filespec),
                                           recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
-                Log.warn(string.Format("Couldn't retrieve file list for {0} - {1}", filespec, ex.Message));
+                //Log.warn(string.Format("Couldn't retrieve file list for {0} - {1}", filespec, ex.Message));
                 return new string[] {};
             }
         }
@@ -44,7 +44,7 @@ namespace PackScript.Api.Files
 
         private string TryRead(string path)
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < RetryWaits.Count(); i++)
                 try
                 {
                     return File.ReadAllText(path);
@@ -59,7 +59,7 @@ namespace PackScript.Api.Files
 
         private void TryWrite(string path, string content)
         {
-            for (int i = 0; i < 3; i++)
+            for (int i = 0; i < RetryWaits.Count(); i++)
                 try
                 {
                     using (var writer = File.CreateText(path))
@@ -75,11 +75,11 @@ namespace PackScript.Api.Files
 
         private void LogException(string operation, Exception ex, string path, int i)
         {
-            var message = string.Format("Unable to {0} file on attempt #{1}: {2} ({3})", operation, i, path, ex.Message);
-            if (i < 2)
-                Log.warn(message);
-            else
+            if (i == RetryWaits.Count())
+            {
+                var message = string.Format("Unable to {0} file after {1} attempts: {2} ({3})", operation, i, path, ex.Message);
                 Log.error(message);
+            }
         }
     }
 }

@@ -82,6 +82,8 @@
     <Compile Include="Api\File\FileApiTests.cs" />
     <Compile Include="Integration\CombineTests.cs" />
     <Compile Include="Integration\ConfigLoadTests.cs" />
+    <Compile Include="Integration\ConfigChangeTests.cs" />
+    <Compile Include="Integration\FileChangeTests.cs" />
     <Compile Include="Integration\ExcludeConfigAndTargetTests.cs" />
     <Compile Include="Integration\MinifyTests.cs" />
     <Compile Include="Integration\RecursiveTests.cs" />
@@ -91,6 +93,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestInfrastructure\Call.cs" />
     <Compile Include="TestInfrastructure\ContextFactory.cs" />
+    <Compile Include="TestInfrastructure\StubFilesApi.cs" />
     <Compile Include="TestInfrastructure\TestFilesApi.cs" />
     <Compile Include="TestInfrastructure\TestApi.cs" />
   </ItemGroup>
@@ -119,6 +122,7 @@
     <Content Include="Core\commands.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Core\Resources\helpers.js" />
     <Content Include="Core\utils.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -143,6 +147,11 @@
     <Content Include="Integration\Minify\pack.js" />
     <Content Include="Integration\Minify\root.js" />
     <Content Include="Integration\Recursive\2.js" />
+    <Content Include="index.html">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Integration\FileChange\input.js" />
+    <Content Include="Integration\FileChange\pack.js" />
     <None Include="Integration\Recursive\output" />
     <Content Include="Integration\Recursive\pack.js" />
     <Content Include="Integration\Recursive\1.js" />
@@ -174,9 +183,6 @@
     </Content>
     <Content Include="Core\Resources\apis.js" />
     <Content Include="Core\Resources\sinon.js" />
-    <Content Include="Core\Resources\runner.htm">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Core\resources.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
