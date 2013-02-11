@@ -56,6 +56,8 @@
     <Reference Include="System" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AssemblyLoaderExtensions.cs" />
+    <Compile Include="Builder.cs" />
     <Compile Include="ChangeTypeMap.cs" />
     <Compile Include="ConsoleLogger.cs" />
     <Compile Include="Program.cs" />
@@ -80,9 +82,22 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="bin\Debug\AjaxMin.dll" />
+    <EmbeddedResource Include="bin\Debug\Newtonsoft.Json.dll" />
+    <EmbeddedResource Include="bin\Debug\Noesis.Javascript.Console.exe" />
+    <EmbeddedResource Include="bin\Debug\Noesis.Javascript.Dynamic.dll" />
+    <EmbeddedResource Include="bin\Debug\PackScript.Api.AjaxMin.dll" />
+    <EmbeddedResource Include="bin\Debug\PackScript.Api.dll" />
+    <EmbeddedResource Include="bin\Debug\PackScript.Core.dll" />
     <Content Include="PackScript.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>copy "$(SolutionDir)Dependencies\ms*.dll" "$(SolutionDir)Build"
+copy "$(SolutionDir)Dependencies\Noesis.Javascript.dll" "$(SolutionDir)Build"
+copy "$(TargetPath)" "$(SolutionDir)Build"
+</PostBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

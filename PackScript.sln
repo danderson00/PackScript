@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackScript.Tests", "PackScr
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dependencies", "Dependencies", "{27854F4B-4ECE-407D-84A7-C4436CF17473}"
 	ProjectSection(SolutionItems) = preProject
-		Dependencies\ILMerge.exe = Dependencies\ILMerge.exe
-		Dependencies\ILMerge.exe.config = Dependencies\ILMerge.exe.config
 		Dependencies\msvcp100.dll = Dependencies\msvcp100.dll
 		Dependencies\msvcr100.dll = Dependencies\msvcr100.dll
 		Dependencies\Noesis.Javascript.Console.exe = Dependencies\Noesis.Javascript.Console.exe
@@ -25,7 +23,6 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{DC53E539-91C0-4776-AD92-D4FDF1CA617A}"
 	ProjectSection(SolutionItems) = preProject
 		index.html = index.html
-		merge.bat = merge.bat
 		PackScript.ico = PackScript.ico
 		README.md = README.md
 	EndProjectSection

@@ -1,5 +1,7 @@
-﻿using System.Dynamic;
+﻿using System;
+using System.Dynamic;
 using System.IO;
+using System.Reflection;
 using System.Threading;
 using PackScript.Api.AjaxMin;
 using PackScript.Api.Files;
@@ -12,41 +14,14 @@ namespace PackScript.Console
     {
         static void Main(string[] args)
         {
-            dynamic options = ParseArguments(args);
-            var context = new PackContext(options.Directory)
-                .AddApi(new FilesApi(new ConsoleLogger()))
-                .AddApi(new AjaxMinJavascriptMinifier())
-                .AddApi(new AjaxMinStylesheetMinifier())
-                .AddApi(new ConsoleLogger())
-                .ScanForResources()
-                .BuildAll();
-
-            if (options.Watch)
+            AppDomain.CurrentDomain.AssemblyResolve += (sender, arg) =>
             {
-                WatchFolder(context, options.Directory);
-                SystemConsole.Attach(context.Context);
-            }
+                String resourceName = new AssemblyName(arg.Name).Name;
+                return Assembly.GetEntryAssembly().LoadEmbeddedAssembly(resourceName);
+            };
+
+            Builder.Build(ParseArguments(args));
             System.Environment.Exit(0);
-        }
-
-        private static void WatchFolder(PackContext context, string path)
-        {
-            System.Console.WriteLine("Watching {0}, enter JavaScript or a blank line to end.", path);
-
-            var watcher = new FileSystemWatcher(path);
-            watcher.IncludeSubdirectories = true;
-
-            new Thread(() =>
-            {
-                while (true)
-                {
-                    var change = watcher.WaitForChanged(WatcherChangeTypes.All);
-                    var changedFilePath = Path.Combine(path, change.Name);
-                    var oldFilePath = Path.Combine(path, change.OldName ?? change.Name);
-                    context.FileChanged(changedFilePath, oldFilePath, change.ChangeType.ToStringChangeType());
-                }
-            }).Start();
-
         }
 
         private static dynamic ParseArguments(string[] arguments)
