@@ -80,6 +80,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Api\File\FileApiTests.cs" />
+    <Compile Include="Api\File\PathExtensionsTests.cs" />
     <Compile Include="Integration\CombineTests.cs" />
     <Compile Include="Integration\ConfigLoadTests.cs" />
     <Compile Include="Integration\ConfigChangeTests.cs" />

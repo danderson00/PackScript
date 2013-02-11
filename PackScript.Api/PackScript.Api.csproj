@@ -45,6 +45,7 @@
   <ItemGroup>
     <Compile Include="Files\FilesApi.cs" />
     <Compile Include="Files\IFilesApi.cs" />
+    <Compile Include="Files\PathExtensions.cs" />
     <Compile Include="Interfaces\IContainJavascript.cs" />
     <Compile Include="Interfaces\IApi.cs" />
     <Compile Include="Log\DebugLogApi.cs" />

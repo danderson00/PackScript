@@ -45,7 +45,6 @@
     <EmbeddedResource Include="Libraries\underscore.js" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="pack.config" />
     <None Include="Transforms\load.js" />
   </ItemGroup>
   <ItemGroup>
@@ -117,7 +116,7 @@
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PreBuildEvent>rem if exist "$(SolutionDir)PackScript.Console\bin\Debug\PackScript.exe" "$(SolutionDir)PackScript.Console\bin\Debug\PackScript.exe" "$(ProjectDir)"</PreBuildEvent>
+    <PreBuildEvent>if exist "$(SolutionDir)Build\Stable\PackScript.exe" "$(SolutionDir)Build\Stable\PackScript.exe" "$(ProjectDir)"</PreBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

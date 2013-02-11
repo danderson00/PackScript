@@ -22,8 +22,9 @@ namespace PackScript.Api.Files
         {
             try
             {
-                return Directory.GetFiles(Path.GetDirectoryName(filespec), Path.GetFileName(filespec),
-                                          recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
+                var options = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
+                return Directory.GetFiles(Path.GetDirectoryName(filespec), Path.GetFileName(filespec), options)
+                                .Where(x => x.Matches(filespec)).ToArray();
             }
             catch (Exception)
             {

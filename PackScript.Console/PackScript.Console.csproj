@@ -82,20 +82,33 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="bin\Debug\AjaxMin.dll" />
-    <EmbeddedResource Include="bin\Debug\Newtonsoft.Json.dll" />
-    <EmbeddedResource Include="bin\Debug\Noesis.Javascript.Console.exe" />
-    <EmbeddedResource Include="bin\Debug\Noesis.Javascript.Dynamic.dll" />
-    <EmbeddedResource Include="bin\Debug\PackScript.Api.AjaxMin.dll" />
-    <EmbeddedResource Include="bin\Debug\PackScript.Api.dll" />
-    <EmbeddedResource Include="bin\Debug\PackScript.Core.dll" />
+    <EmbeddedResource Include="..\Dependencies\Noesis.Javascript.Console.exe">
+      <Link>Static References\Noesis.Javascript.Console.exe</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\Dependencies\Noesis.Javascript.Dynamic.dll">
+      <Link>Static References\Noesis.Javascript.Dynamic.dll</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\packages\Newtonsoft.Json.4.5.11\lib\net40\Newtonsoft.Json.dll">
+      <Link>Static References\Newtonsoft.Json.dll</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\PackScript.Api.AjaxMin\bin\Debug\AjaxMin.dll">
+      <Link>Static References\AjaxMin.dll</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\PackScript.Api.AjaxMin\bin\Debug\PackScript.Api.AjaxMin.dll">
+      <Link>Static References\PackScript.Api.AjaxMin.dll</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\PackScript.Api\bin\Debug\PackScript.Api.dll">
+      <Link>Static References\PackScript.Api.dll</Link>
+    </EmbeddedResource>
+    <EmbeddedResource Include="..\PackScript.Core\bin\Debug\PackScript.Core.dll">
+      <Link>Static References\PackScript.Core.dll</Link>
+    </EmbeddedResource>
     <Content Include="PackScript.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
-    <PostBuildEvent>copy "$(SolutionDir)Dependencies\ms*.dll" "$(SolutionDir)Build"
-copy "$(SolutionDir)Dependencies\Noesis.Javascript.dll" "$(SolutionDir)Build"
-copy "$(TargetPath)" "$(SolutionDir)Build"
+    <PostBuildEvent>copy "$(SolutionDir)Dependencies\Noesis.Javascript.dll" "$(SolutionDir)Build\Current"
+copy "$(TargetPath)" "$(SolutionDir)Build\Current"
 </PostBuildEvent>
   </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

@@ -1158,31 +1158,6 @@
 Pack.Container = function() {
     this.files = new FileList();
     this.output = '';
-};Pack.TransformRepository = function () {
-    var self = this;
-
-    this.events = ['includeFiles', 'excludeFiles', 'content', 'output', 'finalise'];
-    this.defaultTransforms = { excludeDefaults: true, load: true, combine: true, template: true };
-    
-    this.add = function (name, event, func) {
-        self[name] = { event: event, apply: func };
-    };
-
-    this.applyTo = function (output, options) {
-        return self.applyEventsTo(self.events, output, options);
-    };
-
-    this.applyEventsTo = function(events, output, options) {
-        var target = new Pack.Container();
-        var transforms = _.extend({}, self.defaultTransforms, output.transforms);
-        _.each(events, function(event) {
-            _.each(transforms, function(value, name) {
-                if (self[name] && self[name].event === event)
-                    self[name].apply({ value: value, output: output, target: target, options: options || {} });
-            });
-        });
-        return target;
-    };
 };function Pack() {
     this.outputs = [];
     this.templates = {};
@@ -1222,6 +1197,31 @@ Pack.prototype.configOutputs = function(path) {
     return _.filter(this.outputs, function (output) {
         return output.configPath === path;
     });
+};Pack.TransformRepository = function () {
+    var self = this;
+
+    this.events = ['includeFiles', 'excludeFiles', 'content', 'output', 'finalise'];
+    this.defaultTransforms = { excludeDefaults: true, load: true, combine: true, template: true };
+    
+    this.add = function (name, event, func) {
+        self[name] = { event: event, apply: func };
+    };
+
+    this.applyTo = function (output, options) {
+        return self.applyEventsTo(self.events, output, options);
+    };
+
+    this.applyEventsTo = function(events, output, options) {
+        var target = new Pack.Container();
+        var transforms = _.extend({}, self.defaultTransforms, output.transforms);
+        _.each(events, function(event) {
+            _.each(transforms, function(value, name) {
+                if (self[name] && self[name].event === event)
+                    self[name].apply({ value: value, output: output, target: target, options: options || {} });
+            });
+        });
+        return target;
+    };
 };function Path(path) {
     path = path ? normalise(path.toString()) : '';
     var filenameIndex = pathWithSlashes(path).lastIndexOf("/") + 1;
@@ -1482,7 +1482,7 @@ Pack.prototype.addOutput = function (transforms, configPath) {
     };
 
     Pack.prototype.scanForTemplates = function (path) {
-        Log.info("Loading template from " + path);
+        Log.info("Loading templates from " + path);
         var files = Files.getFilenames(path + '*' + options.templateFileExtension, true);
         var loadedTemplates = Files.getFileContents(files);
         for (var templatePath in loadedTemplates)

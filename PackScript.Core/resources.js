@@ -28,7 +28,7 @@
     };
 
     Pack.prototype.scanForTemplates = function (path) {
-        Log.info("Loading template from " + path);
+        Log.info("Loading templates from " + path);
         var files = Files.getFilenames(path + '*' + options.templateFileExtension, true);
         var loadedTemplates = Files.getFileContents(files);
         for (var templatePath in loadedTemplates)

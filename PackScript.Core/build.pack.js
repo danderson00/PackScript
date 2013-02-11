@@ -2,6 +2,7 @@
     to: 'Build/output.js',
     include: [
         'Libraries/*.js',
+        'Container.js',
         'Pack.js',
         'TransformRepository.js',
         'Path.js',
