@@ -12,6 +12,6 @@
         'resources.js',
         'commands.js',
         'setup.js',
-        'Transforms/*.js'
+        { files: 'Transforms/*.js', prioritise: ['combine.js', 'sass.js'] }
     ]
 });

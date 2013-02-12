@@ -26,7 +26,7 @@ namespace PackScript.Core.Infrastructure
 
         public T RegisterJavascript(Assembly assembly)
         {
-            assembly.LoadEmbeddedResources().ToList().ForEach(x => RegisterJavascript(x));
+            assembly.LoadJavascript().ToList().ForEach(x => RegisterJavascript(x));
             return (T)this;
         }
     }

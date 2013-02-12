@@ -32,31 +32,6 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Debugging", "Samples\Debugging\Debugging.csproj", "{95510985-E1BD-4E07-9CA9-AF36B9128B26}"
 EndProject
 Global
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 7
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = http://tfs:8080/yoursportsstats
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = PackScript.Console\\PackScript.Console.csproj
-		SccProjectName1 = PackScript.Console
-		SccLocalPath1 = PackScript.Console
-		SccProjectUniqueName2 = PackScript.Tests\\PackScript.Tests.csproj
-		SccProjectName2 = PackScript.Tests
-		SccLocalPath2 = PackScript.Tests
-		SccProjectUniqueName3 = PackScript.Api\\PackScript.Api.csproj
-		SccProjectName3 = PackScript.Api
-		SccLocalPath3 = PackScript.Api
-		SccProjectUniqueName4 = PackScript.Core\\PackScript.Core.csproj
-		SccProjectName4 = PackScript.Core
-		SccLocalPath4 = PackScript.Core
-		SccProjectUniqueName5 = PackScript.Api.AjaxMin\\PackScript.Api.AjaxMin.csproj
-		SccProjectName5 = PackScript.Api.AjaxMin
-		SccLocalPath5 = PackScript.Api.AjaxMin
-		SccProjectUniqueName6 = Samples\\Debugging\\Debugging.csproj
-		SccProjectTopLevelParentUniqueName6 = PackScript.sln
-		SccProjectName6 = Samples/Debugging
-		SccLocalPath6 = Samples\\Debugging
-	EndGlobalSection
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU

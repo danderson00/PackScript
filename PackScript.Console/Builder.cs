@@ -1,13 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
-using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using Noesis.Javascript.Console;
 using PackScript.Api.AjaxMin;
 using PackScript.Api.Files;
+using PackScript.Api.Interfaces;
+using PackScript.Api.Sass;
 using PackScript.Core.Infrastructure;
 
 namespace PackScript.Console
@@ -16,11 +15,18 @@ namespace PackScript.Console
     {
         public static void Build(dynamic options)
         {
+            var log = new ConsoleLogger();
             var context = new PackContext(options.Directory)
+                .RegisterJavascript(typeof(IApi).Assembly)
                 .AddApi(new FilesApi(new ConsoleLogger()))
                 .AddApi(new AjaxMinJavascriptMinifier())
                 .AddApi(new AjaxMinStylesheetMinifier())
-                .AddApi(new ConsoleLogger())
+                .AddApi(log);
+
+            if (HasProperty(options, "RubyPath"))
+                context.AddApi(new SassApi(options.RubyPath, log));
+
+            context
                 .ScanForResources()
                 .BuildAll();
 
@@ -50,5 +56,10 @@ namespace PackScript.Console
             }).Start();
         }
 
+        public static bool HasProperty(object source, string name)
+        {
+            var dictionary = source as IDictionary<string, object>;
+            return dictionary != null && dictionary.ContainsKey(name);
+        }
     }
 }

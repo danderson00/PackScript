@@ -20,36 +20,8 @@ namespace PackScript.Console
                 return Assembly.GetEntryAssembly().LoadEmbeddedAssembly(resourceName);
             };
 
-            Builder.Build(ParseArguments(args));
+            Builder.Build(OptionsProvider.Create(args));
             System.Environment.Exit(0);
-        }
-
-        private static dynamic ParseArguments(string[] arguments)
-        {
-            dynamic options = new ExpandoObject();
-
-            options.Watch = false;
-            options.Directory = Directory.GetCurrentDirectory();
-
-            foreach (string argument in arguments)
-            {
-                switch (argument.ToLower())
-                {
-                    case "/watch":
-                        options.Watch = true;
-                        break;
-                    default:
-                        options.Directory = StripQuotes(argument);
-                        break;
-                }
-            }
-
-            return options;
-        }
-
-        private static string StripQuotes(string source)
-        {
-            return source.Replace("\"", "");
         }
     }
 }

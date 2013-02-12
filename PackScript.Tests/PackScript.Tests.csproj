@@ -11,10 +11,14 @@
     <AssemblyName>PackScript.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <SccProjectName>SAK</SccProjectName>
-    <SccLocalPath>SAK</SccLocalPath>
-    <SccAuxPath>SAK</SccAuxPath>
-    <SccProvider>SAK</SccProvider>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -88,6 +92,7 @@
     <Compile Include="Integration\ExcludeConfigAndTargetTests.cs" />
     <Compile Include="Integration\MinifyTests.cs" />
     <Compile Include="Integration\RecursiveTests.cs" />
+    <Compile Include="Integration\SassTests.cs" />
     <Compile Include="Integration\TemplateTests.cs" />
     <Compile Include="Core\NQUnit\NUnitQUnit.cs" />
     <Compile Include="Core\NQUnit\QUnitTests.cs" />
@@ -156,6 +161,13 @@
     <None Include="Integration\Recursive\output" />
     <Content Include="Integration\Recursive\pack.js" />
     <Content Include="Integration\Recursive\1.js" />
+    <None Include="Integration\Sass\test.scss">
+      <Compile>False</Compile>
+      <Minify>True</Minify>
+      <CompileStyle>Nested</CompileStyle>
+      <DebugInfo>False</DebugInfo>
+    </None>
+    <Content Include="Integration\Sass\pack.js" />
     <Content Include="Integration\Template\pack.js" />
     <Content Include="Integration\Template\Subfolder\Subfolder2\subfolder2.js" />
     <Content Include="Integration\Template\Templates\template3.template.htm" />
