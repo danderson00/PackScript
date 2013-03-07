@@ -3,7 +3,7 @@
         var target = data.target;
         var output = data.output;
 
-        if (!Sass) {
+        if (typeof Sass === 'undefined') {
             Log.warn("SASS compilation requested but no API provided");
             return;
         }
