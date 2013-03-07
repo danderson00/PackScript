@@ -1,4 +1,4 @@
 ﻿pack({
-    to: 'output',
+    to: '../TestOutput/output',
     include: '*.js'
 })

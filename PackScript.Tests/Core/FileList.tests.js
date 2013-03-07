@@ -75,6 +75,12 @@
             .include(['Path/1.js', 'Path/2.js', 'Path/3.js'])
             .prioritise('2.js');
         equal(files.list[0].path, 'Path/2.js');
-
+    });
+    
+    test("when last parameter set, prioritise moves file with matching filename to the bottom of the list", function () {
+        var files = new FileList()
+            .include(['Path/1.js', 'Path/2.js', 'Path/3.js'])
+            .prioritise('2.js', true);
+        equal(files.list[2].path, 'Path/2.js');
     });
 })();

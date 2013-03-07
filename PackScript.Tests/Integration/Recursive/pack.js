@@ -4,6 +4,6 @@
 });
 
 pack({
-    to: 'final',
+    to: '../TestOutput/final',
     include: ['output', '2.js']
 });

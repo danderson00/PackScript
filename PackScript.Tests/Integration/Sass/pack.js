@@ -1,5 +1,5 @@
 ﻿pack({
-    to: 'compiled',
+    to: '../TestOutput/compiled',
     include: '*.scss',
     sass: true
 })

@@ -35,7 +35,7 @@
         equal(data.files.list[0].template, 'test2');
     });
 
-    test("prioritise mvoes single file to top of file list", function () {
+    test("prioritise moves single file to top of file list", function () {
         var output = new Pack.Output({}, 'path/');
         var data = new Pack.Container();
         Files.getFilenames = sinon.stub().returns(['file1', 'file2', 'file3']);
@@ -46,7 +46,7 @@
         equal(data.files.list[2].path, 'file3');
     });
 
-    test("prioritise mvoes array of files to top of file list", function () {
+    test("prioritise moves array of files to top of file list", function () {
         Files.getFilenames = sinon.stub().returns(['file1', 'file2', 'file3']);
         var output = new Pack.Output({}, 'path/');
         var data = new Pack.Container();
@@ -58,6 +58,33 @@
         equal(data.files.list[2].path, 'file1');
     });
     
+    test("first is an alias for prioritise", function () {
+        equal(pack.transforms.first.apply, pack.transforms.prioritise.apply);
+    });
+
+    test("last moves single file to bottom of file list", function () {
+        var output = new Pack.Output({}, 'path/');
+        var data = new Pack.Container();
+        Files.getFilenames = sinon.stub().returns(['file1', 'file2', 'file3']);
+        pack.transforms.include.apply(wrap({ last: 'file2' }, output, data));
+        equal(data.files.list.length, 3);
+        equal(data.files.list[0].path, 'file1');
+        equal(data.files.list[1].path, 'file3');
+        equal(data.files.list[2].path, 'file2');
+    });
+
+    test("last moves array of files to bottom of file list", function () {
+        Files.getFilenames = sinon.stub().returns(['file1', 'file2', 'file3']);
+        var output = new Pack.Output({}, 'path/');
+        var data = new Pack.Container();
+        pack.transforms.include.apply(wrap({ last: ['file1', 'file2'] }, output, data));
+
+        equal(data.files.list.length, 3);
+        equal(data.files.list[0].path, 'file3');
+        equal(data.files.list[1].path, 'file1');
+        equal(data.files.list[2].path, 'file2');
+    });
+
     test("excludeDefaults excludes config files", function () {
         var data = { files: new FileList('1', '3') };
         pack.loadedConfigs = ['3'];

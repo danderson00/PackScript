@@ -1,12 +1,12 @@
 ﻿pack({
-    to: 'builtinData',
+    to: '../TestOutput/builtinData',
     include: '*.txt',
     recursive: true,
     template: 'builtinData'
 });
 
 pack({
-    to: 'separateTemplates',
+    to: '../TestOutput/separateTemplates',
     include: [
         { files: 'root.txt' },
         { files: 'Subfolder/subfolder.txt', template: 'template2' }
@@ -15,6 +15,6 @@ pack({
 });
 
 pack({
-    to: 'pathRelativeToInclude',
+    to: '../TestOutput/pathRelativeToInclude',
     include: { files: 'Subfolder/*.*', recursive: true, template: 'template3' }
 })

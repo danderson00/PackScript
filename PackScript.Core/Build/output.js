@@ -1318,7 +1318,10 @@ Pack.utils.logError = function (error) {
 
 Pack.utils.executeSingleOrArray = function (value, func, reverse) {
     if (_.isArray(value))
-        return _.map(reverse ? value.reverse() : value, func);
+        return _.map(reverse ? value.reverse() : value, function(individualValue) {
+            // we can't shortcut this or may introduce unintended arguments from the _.map function
+            return func(individualValue);
+        });
     else
         return func(value);
 };
@@ -1388,18 +1391,25 @@ Pack.prototype.outputsFor = function(path) {
         });
     };
 
-    this.prioritise = function (filename) {
+    this.prioritise = function (filename, last) {
         // ouch... there has to be a better way to do this!
-        var indexes = _.chain(self.list).map(function(file, index) {
-            return Path(file.path).filename().toString() === filename && index;
-        }).compact().value();
+        var indexes = _.chain(self.list)
+            .map(function (file, index) {
+                return Path(file.path).filename().toString() === filename ? index : false;
+            })
+            .filter(function(index) {
+                return index !== false;
+            })
+            .value();
         var items = _.map(indexes, function(index) {
             return self.list[index];
         });
         _.each(indexes, function(index) {
             self.list.splice(index, 1);
         });
-        self.list = items.concat(self.list);
+        self.list = last ?
+            self.list.concat(items) :
+            items.concat(self.list);
         return self;
     };
     
@@ -1593,11 +1603,21 @@ _.extend(pack, new Pack());
     var utils = Pack.utils;
     var transforms = pack.transforms;
     
-    transforms.add('prioritise', 'includeFiles', function (data) {
+    transforms.add('prioritise', 'includeFiles', first);
+    transforms.add('first', 'includeFiles', first);
+    transforms.add('last', 'includeFiles', last);
+    
+    function first(data) {
         utils.executeSingleOrArray(data.value, data.target.files.prioritise);
-    });
+    }
+    
+    function last(data) {
+        utils.executeSingleOrArray(data.value, function (value) {
+            data.target.files.prioritise(value, true);
+        });
+    }
 
-    transforms.add('excludeDefaults', 'excludeFiles', function(data) {
+    transforms.add('excludeDefaults', 'excludeFiles', function (data) {
         data.target.files
             .exclude(pack.loadedConfigs)
             .exclude(data.output.outputPath);
@@ -1666,6 +1686,14 @@ _.extend(pack, new Pack());
             function prioritise() {
                 if (value.prioritise)
                     utils.executeSingleOrArray(value.prioritise, files.prioritise, true);
+                
+                if (value.first)
+                    utils.executeSingleOrArray(value.first, files.prioritise, true);
+
+                if (value.last)
+                    utils.executeSingleOrArray(value.last, function(individualFile) {
+                        files.prioritise(individualFile, true);
+                    });
             }
 
             function recurse() {

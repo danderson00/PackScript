@@ -1,17 +1,17 @@
 ﻿pack({
-    to: 'javascript.js',
+    to: '../TestOutput/javascript.js',
     include: '*.js',
     minify: true
 });
 
 pack({
-    to: 'markup.htm',
+    to: '../TestOutput/markup.htm',
     include: '*.htm',
     minify: true
 });
 
 pack({
-    to: 'stylesheet.css',
+    to: '../TestOutput/stylesheet.css',
     include: '*.css',
     minify: true
 });

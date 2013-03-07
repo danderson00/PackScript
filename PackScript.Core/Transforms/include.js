@@ -49,6 +49,14 @@
             function prioritise() {
                 if (value.prioritise)
                     utils.executeSingleOrArray(value.prioritise, files.prioritise, true);
+                
+                if (value.first)
+                    utils.executeSingleOrArray(value.first, files.prioritise, true);
+
+                if (value.last)
+                    utils.executeSingleOrArray(value.last, function(individualFile) {
+                        files.prioritise(individualFile, true);
+                    });
             }
 
             function recurse() {

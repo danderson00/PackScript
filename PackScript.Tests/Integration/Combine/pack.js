@@ -1,16 +1,16 @@
 ﻿pack({
-    to: 'nonrecursive',
+    to: '../TestOutput/nonrecursive',
     include: '*.*'
 });
 
 pack({
-    to: 'recursive',
+    to: '../TestOutput/recursive',
     include: '*.*',
     recursive: true
 });
 
 pack({
-    to: 'individualIncludes',
+    to: '../TestOutput/individualIncludes',
     include: [
         { files: '*.js', recursive: true },
         { files: '*.txt', recursive: false }
@@ -18,23 +18,32 @@ pack({
 });
 
 pack({
-    to: 'excludes',
+    to: '../TestOutput/excludes',
     include: '*.*',
     exclude: '*.txt',
     recursive: true
 });
 
 pack({
-    to: 'simplePrioritise',
+    to: '../TestOutput/simplePrioritise',
     include: '*.*',
     prioritise: 'root.txt'
 });
 
 pack({
-    to: 'prioritise',
+    to: '../TestOutput/prioritise',
     include: {
         files: '*.*',
         prioritise: ['root.txt', 'subfolder.txt'],
         recursive: true
     }
-})
+});
+
+pack({
+    to: '../TestOutput/last',
+    include: {
+        files: '*.*',
+        last: ['root.txt', 'subfolder.txt'],
+        recursive: true
+    }
+});

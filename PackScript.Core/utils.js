@@ -10,7 +10,10 @@ Pack.utils.logError = function (error) {
 
 Pack.utils.executeSingleOrArray = function (value, func, reverse) {
     if (_.isArray(value))
-        return _.map(reverse ? value.reverse() : value, func);
+        return _.map(reverse ? value.reverse() : value, function(individualValue) {
+            // we can't shortcut this or may introduce unintended arguments from the _.map function
+            return func(individualValue);
+        });
     else
         return func(value);
 };

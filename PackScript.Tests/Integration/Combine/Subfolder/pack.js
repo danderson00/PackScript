@@ -1,4 +1,4 @@
 ﻿pack({
-    to: '../Output/subfolder',
+    to: '../../TestOutput/subfolder',
     include: '*.*'
 });

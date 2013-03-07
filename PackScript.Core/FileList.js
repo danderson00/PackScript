@@ -53,18 +53,25 @@
         });
     };
 
-    this.prioritise = function (filename) {
+    this.prioritise = function (filename, last) {
         // ouch... there has to be a better way to do this!
-        var indexes = _.chain(self.list).map(function(file, index) {
-            return Path(file.path).filename().toString() === filename && index;
-        }).compact().value();
+        var indexes = _.chain(self.list)
+            .map(function (file, index) {
+                return Path(file.path).filename().toString() === filename ? index : false;
+            })
+            .filter(function(index) {
+                return index !== false;
+            })
+            .value();
         var items = _.map(indexes, function(index) {
             return self.list[index];
         });
         _.each(indexes, function(index) {
             self.list.splice(index, 1);
         });
-        self.list = items.concat(self.list);
+        self.list = last ?
+            self.list.concat(items) :
+            items.concat(self.list);
         return self;
     };
     

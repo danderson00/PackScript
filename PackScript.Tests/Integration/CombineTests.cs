@@ -60,5 +60,10 @@ namespace PackScript.Tests.Integration
             api.Output("prioritise").Should().Be("root.txtsubfolder.txtroot.jssubfolder.js");
         }
 
+        [Test]
+        public void Last()
+        {
+            api.Output("last").Should().Be("root.jssubfolder.jsroot.txtsubfolder.txt");
+        }
     }
 }
