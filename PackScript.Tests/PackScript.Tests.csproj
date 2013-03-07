@@ -204,7 +204,7 @@
     <Content Include="Integration\Template\Templates\builtinData.template.htm" />
   </ItemGroup>
   <ItemGroup>
-    <Folder Include="Integration\Output\" />
+    <Folder Include="Integration\TestOutput\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
