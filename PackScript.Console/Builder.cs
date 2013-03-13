@@ -16,7 +16,7 @@ namespace PackScript.Console
         public static void Build(dynamic options)
         {
             var log = new ConsoleLogger();
-            var context = new PackContext(options.Directory)
+            var context = new PackContext(options.Directory, log)
                 .RegisterJavascript(typeof(IApi).Assembly)
                 .AddApi(new FilesApi(new ConsoleLogger()))
                 .AddApi(new AjaxMinJavascriptMinifier())

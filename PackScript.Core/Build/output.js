@@ -1309,11 +1309,17 @@ Pack.prototype.configOutputs = function(path) {
 };Pack.utils = {};
 
 Pack.utils.eval = function (source) {
-    (function () { eval.apply(this, arguments); }('(function(){' + source + '})();'));
+    try {
+        (function () { eval.apply(this, arguments); }('(function(){' + source + '})();'));
+    } catch (exception) {
+        Pack.utils.logError(exception);
+    }
 };
 
-Pack.utils.logError = function (error) {
-    Log.error(error instanceof Error ? error.name + ': ' + error.message : error);
+Pack.utils.logError = function (error, message) {
+    var customMessage = message ? message + '\n' : '';
+    var errorMessage = error instanceof Error ? error.name + ': ' + error.message : error;
+    Log.error(customMessage + errorMessage);
 };
 
 Pack.utils.executeSingleOrArray = function (value, func, reverse) {
@@ -1483,11 +1489,7 @@ Pack.prototype.addOutput = function (transforms, configPath) {
     Pack.prototype.loadConfig = function (path, source) {
         Log.info("Loading config from " + path);
         Context.configPath = path;
-        try {
-            Pack.utils.eval(source);
-        } catch (exception) {
-            Pack.utils.logError(exception);
-        }
+        Pack.utils.eval(source);
         delete Context.configPath;
     };
 
@@ -1771,7 +1773,12 @@ _.extend(pack, new Pack());
                     includePath: includePath(),
                     pathRelativeToInclude: Path(file.path.replace(path.matchFolder(includePath()), ''))
                 }, value.data, file.template && file.template.data);
-                file.content = _.template(template, templateData);
+
+                try {
+                    file.content = _.template(template, templateData);
+                } catch(ex) {
+                    Pack.utils.logError(ex, "An error occurred applying template " + templateName());
+                }
             }
             
             function templateName() {

@@ -19,11 +19,7 @@
     Pack.prototype.loadConfig = function (path, source) {
         Log.info("Loading config from " + path);
         Context.configPath = path;
-        try {
-            Pack.utils.eval(source);
-        } catch (exception) {
-            Pack.utils.logError(exception);
-        }
+        Pack.utils.eval(source);
         delete Context.configPath;
     };
 

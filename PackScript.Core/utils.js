@@ -1,11 +1,17 @@
 ﻿Pack.utils = {};
 
 Pack.utils.eval = function (source) {
-    (function () { eval.apply(this, arguments); }('(function(){' + source + '})();'));
+    try {
+        (function () { eval.apply(this, arguments); }('(function(){' + source + '})();'));
+    } catch (exception) {
+        Pack.utils.logError(exception);
+    }
 };
 
-Pack.utils.logError = function (error) {
-    Log.error(error instanceof Error ? error.name + ': ' + error.message : error);
+Pack.utils.logError = function (error, message) {
+    var customMessage = message ? message + '\n' : '';
+    var errorMessage = error instanceof Error ? error.name + ': ' + error.message : error;
+    Log.error(customMessage + errorMessage);
 };
 
 Pack.utils.executeSingleOrArray = function (value, func, reverse) {

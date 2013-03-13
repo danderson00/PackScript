@@ -19,7 +19,12 @@
                     includePath: includePath(),
                     pathRelativeToInclude: Path(file.path.replace(path.matchFolder(includePath()), ''))
                 }, value.data, file.template && file.template.data);
-                file.content = _.template(template, templateData);
+
+                try {
+                    file.content = _.template(template, templateData);
+                } catch(ex) {
+                    Pack.utils.logError(ex, "An error occurred applying template " + templateName());
+                }
             }
             
             function templateName() {
