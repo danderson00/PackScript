@@ -1244,7 +1244,13 @@ Pack.prototype.configOutputs = function(path) {
             return pathWithSlashes(path).charAt(0) === '/' ||
                 path.substring(1, 3) == ':\\';
         },
-        match: function(spec) {
+        makeAbsolute: function () {
+            return Path('/' + path);
+        },
+        makeRelative: function () {
+            return Path((path[0] === '/' || path[0] === '\\') ? path.substring(1) : path);
+        },
+        match: function (spec) {
             var regex = new RegExp(baseMatchRegex(spec) + '$');
             var result = regex.exec('\\' + path);
             return result && result[0];

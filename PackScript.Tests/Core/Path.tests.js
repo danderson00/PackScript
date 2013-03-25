@@ -48,6 +48,21 @@
         ok(Path("C:\\test\\").isAbsolute());
         ok(!Path("test\\").isAbsolute());
     });
+    
+    test("makeAbsolute", function () {
+        equal(Path("/test").makeAbsolute().toString(), "/test");
+        equal(Path("test").makeAbsolute().toString(), "/test");
+        equal(Path("test.txt").makeAbsolute().toString(), "/test.txt");
+        equal(Path("test/test.txt").makeAbsolute().toString(), "/test/test.txt");
+    });
+
+    test("makeRelative", function () {
+        equal(Path("test").makeRelative().toString(), "test");
+        equal(Path("/test").makeRelative().toString(), "test");
+        equal(Path("/test.txt").makeRelative().toString(), "test.txt");
+        equal(Path("/test/test.txt").makeRelative().toString(), "test/test.txt");
+        equal(Path("\\test\\test.txt").makeRelative().toString(), "test\\test.txt");
+    });
 
     test("match", function () {
         equal(Path("test.js").match("test.js"), "test.js");
