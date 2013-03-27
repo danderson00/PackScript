@@ -48,6 +48,7 @@ namespace PackScript.Console
             {
                 while (true)
                 {
+                    // this is simple but not good enough - it misses changes that occur while a build is occurring
                     var change = watcher.WaitForChanged(WatcherChangeTypes.All);
                     var changedFilePath = Path.Combine(path, change.Name);
                     var oldFilePath = Path.Combine(path, change.OldName ?? change.Name);
