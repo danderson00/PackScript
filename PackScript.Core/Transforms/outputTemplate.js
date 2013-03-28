@@ -1,12 +1,12 @@
 ﻿(function () {
-    pack.transforms.add('outputTemplate', 'content', function (data) {
+    pack.transforms.add('outputTemplate', 'output', function (data) {
         var value = data.value;
         var target = data.target;
         var output = data.output;
         
         var template = pack.templates[templateName()];
         if (template) {
-            Log.debug('Applying template ' + templateName() + ' to ' + output.transforms.to);
+            Log.debug('Applying output template ' + templateName() + ' to ' + output.transforms.to);
                 
             var templateData = _.extend({
                 content: target.output,

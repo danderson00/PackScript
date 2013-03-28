@@ -1503,8 +1503,10 @@ Pack.prototype.addOutput = function (transforms, configPath) {
         Log.info("Loading templates from " + path);
         var files = Files.getFilenames(path + '*' + options.templateFileExtension, true);
         var loadedTemplates = Files.getFileContents(files);
-        for (var templatePath in loadedTemplates)
+        for (var templatePath in loadedTemplates) {
+            Log.debug("Loaded template " + templateName(templatePath));
             this.templates[templateName(templatePath)] = loadedTemplates[templatePath];
+        }
     };
 
     function templateName(path) {
@@ -1759,14 +1761,14 @@ _.extend(pack, new Pack());
 })();
 
 (function () {
-    pack.transforms.add('outputTemplate', 'content', function (data) {
+    pack.transforms.add('outputTemplate', 'output', function (data) {
         var value = data.value;
         var target = data.target;
         var output = data.output;
         
         var template = pack.templates[templateName()];
         if (template) {
-            Log.debug('Applying template ' + templateName() + ' to ' + output.transforms.to);
+            Log.debug('Applying output template ' + templateName() + ' to ' + output.transforms.to);
                 
             var templateData = _.extend({
                 content: target.output,

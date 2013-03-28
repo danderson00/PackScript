@@ -27,8 +27,10 @@
         Log.info("Loading templates from " + path);
         var files = Files.getFilenames(path + '*' + options.templateFileExtension, true);
         var loadedTemplates = Files.getFileContents(files);
-        for (var templatePath in loadedTemplates)
+        for (var templatePath in loadedTemplates) {
+            Log.debug("Loaded template " + templateName(templatePath));
             this.templates[templateName(templatePath)] = loadedTemplates[templatePath];
+        }
     };
 
     function templateName(path) {
