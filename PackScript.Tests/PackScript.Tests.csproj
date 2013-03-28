@@ -88,6 +88,7 @@
     <Compile Include="Integration\CombineTests.cs" />
     <Compile Include="Integration\ConfigLoadTests.cs" />
     <Compile Include="Integration\ConfigChangeTests.cs" />
+    <Compile Include="Integration\OutputTemplateTests.cs" />
     <Compile Include="Integration\FileChangeTests.cs" />
     <Compile Include="Integration\ExcludeConfigAndTargetTests.cs" />
     <Compile Include="Integration\MinifyTests.cs" />
@@ -128,6 +129,9 @@
     <Content Include="Core\commands.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Core\Transforms\transforms.outputTemplate.tests.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Core\Resources\helpers.js" />
     <Content Include="Core\utils.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -152,6 +156,9 @@
     <Content Include="Integration\Minify\root.css" />
     <Content Include="Integration\Minify\pack.js" />
     <Content Include="Integration\Minify\root.js" />
+    <Content Include="Integration\OutputTemplate\code.js" />
+    <Content Include="Integration\OutputTemplate\license.template.js" />
+    <Content Include="Integration\OutputTemplate\pack.js" />
     <Content Include="Integration\Recursive\2.js" />
     <Content Include="index.html">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
@@ -175,20 +182,20 @@
     <Content Include="Integration\Template\Templates\template1.template.htm" />
     <Content Include="Integration\Template\root.txt" />
     <Content Include="Integration\Template\Subfolder\subfolder.txt" />
-    <Content Include="Core\transforms.minify.tests.js">
+    <Content Include="Core\Transforms\transforms.minify.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Core\transforms.template.tests.js">
+    <Content Include="Core\Transforms\transforms.template.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Core\transforms.other.tests.js">
+    <Content Include="Core\Transforms\transforms.other.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Core\transforms.files.tests.js">
+    <Content Include="Core\Transforms\transforms.files.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Core\Output.tests.js" />
-    <Content Include="Core\Transforms.tests.js">
+    <Content Include="Core\Transforms\Transforms.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Core\Path.tests.js">
