@@ -79,7 +79,7 @@ namespace PackScript.Tests.Integration
 
         private string FullPath(string file)
         {
-            return basePath + "\\" + file;
+            return Path.GetFullPath(basePath + "\\" + file);
         }
     }
 }

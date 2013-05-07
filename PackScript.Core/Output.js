@@ -1,6 +1,4 @@
 ﻿Pack.Output = function (transforms, configPath) {
-    var self = this;
-
     this.configPath = configPath;
     this.basePath = Path(configPath).withoutFilename().toString();
     this.outputPath = Path(this.basePath + (transforms && transforms.to)).toString();

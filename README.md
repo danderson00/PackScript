@@ -12,8 +12,6 @@ You can see the core unit tests at http://danderson00.github.com/PackScript/Pack
 
 Sass integration is currently external and requires [Ruby](http://rubyinstaller.org/downloads/) and [Sass](http://sass-lang.com/). Set the RubyPath AppSetting to the Ruby bin folder to enable integration. An internal implementation based on IronRuby will be provided soon.
 
-There are currently some issues with recursion that we are working on and will be fixed soon.
-
 Command Line Usage
 ==================
 

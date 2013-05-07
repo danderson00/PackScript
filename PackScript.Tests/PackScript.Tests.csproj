@@ -105,6 +105,7 @@
     <Compile Include="TestInfrastructure\TestApi.cs" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Integration\Recursive\Subfolder\output" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -166,6 +167,8 @@
     <Content Include="Integration\FileChange\input.js" />
     <Content Include="Integration\FileChange\pack.js" />
     <None Include="Integration\Recursive\output" />
+    <Content Include="Integration\Recursive\3.js" />
+    <Content Include="Integration\Recursive\4.js" />
     <Content Include="Integration\Recursive\pack.js" />
     <Content Include="Integration\Recursive\1.js" />
     <None Include="Integration\Sass\test.scss">
@@ -174,6 +177,7 @@
       <CompileStyle>Nested</CompileStyle>
       <DebugInfo>False</DebugInfo>
     </None>
+    <Content Include="Integration\Recursive\Subfolder\pack.js" />
     <Content Include="Integration\Sass\pack.js" />
     <Content Include="Integration\Template\pack.js" />
     <Content Include="Integration\Template\Subfolder\Subfolder2\subfolder2.js" />

@@ -1,4 +1,5 @@
-﻿using FluentAssertions;
+﻿using System.IO;
+using FluentAssertions;
 using NUnit.Framework;
 using PackScript.Core.Infrastructure;
 using PackScript.Tests.TestInfrastructure;
@@ -15,20 +16,20 @@ namespace PackScript.Tests.Integration
         public void Setup()
         {
             api = new TestFilesApi();
-            context = ContextFactory.Create(@"..\..\Integration\Template", api).ScanForResources().BuildAll();
+            context = ContextFactory.Create(Path.GetFullPath(@"..\..\Integration\Template"), api).ScanForResources().BuildAll();
         }
 
         [Test]
         public void Builtin_data()
         {
-            api.Output("builtinData").Should().Contain("..\\..\\Integration\\Template\\root.txt\r\n", "path");
+            api.Output("builtinData").Should().Contain("PackScript\\PackScript.Tests\\Integration\\Template\\root.txt\r\n", "path");
             api.Output("builtinData").Should().Contain("root\r\n", "content");
-            api.Output("builtinData").Should().Contain("..\\..\\Integration\\Template\\\r\n", "configPath");
+            api.Output("builtinData").Should().Contain("PackScript\\PackScript.Tests\\Integration\\Template\\\r\n", "configPath");
             api.Output("builtinData").Should().Contain("root.txt\r\n", "pathRelativeToConfig");
 
-            api.Output("builtinData").Should().Contain("..\\..\\Integration\\Template\\Subfolder\\subfolder.txt\r\n", "path");
+            api.Output("builtinData").Should().Contain("PackScript\\PackScript.Tests\\Integration\\Template\\Subfolder\\subfolder.txt\r\n", "path");
             api.Output("builtinData").Should().Contain("subfolder\r\n", "content");
-            api.Output("builtinData").Should().Contain("..\\..\\Integration\\Template\\\r\n", "configPath");
+            api.Output("builtinData").Should().Contain("PackScript\\PackScript.Tests\\Integration\\Template\\\r\n", "configPath");
             api.Output("builtinData").Should().Contain("Subfolder\\subfolder.txt\r\n", "pathRelativeToConfig");
         }
 
