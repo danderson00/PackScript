@@ -88,6 +88,7 @@
     <Compile Include="Integration\CombineTests.cs" />
     <Compile Include="Integration\ConfigLoadTests.cs" />
     <Compile Include="Integration\ConfigChangeTests.cs" />
+    <Compile Include="Integration\XdtTests.cs" />
     <Compile Include="Integration\OutputTemplateTests.cs" />
     <Compile Include="Integration\FileChangeTests.cs" />
     <Compile Include="Integration\ExcludeConfigAndTargetTests.cs" />
@@ -106,6 +107,8 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Integration\Recursive\Subfolder\output" />
+    <None Include="Integration\Xdt\web.config" />
+    <None Include="Integration\Xdt\web.transform.template.config" />
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
@@ -166,6 +169,7 @@
     </Content>
     <Content Include="Integration\FileChange\input.js" />
     <Content Include="Integration\FileChange\pack.js" />
+    <Content Include="Integration\Xdt\pack.js" />
     <None Include="Integration\Recursive\output" />
     <Content Include="Integration\Recursive\3.js" />
     <Content Include="Integration\Recursive\4.js" />

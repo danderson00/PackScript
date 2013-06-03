@@ -116,6 +116,7 @@
   <ItemGroup>
     <Content Include="build.pack.js" />
     <Content Include="Container.js" />
+    <EmbeddedResource Include="Transforms\xdt.js" />
     <None Include="Transforms\outputTemplate.js" />
     <EmbeddedResource Include="Transforms\sass.js" />
     <None Include="Transforms\files.js" />
