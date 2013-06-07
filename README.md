@@ -42,7 +42,8 @@ pack({
 	recursive: true/false,
 	prioritise: 'filename.ext' || [],
 	minify: true/false,
-	sass: true/false
+	sass: true/false,
+	xdt: ['transform.config']
 });
 </pre>
 
