@@ -1500,11 +1500,14 @@ Pack.prototype.addOutput = function (transforms, configPath) {
     Pack.prototype.scanForTemplates = function (path) {
         Log.info("Loading templates from " + path);
         var files = Files.getFilenames(path + '*' + options.templateFileExtension, true);
-        var loadedTemplates = Files.getFileContents(files);
-        for (var templatePath in loadedTemplates) {
-            Log.debug("Loaded template " + templateName(templatePath));
-            this.templates[templateName(templatePath)] = loadedTemplates[templatePath];
-        }
+        for (var index in files)
+            this.loadTemplate(files[index]);
+    };
+
+    Pack.prototype.loadTemplate = function(path) {
+        Log.debug("Loaded template " + templateName(path));
+        var loadedTemplates = Files.getFileContents([path]);
+        this.templates[templateName(path)] = loadedTemplates[path];
     };
 
     function templateName(path) {
@@ -1533,8 +1536,11 @@ Pack.prototype.build = function (outputs) {
 };
 
 Pack.prototype.fileChanged = function (path, oldPath, changeType) {
+    
     if (Path(path).match(Pack.options.configurationFileFilter) || Path(path).match(Pack.options.packFileFilter))
         this.handleConfigChange(path, oldPath, changeType);
+    else if (Path(path).match('*' + Pack.options.templateFileExtension))
+        this.handleTemplateChange(path, oldPath, changeType);
     else
         this.handleFileChange(path, oldPath, changeType);
 };
@@ -1547,8 +1553,15 @@ Pack.prototype.handleFileChange = function (path, oldPath, changeType) {
 
 Pack.prototype.handleConfigChange = function (path, oldPath, changeType) {
     this.removeConfigOutputs(oldPath);
-    this.loadConfig(path, Files.getFileContents([path])[path]);
-    this.build(this.configOutputs(path));
+    if (changeType !== 'delete') {
+        this.loadConfig(path, Files.getFileContents([path])[path]);
+        this.build(this.configOutputs(path));
+    }
+};
+
+Pack.prototype.handleTemplateChange = function(path, oldPath, changeType) {
+    if (changeType !== 'delete')
+        this.loadTemplate(path);
 };
 
 Pack.prototype.executeTransform = function (name, output) {

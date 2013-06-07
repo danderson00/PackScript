@@ -1,5 +1,6 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
+using PackScript.Api.Log;
 using PackScript.Api.Xdt;
 using PackScript.Core.Infrastructure;
 using PackScript.Tests.TestInfrastructure;
@@ -16,13 +17,13 @@ namespace PackScript.Tests.Integration
         public void Setup()
         {
             api = new TestFilesApi();
-            context = ContextFactory.Create(@"..\..\Integration\Xdt", api, new XdtApi()).ScanForResources().BuildAll();
+            context = ContextFactory.Create(@"..\..\Integration\Xdt", api, new XdtApi(new DebugLogApi())).ScanForResources().BuildAll();
         }
 
         [Test]
         public void Config_is_transformed()
         {
-            api.Output("xdt").Should().Be("<?xml version=\"1.0\" encoding=\"utf-8\"?><configuration><connectionStrings /></configuration>");
+            api.Output("xdt").Should().Be("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<configuration>\r\n  <connectionStrings />\r\n</configuration>");
         }
     }
 }

@@ -46,6 +46,10 @@
       <HintPath>..\packages\WatiN.2.0.50\lib\net40\Interop.SHDocVw.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
     </Reference>
+    <Reference Include="Microsoft.Web.XmlTransform, Version=1.2.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Web.Xdt.1.0.0-alpha\lib\net40\Microsoft.Web.XmlTransform.dll</HintPath>
+    </Reference>
     <Reference Include="Noesis.Javascript, Version=0.0.0.0, Culture=neutral, processorArchitecture=x86">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Dependencies\Noesis.Javascript\Noesis.Javascript.dll</HintPath>
@@ -85,6 +89,7 @@
   <ItemGroup>
     <Compile Include="Api\File\FileApiTests.cs" />
     <Compile Include="Api\File\PathExtensionsTests.cs" />
+    <Compile Include="Api\Xdt\MergeTests.cs" />
     <Compile Include="Integration\CombineTests.cs" />
     <Compile Include="Integration\ConfigLoadTests.cs" />
     <Compile Include="Integration\ConfigChangeTests.cs" />
@@ -156,6 +161,7 @@
     <Content Include="Integration\ExcludeConfigAndTarget\output.js" />
     <Content Include="Integration\ExcludeConfigAndTarget\pack.js" />
     <Content Include="Integration\ExcludeConfigAndTarget\root.js" />
+    <Content Include="Integration\FileChange\input.template.js" />
     <Content Include="Integration\Minify\root.htm" />
     <Content Include="Integration\Minify\root.css" />
     <Content Include="Integration\Minify\pack.js" />

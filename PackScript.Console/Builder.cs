@@ -7,6 +7,7 @@ using PackScript.Api.AjaxMin;
 using PackScript.Api.Files;
 using PackScript.Api.Interfaces;
 using PackScript.Api.Sass;
+using PackScript.Api.Xdt;
 using PackScript.Core.Infrastructure;
 
 namespace PackScript.Console
@@ -21,10 +22,14 @@ namespace PackScript.Console
                 .AddApi(new FilesApi(new ConsoleLogger()))
                 .AddApi(new AjaxMinJavascriptMinifier())
                 .AddApi(new AjaxMinStylesheetMinifier())
+                .AddApi(new XdtApi(new ConsoleLogger()))
                 .AddApi(log);
 
             if (HasProperty(options, "RubyPath"))
                 context.AddApi(new SassApi(options.RubyPath, log));
+
+            if (HasProperty(options, "ResourcePath"))
+                context.ScanForResources(options.ResourcePath);
 
             context
                 .ScanForResources()

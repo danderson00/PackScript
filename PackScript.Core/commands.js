@@ -18,8 +18,11 @@ Pack.prototype.build = function (outputs) {
 };
 
 Pack.prototype.fileChanged = function (path, oldPath, changeType) {
+    
     if (Path(path).match(Pack.options.configurationFileFilter) || Path(path).match(Pack.options.packFileFilter))
         this.handleConfigChange(path, oldPath, changeType);
+    else if (Path(path).match('*' + Pack.options.templateFileExtension))
+        this.handleTemplateChange(path, oldPath, changeType);
     else
         this.handleFileChange(path, oldPath, changeType);
 };
@@ -32,8 +35,15 @@ Pack.prototype.handleFileChange = function (path, oldPath, changeType) {
 
 Pack.prototype.handleConfigChange = function (path, oldPath, changeType) {
     this.removeConfigOutputs(oldPath);
-    this.loadConfig(path, Files.getFileContents([path])[path]);
-    this.build(this.configOutputs(path));
+    if (changeType !== 'delete') {
+        this.loadConfig(path, Files.getFileContents([path])[path]);
+        this.build(this.configOutputs(path));
+    }
+};
+
+Pack.prototype.handleTemplateChange = function(path, oldPath, changeType) {
+    if (changeType !== 'delete')
+        this.loadTemplate(path);
 };
 
 Pack.prototype.executeTransform = function (name, output) {

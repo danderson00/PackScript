@@ -1,4 +1,5 @@
 ﻿using System.IO;
+using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
 using PackScript.Core.Infrastructure;
@@ -46,6 +47,13 @@ namespace PackScript.Tests.Integration
         {
             context.FileChanged(FullPath("input.js"), FullPath("input.js"), "add");
             api.writeFileCalls.Count.Should().Be(2);
+        }
+
+        [Test]
+        public void Add_template_rereads_template()
+        {
+            context.FileChanged(FullPath("input.template.js"), FullPath("input.template.js"), "add");
+            api.getFileContentsCalls.Last().Arg.Should().Contain(FullPath("input.template.js"));
         }
 
         [Test]

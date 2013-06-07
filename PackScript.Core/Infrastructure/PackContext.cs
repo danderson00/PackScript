@@ -15,10 +15,13 @@ namespace PackScript.Core.Infrastructure
             AddApi(new ContextData { rootPath = path.EndsWith("\\") ? path : path + "\\" });
         }
 
-        public PackContext ScanForResources()
+        public PackContext ScanForResources(string path = null)
         {
+            path = string.IsNullOrEmpty(path)
+                       ? "Context.rootPath"
+                       : string.Format("\"{0}\"", path);
             try {
-                Execute("pack.scanForResources(Context.rootPath)");
+                Execute(string.Format("pack.scanForResources({0})", path));
             } catch (Exception ex) {
                 Logger.error(string.Format("An error occurred scanning for resources: {0}", ex.Message));
             }

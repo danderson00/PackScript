@@ -62,7 +62,9 @@
     <Compile Include="Minify\IMinifyStylesheet.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="Sass\SassApi.cs" />
+    <Compile Include="Xdt\Merge.cs" />
     <Compile Include="Xdt\XdtApi.cs" />
+    <Compile Include="Xdt\XmlExtensions.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />

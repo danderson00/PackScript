@@ -26,11 +26,14 @@
     Pack.prototype.scanForTemplates = function (path) {
         Log.info("Loading templates from " + path);
         var files = Files.getFilenames(path + '*' + options.templateFileExtension, true);
-        var loadedTemplates = Files.getFileContents(files);
-        for (var templatePath in loadedTemplates) {
-            Log.debug("Loaded template " + templateName(templatePath));
-            this.templates[templateName(templatePath)] = loadedTemplates[templatePath];
-        }
+        for (var index in files)
+            this.loadTemplate(files[index]);
+    };
+
+    Pack.prototype.loadTemplate = function(path) {
+        Log.debug("Loaded template " + templateName(path));
+        var loadedTemplates = Files.getFileContents([path]);
+        this.templates[templateName(path)] = loadedTemplates[path];
     };
 
     function templateName(path) {

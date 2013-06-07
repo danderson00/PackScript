@@ -109,6 +109,9 @@
     <EmbeddedResource Include="..\PackScript.Core\bin\Debug\PackScript.Core.dll">
       <Link>Static References\PackScript.Core.dll</Link>
     </EmbeddedResource>
+    <EmbeddedResource Include="..\packages\Microsoft.Web.Xdt.1.0.0-alpha\lib\net40\Microsoft.Web.XmlTransform.dll">
+      <Link>Static References\Microsoft.Web.XmlTransform.dll</Link>
+    </EmbeddedResource>
     <Content Include="PackScript.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
