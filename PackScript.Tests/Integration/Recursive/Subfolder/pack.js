@@ -4,6 +4,6 @@
 });
 
 pack({
-    to: '../TestOutput/subfolder',
+    to: '../../TestOutput/subfolder',
     include: ['output', '../4.js']
 });

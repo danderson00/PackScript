@@ -26,6 +26,14 @@
         ok(Files.getFilenames.calledWithExactly('path/*.txt', true));
     });
 
+    test("include values can be nested recursively", function() {
+        pack.transforms.include.apply(wrap(['*.js', ['*.htm', ['*.css']]], new Pack.Output({}, 'path/'), new Pack.Container()));
+        ok(Files.getFilenames.calledThrice);
+        ok(Files.getFilenames.calledWithExactly('path/*.js', false));
+        ok(Files.getFilenames.calledWithExactly('path/*.htm', false));
+        ok(Files.getFilenames.calledWithExactly('path/*.css', false));
+    });
+
     test("setting template include option overrides template transform value", function() {
         Files.getFilenames = sinon.stub().returns(['file']);
         var output = new Pack.Output({ template: 'test1' }, 'path/');

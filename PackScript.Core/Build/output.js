@@ -1672,11 +1672,17 @@ _.extend(pack, new Pack());
         data.target.files.exclude(loadFileList(data.value, data.output));
     });
 
-    function loadFileList(values, output) {
+    function loadFileList(allValues, output) {
         var allFiles = new FileList();
-        var loadedFiles = utils.executeSingleOrArray(values, loadIndividualFileList);
-        utils.executeSingleOrArray(loadedFiles, allFiles.include);
+        utils.executeSingleOrArray(allValues, recurseValues);
         return allFiles;
+
+        function recurseValues(value) {
+            if (_.isArray(value))
+                return utils.executeSingleOrArray(value, recurseValues);
+            else
+                allFiles.include(loadIndividualFileList(value));
+        }
 
         function loadIndividualFileList(value) {
             var files = new FileList();
@@ -1776,27 +1782,33 @@ _.extend(pack, new Pack());
         var value = data.value;
         var target = data.target;
         var output = data.output;
-        
-        var template = pack.templates[templateName()];
-        if (template) {
-            Log.debug('Applying output template ' + templateName() + ' to ' + output.transforms.to);
-                
-            var templateData = _.extend({
-                content: target.output,
-                configPath: Path(output.configPath),
-            }, value.data);
 
-            try {
-                target.output = _.template(template, templateData);
-            } catch(ex) {
-                Pack.utils.logError(ex, "An error occurred applying template " + templateName());
+        Pack.utils.executeSingleOrArray(value, function(templateSettings) {
+            normaliseTemplateSettings();
+
+            var template = pack.templates[templateSettings.name];
+            if (template) {
+                Log.debug('Applying output template ' + templateSettings.name + ' to ' + output.transforms.to);
+
+                var templateData = {
+                    content: target.output,
+                    configPath: Path(output.configPath),
+                    data: value.data || {}
+                };
+
+                try {
+                    target.output = _.template(template, templateData);
+                } catch(ex) {
+                    Pack.utils.logError(ex, "An error occurred applying template " + templateSettings.name);
+                }
             }
-        }
-            
-        function templateName() {
-            return value.name || value;
-        }
-    });    
+
+            function normaliseTemplateSettings() {
+                if (templateSettings.constructor === String)
+                    templateSettings = { name: templateSettings };
+            }
+        });
+    });
 })();
 
 (function () {
@@ -1805,43 +1817,46 @@ _.extend(pack, new Pack());
         var output = data.output;
         var target = data.target;
         
-        _.each(target.files.list, applyTemplate);
+        _.each(target.files.list, applyTemplates);
 
-        function applyTemplate(file) {
-            var template = pack.templates[templateName()];
-            var path = Path(file.path);
-            if (template) {
-                Log.debug('Applying template ' + templateName() + ' to ' + Path(file.path).filename());
-                var templateData = _.extend({
-                    content: file.content,
-                    path: path,
-                    configPath: Path(output.basePath),
-                    pathRelativeToConfig: Path(file.path.replace(path.matchFolder(output.basePath), '')),
-                    includePath: includePath(),
-                    pathRelativeToInclude: Path(file.path.replace(path.matchFolder(includePath()), ''))
-                }, value.data, file.template && file.template.data);
+        function applyTemplates(file) {
+            var templateConfiguration = file.template || value;
+            Pack.utils.executeSingleOrArray(templateConfiguration, function(templateSettings) {
+                normaliseTemplateSettings();
+                
+                var template = pack.templates[templateSettings.name];
+                var path = Path(file.path);
+                if (template) {
+                    Log.debug('Applying template ' + templateSettings.name + ' to ' + Path(file.path).filename());
+                    var templateData = {
+                        content: file.content,
+                        path: path,
+                        configPath: Path(output.basePath),
+                        pathRelativeToConfig: Path(file.path.replace(path.matchFolder(output.basePath), '').replace(/\\/g, '/')),
+                        includePath: includePath(),
+                        pathRelativeToInclude: Path(file.path.replace(path.matchFolder(includePath()), '').replace(/\\/g, '/')),
+                        data: templateSettings.data || {}
+                    };
 
-                try {
-                    file.content = _.template(template, templateData);
-                } catch(ex) {
-                    Pack.utils.logError(ex, "An error occurred applying template " + templateName());
+                    try {
+                        file.content = _.template(template, templateData);
+                    } catch(ex) {
+                        Pack.utils.logError(ex, "An error occurred applying template " + templateSettings.name);
+                    }
                 }
-            }
-            
-            function templateName() {
-                if (file.template)
-                    return file.template.name || file.template;
-                return value.name || value;
-            }
-            
-            function includePath() {
-                return Path(output.basePath + file.filespec).withoutFilename();
-            }
+
+                function includePath() {
+                    return Path(output.basePath + file.filespec).withoutFilename();
+                }
+
+                function normaliseTemplateSettings() {
+                    if (templateSettings.constructor === String)
+                        templateSettings = { name: templateSettings };
+                }
+            });
         }
     });    
-})();
-
-(function () {
+})();(function () {
     pack.transforms.add('xdt', 'output', function (data) {
         var target = data.target;
         var output = data.output;

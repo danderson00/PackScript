@@ -23,7 +23,7 @@ namespace PackScript.Tests.Integration
         [Test]
         public void Config_is_transformed()
         {
-            api.Output("xdt").Should().Be("<?xml version=\"1.0\" encoding=\"utf-16\"?>\r\n<configuration>\r\n  <connectionStrings />\r\n</configuration>");
+            api.Output("xdt").Should().Be("<?xml version=\"1.0\" encoding=\"utf-8\"?>\r\n<configuration>\r\n  <connectionStrings />\r\n</configuration>");
         }
     }
 }

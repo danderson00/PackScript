@@ -31,16 +31,21 @@ pack({
 	include: 'filespec' || {
 		files: 'filespec',
 		recursive: true/false,
-		template:'template name' || { name: 'template name', data: { value: 'passedToTemplate' } },
-		prioritise: 'filename.ext'
-	} || [],
+		template:'template name' || { name: 'template name', data: { value: 'passedToTemplate' } } || [],
+		prioritise: 'filename.ext' || [],
+		first: 'filename.ext' || [],
+		last: 'filename.ext' || []
+	} || [,[]],
 	exclude: 'filespec' || {
 		files: 'filespec',
 		recursive: true/false
-	} || [],
-	template: 'template name' || { name: 'template name', data: { value: 'passedToTemplate' } },
+	} || [,[]],
+	template: 'template name' || { name: 'template name', data: { value: 'passedToTemplate' } } || [],
+	outputTemplate: 'template name' || [],
 	recursive: true/false,
 	prioritise: 'filename.ext' || [],
+	first: 'filename.ext' || [],
+	last: 'filename.ext' || [],
 	minify: true/false,
 	sass: true/false,
 	xdt: ['transform.config']

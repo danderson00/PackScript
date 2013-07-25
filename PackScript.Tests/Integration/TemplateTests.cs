@@ -34,6 +34,12 @@ namespace PackScript.Tests.Integration
         }
 
         [Test]
+        public void Passed_data()
+        {
+            api.Output("passedData").Should().Be("test2");
+        }
+
+        [Test]
         public void Separate_templates_can_be_defined_each_input()
         {
             api.Output("separateTemplates").Should().Contain("root1");
@@ -44,7 +50,7 @@ namespace PackScript.Tests.Integration
         public void Path_relative_to_include()
         {
             api.Output("pathRelativeToInclude").Should().Contain("subfolder.txt\r\n");
-            api.Output("pathRelativeToInclude").Should().Contain("Subfolder2\\subfolder2.js\r\n");
+            api.Output("pathRelativeToInclude").Should().Contain("Subfolder2/subfolder2.js\r\n");
         }
     }
 }

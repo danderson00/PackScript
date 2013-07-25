@@ -6,6 +6,12 @@
 });
 
 pack({
+    to: '../TestOutput/passedData',
+    include: 'root.txt',
+    template: { name: 'passedData', data: { string: 'test', integer: 2 } }
+});
+
+pack({
     to: '../TestOutput/separateTemplates',
     include: [
         { files: 'root.txt' },

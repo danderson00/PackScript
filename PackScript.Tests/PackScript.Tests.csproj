@@ -175,6 +175,7 @@
     </Content>
     <Content Include="Integration\FileChange\input.js" />
     <Content Include="Integration\FileChange\pack.js" />
+    <Content Include="Integration\Template\Templates\passedData.template.htm" />
     <Content Include="Integration\Xdt\pack.js" />
     <None Include="Integration\Recursive\output" />
     <Content Include="Integration\Recursive\3.js" />

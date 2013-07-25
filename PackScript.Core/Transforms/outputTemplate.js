@@ -3,26 +3,32 @@
         var value = data.value;
         var target = data.target;
         var output = data.output;
-        
-        var template = pack.templates[templateName()];
-        if (template) {
-            Log.debug('Applying output template ' + templateName() + ' to ' + output.transforms.to);
-                
-            var templateData = _.extend({
-                content: target.output,
-                configPath: Path(output.configPath),
-            }, value.data);
 
-            try {
-                target.output = _.template(template, templateData);
-            } catch(ex) {
-                Pack.utils.logError(ex, "An error occurred applying template " + templateName());
+        Pack.utils.executeSingleOrArray(value, function(templateSettings) {
+            normaliseTemplateSettings();
+
+            var template = pack.templates[templateSettings.name];
+            if (template) {
+                Log.debug('Applying output template ' + templateSettings.name + ' to ' + output.transforms.to);
+
+                var templateData = {
+                    content: target.output,
+                    configPath: Path(output.configPath),
+                    data: value.data || {}
+                };
+
+                try {
+                    target.output = _.template(template, templateData);
+                } catch(ex) {
+                    Pack.utils.logError(ex, "An error occurred applying template " + templateSettings.name);
+                }
             }
-        }
-            
-        function templateName() {
-            return value.name || value;
-        }
-    });    
+
+            function normaliseTemplateSettings() {
+                if (templateSettings.constructor === String)
+                    templateSettings = { name: templateSettings };
+            }
+        });
+    });
 })();
 

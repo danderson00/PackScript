@@ -14,11 +14,17 @@
         data.target.files.exclude(loadFileList(data.value, data.output));
     });
 
-    function loadFileList(values, output) {
+    function loadFileList(allValues, output) {
         var allFiles = new FileList();
-        var loadedFiles = utils.executeSingleOrArray(values, loadIndividualFileList);
-        utils.executeSingleOrArray(loadedFiles, allFiles.include);
+        utils.executeSingleOrArray(allValues, recurseValues);
         return allFiles;
+
+        function recurseValues(value) {
+            if (_.isArray(value))
+                return utils.executeSingleOrArray(value, recurseValues);
+            else
+                allFiles.include(loadIndividualFileList(value));
+        }
 
         function loadIndividualFileList(value) {
             var files = new FileList();
