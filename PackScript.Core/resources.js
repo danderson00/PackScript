@@ -33,7 +33,11 @@
     Pack.prototype.loadTemplate = function(path) {
         Log.debug("Loaded template " + templateName(path));
         var loadedTemplates = Files.getFileContents([path]);
-        this.templates[templateName(path)] = loadedTemplates[path];
+        this.storeTemplate(path, loadedTemplates[path]);
+    };
+
+    Pack.prototype.storeTemplate = function(path, template) {
+        this.templates[templateName(path)] = template;
     };
 
     function templateName(path) {

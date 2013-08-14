@@ -1,0 +1,1 @@
+﻿<%= data.documentation(content) %>

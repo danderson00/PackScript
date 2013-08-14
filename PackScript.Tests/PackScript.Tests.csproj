@@ -138,10 +138,14 @@
     <Content Include="Core\commands.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Core\Resources\jquery-1.9.1.min.js" />
+    <Content Include="Core\tests.js" />
     <Content Include="Core\Transforms\transforms.outputTemplate.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Core\Resources\helpers.js" />
+    <Content Include="Core\Tribe\source.js" />
+    <Content Include="Core\Tribe\T.document.tests.js" />
     <Content Include="Core\utils.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -177,6 +181,7 @@
     <Content Include="Integration\FileChange\pack.js" />
     <Content Include="Integration\Template\Templates\passedData.template.htm" />
     <Content Include="Integration\Xdt\pack.js" />
+    <Content Include="Core\pack.js" />
     <None Include="Integration\Recursive\output" />
     <Content Include="Integration\Recursive\3.js" />
     <Content Include="Integration\Recursive\4.js" />

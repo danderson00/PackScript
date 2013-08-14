@@ -17,9 +17,10 @@
     }
 
     transforms.add('excludeDefaults', 'excludeFiles', function (data) {
-        data.target.files
-            .exclude(pack.loadedConfigs)
-            .exclude(data.output.outputPath);
+        data.target.files.exclude(data.output.outputPath);
+        if (!data.output.transforms.includeConfigs)
+            data.target.files.exclude(pack.loadedConfigs);
+
     });
 })();
 

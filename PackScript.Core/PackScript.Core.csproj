@@ -116,11 +116,33 @@
   <ItemGroup>
     <Content Include="build.pack.js" />
     <Content Include="Container.js" />
+    <Content Include="Tribe\1.pack.config.js" />
+    <Content Include="Tribe\embedCss.template.js" />
+    <Content Include="Tribe\embedHeaderContent.template.js" />
+    <Content Include="Tribe\embedTemplate.template.js" />
+    <Content Include="Tribe\Pack.embedTemplate.template.js" />
+    <Content Include="Tribe\T.chrome.pack.config.js" />
+    <Content Include="Tribe\T.chrome.template.js" />
+    <Content Include="Tribe\T.document.pack.config.js" />
+    <Content Include="Tribe\T.document.template.js" />
+    <Content Include="Tribe\T.mockjax.outer.template.js" />
+    <Content Include="Tribe\T.mockjax.pack.config.js" />
+    <Content Include="Tribe\T.mockjax.template.js" />
+    <Content Include="Tribe\T.model.template.js" />
+    <Content Include="Tribe\T.panes.pack.config.js" />
+    <Content Include="Tribe\T.scripts.pack.config.js" />
+    <Content Include="Tribe\T.scriptUrl.pack.config.js" />
+    <Content Include="Tribe\T.scriptUrl.template.js" />
+    <Content Include="Tribe\T.template.template.htm" />
+    <Content Include="Tribe\T.testModule.pack.config.js" />
+    <Content Include="Tribe\T.testModule.template.js" />
+    <Content Include="Tribe\T.utils.pack.config.js" />
     <EmbeddedResource Include="Transforms\xdt.js" />
     <None Include="Transforms\outputTemplate.js" />
     <EmbeddedResource Include="Transforms\sass.js" />
     <None Include="Transforms\files.js" />
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>if exist "$(SolutionDir)Build\Stable\PackScript.exe" "$(SolutionDir)Build\Stable\PackScript.exe" "$(ProjectDir)"</PreBuildEvent>

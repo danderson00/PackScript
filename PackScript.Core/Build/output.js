@@ -1507,7 +1507,11 @@ Pack.prototype.addOutput = function (transforms, configPath) {
     Pack.prototype.loadTemplate = function(path) {
         Log.debug("Loaded template " + templateName(path));
         var loadedTemplates = Files.getFileContents([path]);
-        this.templates[templateName(path)] = loadedTemplates[path];
+        this.storeTemplate(path, loadedTemplates[path]);
+    };
+
+    Pack.prototype.storeTemplate = function(path, template) {
+        this.templates[templateName(path)] = template;
     };
 
     function templateName(path) {
@@ -1639,9 +1643,10 @@ _.extend(pack, new Pack());
     }
 
     transforms.add('excludeDefaults', 'excludeFiles', function (data) {
-        data.target.files
-            .exclude(pack.loadedConfigs)
-            .exclude(data.output.outputPath);
+        data.target.files.exclude(data.output.outputPath);
+        if (!data.output.transforms.includeConfigs)
+            data.target.files.exclude(pack.loadedConfigs);
+
     });
 })();
 
@@ -1874,3 +1879,205 @@ _.extend(pack, new Pack());
     });
 })();
 
+T = { Panes: {} };
+T.chrome = function() {
+    return {
+        name: 'T.chrome'
+    };
+};
+
+T.chromeScript = function(domain, protocol) {
+    return [T.scriptUrl(domain, protocol), T.chrome()];
+};
+
+T.prepareForEval = function (content) {
+    return content
+        .replace(/\r/g, "")         // exclude windows linefeeds
+        .replace(/\\/g, "\\\\")     // double escape
+        .replace(/\n/g, "\\n")      // replace literal newlines with control characters
+        .replace(/\"/g, "\\\"");    // escape double quotes
+};T = this.T || {};
+T.document = function (objectName) {
+    return {
+        name: 'T.document',
+        data: {
+            documentation: function(content) {
+                var documentation = T.document.extractDocumentation(content);
+                var members = T.document.captureMembers(documentation);
+                return objectName + ' = ' + JSON.stringify(members);
+            }
+        }
+    };
+};
+
+T.document.captureMembers = function(documentation) {
+    var context = T.document.captureContext();
+    try {
+        new Function(prepareScript(documentation)).call(context);
+    } catch(e) {
+        log.error("Error executing documentation comments - " + e.message);
+    }
+    return context.result;
+};
+
+function prepareScript(source) {
+    // this makes the context functions available without the this. prefix
+    return 'with(this){' + source + '}';
+}
+
+T.document.captureContext = function() {
+    var result = {};
+    var namespace = result;
+    return {
+        namespace: function(name) {
+            namespace = T.document.findOrCreateNamespace(result, name);
+        },
+        func: function(details) {
+            namespace.functions = namespace.functions || [];
+            namespace.functions.push(details);
+        },
+        constructor: function(details) {
+            namespace.constructor = details;
+        },
+        result: result
+    };
+};
+
+T.document.findOrCreateNamespace = function(target, name) {
+    var names = name.match(/[^\.]+/g);
+    var currentTarget = target;
+    for (var i = 0; i < names.length; i++) {
+        currentTarget[names[i]] = currentTarget[names[i]] || {};
+        currentTarget = currentTarget[names[i]];
+    }
+    return currentTarget;
+};
+
+T.document.extractDocumentation = function(content) {
+    var regex = /^.*\/\/\/\/(.*)/gm;
+    var match;
+    var result = [];
+    while (match = regex.exec(content))
+        result.push(trim(match[1]));
+    return result.join(' ');
+};
+
+function trim(source) {
+    return source.replace(/^\s+|\s+$/g, '');
+}T.mockjax = function (to, path) {
+    var panes = {};
+    
+    var template = {
+        name: 'T.mockjax',
+        data: {
+            registerUrl: registerUrl
+        }
+    };
+
+    var outputTemplate = {
+        name: 'T.mockjax.outer',
+        data: {
+            mockGaps: mockGaps
+        }
+    };
+
+    return {
+        to: to,
+        include: path + '/*.*',
+        recursive: true,
+        template: template,
+        outputTemplate: outputTemplate
+    };
+
+
+    function registerUrl(url) {
+        var pane = Path(url).withoutExtension().toString();
+        panes[pane] = panes[pane] || {};
+        panes[pane][Path(url).extension().toString()] = true;
+    }
+    
+    function mockGaps() {        
+        return _.reduce(panes, function (output, extensions, pane) {
+            var mocks = '';
+            if (!extensions.js) mocks += mock404(pane + '.js');
+            if (!extensions.htm) mocks += mock404(pane + '.htm');
+            if (!extensions.css) mocks += mock404(pane + '.css');
+            return output + mocks;
+        }, '');
+    }
+    
+    function mock404(url) {
+        return "$.mockjax({ url: '" + url + "', status: 404, responseTime: 0 });\n";
+    }
+};T.panes = function (folder, prefix, domain) {
+    return [
+        { files: folder + '/*.css', recursive: true, template: 'embedCss' },
+        { files: folder + '/*.htm', recursive: true, template: { name: 'embedTemplate', data: { prefix: prefix } } },
+        { files: folder + '/*.js', recursive: true, template: { name: 'T.model', data: { domain: domain, prefix: prefix } } }
+    ];
+};
+
+T.panes.chrome = function(folder, prefix, domain) {
+    return [
+        { files: folder + '/*.css', recursive: true, template: ['embedCss', 'T.chrome'] },
+        { files: folder + '/*.htm', recursive: true, template: [{ name: 'embedTemplate', data: { prefix: prefix } }, 'T.chrome'] },
+        { files: folder + '/*.js', recursive: true, template: [{ name: 'T.model', data: { domain: domain, prefix: prefix } }, 'T.chrome'] }
+    ];
+};T.scripts = function (folder) {
+    return {
+        files: folder + '/*.js',
+        recursive: true
+    };
+};
+
+T.scripts.chrome = function (folder, domain) {
+    return {
+        files: folder + '/*.js',
+        recursive: true,
+        template: [T.scriptUrl(domain), T.chrome()]
+    };
+};T.scriptUrl = function(domain, protocol) {
+    return {
+        name: 'T.scriptUrl',
+        data: { domain: domain, protocol: protocol }
+    };
+};T.testModule = function(prefix) {
+    return {
+        name: 'T.testModule',
+        data: { prefix: prefix }
+    };
+};T.sourceUrlTag = function (path, domain, protocol) {
+    if (path.toString().indexOf('://') === -1) {
+        var fullPath = Path((domain || '') + '/' + path).makeRelative().toString();
+        path = (protocol || 'tribe') + '://' + fullPath;
+    }
+
+    return ('//@ sourceURL=' + path.replace(/\\/g, '/'));
+};
+
+T.modelScriptEnvironment = function (resourcePath, prefix) {
+    return "TC.scriptEnvironment = { resourcePath: '" + Path((prefix || '') + '/' + resourcePath).withoutExtension().makeAbsolute() + "' };";
+};
+
+T.templateIdentifier = function(resourcePath, prefix) {
+    return 'template-' + Path((prefix || '') + '/' + resourcePath).withoutExtension().makeAbsolute().asMarkupIdentifier();
+};
+
+T.embedString = function (source) {
+    return source
+        .replace(/\\/g, "\\\\")
+        .replace(/\r/g, "")
+        .replace(/\n/g, "\\n")
+        .replace(/\'/g, "\\'");
+};pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/embedCss.template.js', '$(\'<style/>\')\n    .attr(\'class\', \'__tribe\')\n    .text(\'<%= MinifyStylesheet.minify(content).replace(/\\\'/g, "\\\\\'") %>\')\n    .appendTo(\'head\');\n');
+pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/embedHeaderContent.template.js', '$(\'head\').append(\'<%= embedString(content) %>\');\n');
+pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/embedTemplate.template.js', '$(\'head\')\n    .append(\'<script type="text/template" id="<%=T.templateIdentifier(pathRelativeToInclude, data.prefix)%>"><%=T.embedString(content)%></script>\');\n');
+pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/Pack.embedTemplate.template.js', 'pack.storeTemplate(\'<%=path.toString().replace(/\\\\/g, "/")%>\', \'<%=T.embedString(content)%>\');\n');
+pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/T.chrome.template.js', 'window.eval("<%= T.prepareForEval(content) %>");\n');
+pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/T.document.template.js', '<%= data.documentation(content) %>');
+pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/T.mockjax.outer.template.js', '<%= content %>\n<%= data.mockGaps() %>');
+pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/T.mockjax.template.js', '$.mockjax({\n    url: \'<%= pathRelativeToConfig %>\',\n    responseText: \'<%= T.embedString(content) %>\',\n    responseTime: 0\n});\n<% data.registerUrl(pathRelativeToConfig) %>');
+pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/T.model.template.js', '<%=T.modelScriptEnvironment(pathRelativeToInclude, data.prefix)%>\n<%=content%>\n<%=T.sourceUrlTag(pathRelativeToConfig, data.domain, data.protocol)%>\n');
+pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/T.scriptUrl.template.js', '\n<%=content%>\n<%=T.sourceUrlTag(pathRelativeToConfig, data.domain, data.protocol)%>\n');
+pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/T.template.template.htm', '<script type="text/template" id="<%=T.templateIdentifier(pathRelativeToInclude, data.prefix)%>"><%=content%></script>\n');
+pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/T.testModule.template.js', '(function () {\n    var moduleFunction = module;\n    module = function(name, lifecycle) {\n        return moduleFunction(\'<%=data.prefix%>.\' + name, lifecycle);\n    };\n    \n<%=content%>\n        \n    module = moduleFunction;\n})();');

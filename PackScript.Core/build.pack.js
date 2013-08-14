@@ -12,6 +12,9 @@
         'resources.js',
         'commands.js',
         'setup.js',
-        { files: 'Transforms/*.js', prioritise: ['combine.js', 'sass.js'] }
-    ]
+        { files: 'Transforms/*.js', prioritise: ['combine.js', 'sass.js'] },
+        'Tribe/*.pack.config.js',
+        { files: 'Tribe/*.template.*', template: 'Pack.embedTemplate' }
+    ],
+    includeConfigs: true
 });

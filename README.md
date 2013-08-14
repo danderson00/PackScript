@@ -46,6 +46,7 @@ pack({
 	prioritise: 'filename.ext' || [],
 	first: 'filename.ext' || [],
 	last: 'filename.ext' || [],
+	includeConfigs: true/false,
 	minify: true/false,
 	sass: true/false,
 	xdt: ['transform.config']

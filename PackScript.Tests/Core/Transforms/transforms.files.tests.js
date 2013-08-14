@@ -96,14 +96,21 @@
     test("excludeDefaults excludes config files", function () {
         var data = { files: new FileList('1', '3') };
         pack.loadedConfigs = ['3'];
-        pack.transforms.excludeDefaults.apply(wrap(true, {}, data));
+        pack.transforms.excludeDefaults.apply(wrap(true, { transforms: {} }, data));
         equal(data.files.list.length, 1);
         equal(data.files.list[0].path, '1');
     });
 
+    test("excludeDefaults includes config files if includeConfigs transform is specified", function() {
+        var data = { files: new FileList('1', '3') };
+        pack.loadedConfigs = ['3'];
+        pack.transforms.excludeDefaults.apply(wrap(true, { transforms: { includeConfigs: true } }, data));
+        equal(data.files.list.length, 2);
+    });
+    
     test("excludeDefaults excludes output file", function () {
         var data = { files: new FileList('1', '3') };
-        pack.transforms.excludeDefaults.apply(wrap(true, { outputPath: '3' }, data));
+        pack.transforms.excludeDefaults.apply(wrap(true, { outputPath: '3', transforms: { } }, data));
         equal(data.files.list.length, 1);
         equal(data.files.list[0].path, '1');
     });
