@@ -4,13 +4,13 @@
     
     transforms.add('include', 'includeFiles', function (data) {
         if(data.options.log !== false)
-            Log.debug('Including ' + data.value + ' in ' + (data.output.transforms && data.output.transforms.to));
+            Log.debug('Including ' + formatInclude(data.value) + ' in ' + (data.output.transforms && data.output.transforms.to));
         data.target.files.include(loadFileList(data.value, data.output));
     });
     
     transforms.add('exclude', 'excludeFiles', function (data) {
         if (data.options.log !== false)
-            Log.debug('Excluding ' + data.value + ' from ' + (data.output.transforms && data.output.transforms.to));
+            Log.debug('Excluding ' + formatInclude(data.value) + ' from ' + (data.output.transforms && data.output.transforms.to));
         data.target.files.exclude(loadFileList(data.value, data.output));
     });
 
@@ -69,6 +69,16 @@
                 return value.recursive === true || (output.transforms.recursive === true && value.recursive !== false);
             }
         }
+    }
+    
+    function formatInclude(include) {
+        if (include.constructor === String)
+            return include;
+        if (include.files)
+            return include.files;
+        if (include.constructor === Array)
+            return _.map(include, formatInclude).join(', ');
+        return include.toString();
     }
 })();
 
