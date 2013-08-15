@@ -44,7 +44,7 @@ namespace PackScript.Console
 
         private static void WatchFolder(PackContext context, string path)
         {
-            System.Console.WriteLine("Watching {0}, enter JavaScript or a blank line to end.", path);
+            System.Console.WriteLine("Watching {0}, enter JavaScript or a blank line to end.", Path.GetFullPath(path));
 
             var watcher = new FileSystemWatcher(path);
             watcher.IncludeSubdirectories = true;
@@ -55,8 +55,8 @@ namespace PackScript.Console
                 {
                     // this is simple but not good enough - it misses changes that occur while a build is occurring
                     var change = watcher.WaitForChanged(WatcherChangeTypes.All);
-                    var changedFilePath = Path.Combine(path, change.Name);
-                    var oldFilePath = Path.Combine(path, change.OldName ?? change.Name);
+                    var changedFilePath = Path.GetFullPath(Path.Combine(path, change.Name));
+                    var oldFilePath = Path.GetFullPath(Path.Combine(path, change.OldName ?? change.Name));
                     context.FileChanged(changedFilePath, oldFilePath, change.ChangeType.ToStringChangeType());
                 }
             }).Start();
