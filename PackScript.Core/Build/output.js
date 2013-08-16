@@ -1467,7 +1467,7 @@ Pack.prototype.addOutput = function (transforms, configPath) {
         return Pack.utils.executeSingleOrArray(transforms, addSingleOutput);
     
     function addSingleOutput(transforms) {
-        if (transforms && transforms.to)
+        if (transforms)
             var output = new Pack.Output(transforms, configPath);
             self.outputs.push(output);
             return output;
@@ -1647,17 +1647,6 @@ _.extend(pack, new Pack());
         if (!data.output.transforms.includeConfigs)
             data.target.files.exclude(pack.loadedConfigs);
 
-    });
-})();
-
-(function () {
-    pack.transforms.add('to', 'finalise', function (data) {
-        var path = Path(data.output.basePath + data.output.transforms.to);
-        Files.writeFile(path.toString(), data.target.output);
-        Log.info('Wrote file ' + path);
-
-        // this is a bit nasty
-        data.output.currentPaths = data.target.files && data.target.files.paths();
     });
 })();
 
@@ -1871,7 +1860,16 @@ _.extend(pack, new Pack());
             });
         }
     });    
-})();(function () {
+})();pack.transforms.add('to', 'finalise', function (data) {
+    var path = Path(data.output.basePath + data.output.transforms.to);
+    Files.writeFile(path.toString(), data.target.output);
+    Log.info('Wrote file ' + path);
+
+    // this is a bit nasty
+    data.output.currentPaths = data.target.files && data.target.files.paths();
+});
+
+(function () {
     pack.transforms.add('xdt', 'output', function (data) {
         var target = data.target;
         var output = data.output;
@@ -1888,6 +1886,15 @@ _.extend(pack, new Pack());
         });
     });
 })();
+
+pack.transforms.add('zipTo', 'finalise', function (data) {
+    var path = Path(data.output.basePath + data.value).toString();
+    Zip.archive(path, data.output.basePath, data.target.files.paths());
+    Log.info('Wrote file ' + path);
+
+    // this is a bit nasty
+    data.output.currentPaths = data.target.files && data.target.files.paths();
+});
 
 T = { Panes: {} };
 T.chrome = function() {

@@ -55,7 +55,7 @@
     <None Include="Transforms\include.js" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Transforms\finalise.js" />
+    <None Include="Transforms\to.js" />
   </ItemGroup>
   <ItemGroup>
     <None Include="TransformRepository.js" />
@@ -116,6 +116,7 @@
   <ItemGroup>
     <Content Include="build.pack.js" />
     <Content Include="Container.js" />
+    <Content Include="Transforms\zipTo.js" />
     <Content Include="Tribe\1.pack.config.js" />
     <Content Include="Tribe\embedCss.template.js" />
     <Content Include="Tribe\embedHeaderContent.template.js" />

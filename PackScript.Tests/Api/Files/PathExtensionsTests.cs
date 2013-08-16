@@ -1,13 +1,8 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using PackScript.Api.Files;
 
-namespace PackScript.Tests.Api.File
+namespace PackScript.Tests.Api.Files
 {
     [TestFixture]
     public class PathExtensionsTests

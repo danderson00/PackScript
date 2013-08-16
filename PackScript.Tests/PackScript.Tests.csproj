@@ -42,6 +42,10 @@
     <Reference Include="FluentAssertions">
       <HintPath>..\packages\FluentAssertions.2.0.0.1\lib\net45\FluentAssertions.dll</HintPath>
     </Reference>
+    <Reference Include="ICSharpCode.SharpZipLib, Version=0.86.0.518, Culture=neutral, PublicKeyToken=1b03e6acf1164f73, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll</HintPath>
+    </Reference>
     <Reference Include="Interop.SHDocVw">
       <HintPath>..\packages\WatiN.2.0.50\lib\net40\Interop.SHDocVw.dll</HintPath>
       <EmbedInteropTypes>False</EmbedInteropTypes>
@@ -87,9 +91,10 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Api\File\FileApiTests.cs" />
-    <Compile Include="Api\File\PathExtensionsTests.cs" />
+    <Compile Include="Api\Files\FileApiTests.cs" />
+    <Compile Include="Api\Files\PathExtensionsTests.cs" />
     <Compile Include="Api\Xdt\MergeTests.cs" />
+    <Compile Include="Api\Zip\ArchiveTests.cs" />
     <Compile Include="Integration\CombineTests.cs" />
     <Compile Include="Integration\ConfigLoadTests.cs" />
     <Compile Include="Integration\ConfigChangeTests.cs" />
@@ -131,10 +136,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Api\File\FileSystem\Subfolder\subfolder.js" />
-    <Content Include="Api\File\FileSystem\test.js" />
-    <Content Include="Api\File\FileSystem\Subfolder\subfolder.pack.js" />
-    <Content Include="Api\File\FileSystem\test.pack.js" />
+    <Content Include="Api\Files\FileSystem\Subfolder\subfolder.js" />
+    <Content Include="Api\Files\FileSystem\test.js" />
+    <Content Include="Api\Files\FileSystem\Subfolder\subfolder.pack.js" />
+    <Content Include="Api\Files\FileSystem\test.pack.js" />
     <Content Include="Core\commands.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

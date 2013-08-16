@@ -1,6 +1,7 @@
 ﻿using System;
 using PackScript.Api.Files;
 using PackScript.Api.Log;
+using PackScript.Api.Zip;
 
 namespace PackScript.Core.Infrastructure
 {
@@ -51,7 +52,8 @@ namespace PackScript.Core.Infrastructure
         public PackContext AddDefaultApis()
         {
             return AddApi(new FilesApi(new DebugLogApi()))
-                  .AddApi(new DebugLogApi());
+                  .AddApi(new DebugLogApi())
+                  .AddApi(new ZipApi());
         }
     }
 }

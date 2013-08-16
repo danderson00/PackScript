@@ -1,12 +1,5 @@
 ﻿using System;
-using System.Dynamic;
-using System.IO;
 using System.Reflection;
-using System.Threading;
-using PackScript.Api.AjaxMin;
-using PackScript.Api.Files;
-using PackScript.Core.Infrastructure;
-using Noesis.Javascript.Console;
 
 namespace PackScript.Console
 {

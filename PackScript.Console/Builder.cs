@@ -8,6 +8,7 @@ using PackScript.Api.Files;
 using PackScript.Api.Interfaces;
 using PackScript.Api.Sass;
 using PackScript.Api.Xdt;
+using PackScript.Api.Zip;
 using PackScript.Core.Infrastructure;
 
 namespace PackScript.Console
@@ -20,6 +21,7 @@ namespace PackScript.Console
             var context = new PackContext(options.Directory, log)
                 .RegisterJavascript(typeof(IApi).Assembly)
                 .AddApi(new FilesApi(new ConsoleLogger()))
+                .AddApi(new ZipApi())
                 .AddApi(new AjaxMinJavascriptMinifier())
                 .AddApi(new AjaxMinStylesheetMinifier())
                 .AddApi(new XdtApi(new ConsoleLogger()))

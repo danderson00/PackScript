@@ -26,7 +26,7 @@ Pack.prototype.addOutput = function (transforms, configPath) {
         return Pack.utils.executeSingleOrArray(transforms, addSingleOutput);
     
     function addSingleOutput(transforms) {
-        if (transforms && transforms.to)
+        if (transforms)
             var output = new Pack.Output(transforms, configPath);
             self.outputs.push(output);
             return output;
