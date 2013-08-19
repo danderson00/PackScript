@@ -69,7 +69,7 @@ namespace PackScript.Api.Files
             Retry.Action("copy", from, () =>
                 {
                     Directory.CreateDirectory(Path.GetDirectoryName(to));
-                    File.Copy(from, to);
+                    File.Copy(from, to, true);
                 });
         }
     }

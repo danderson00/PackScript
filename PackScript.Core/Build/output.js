@@ -2082,19 +2082,16 @@ T.panes.chrome = function(folder, prefix, domain) {
         { files: folder + '/*.htm', recursive: true, template: [{ name: 'embedTemplate', data: { prefix: prefix } }, 'T.chrome'] },
         { files: folder + '/*.js', recursive: true, template: [{ name: 'T.model', data: { domain: domain, prefix: prefix } }, 'T.chrome'] }
     ];
-};T.scripts = function (folder) {
+};T.scripts = function (folder, chrome, domain) {
     return {
         files: folder + '/*.js',
-        recursive: true
+        recursive: true,
+        template: chrome && [T.scriptUrl(domain), T.chrome()]
     };
 };
 
 T.scripts.chrome = function (folder, domain) {
-    return {
-        files: folder + '/*.js',
-        recursive: true,
-        template: [T.scriptUrl(domain), T.chrome()]
-    };
+    return T.scripts(folder, true, domain);
 };T.scriptUrl = function(domain, protocol) {
     return {
         name: 'T.scriptUrl',
