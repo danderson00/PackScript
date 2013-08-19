@@ -34,6 +34,18 @@
         ok(Files.getFilenames.calledWithExactly('path/*.css', false));
     });
 
+    test("include sets config and include path values", function() {
+        Files.getFilenames = sinon.stub().returns(['path/subfolder/file']);
+        var output = new Pack.Output({}, 'path/');
+        var data = new Pack.Container();
+        pack.transforms.include.apply(wrap('subfolder/*.js', output, data));
+        equal(data.files.list.length, 1);
+        equal(data.files.list[0].includePath.toString(), 'path/subfolder/');
+        equal(data.files.list[0].pathRelativeToInclude.toString(), 'file');
+        equal(data.files.list[0].configPath.toString(), 'path/');
+        equal(data.files.list[0].pathRelativeToConfig.toString(), 'subfolder/file');
+    });
+
     test("setting template include option overrides template transform value", function() {
         Files.getFilenames = sinon.stub().returns(['file']);
         var output = new Pack.Output({ template: 'test1' }, 'path/');

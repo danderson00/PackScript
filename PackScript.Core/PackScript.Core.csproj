@@ -116,6 +116,7 @@
   <ItemGroup>
     <Content Include="build.pack.js" />
     <Content Include="Container.js" />
+    <Content Include="Transforms\syncTo.js" />
     <Content Include="Transforms\zipTo.js" />
     <Content Include="Tribe\1.pack.config.js" />
     <Content Include="Tribe\embedCss.template.js" />

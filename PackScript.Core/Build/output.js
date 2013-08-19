@@ -1692,10 +1692,16 @@ _.extend(pack, new Pack());
 
             function getFiles(filespec) {
                 return _.map(getFileNames(filespec), function (file) {
+                    var includePath = Path(output.basePath + filespec).withoutFilename();
+                    var path = Path(file);
                     return {
-                        path: file,
+                        path: path,
                         template: value.template,
-                        filespec: filespec
+                        filespec: filespec,
+                        configPath: Path(output.basePath),
+                        pathRelativeToConfig: Path(file.replace(path.matchFolder(output.basePath), '').replace(/\\/g, '/')),
+                        includePath: includePath,
+                        pathRelativeToInclude: Path(file.replace(path.matchFolder(includePath), '').replace(/\\/g, '/')),
                     };
                 });
             }
@@ -1722,7 +1728,7 @@ _.extend(pack, new Pack());
             }
         }
     }
-    
+
     function formatInclude(include) {
         if (include.constructor === String)
             return include;
@@ -1815,6 +1821,15 @@ _.extend(pack, new Pack());
     });
 })();
 
+pack.transforms.add('syncTo', 'finalise', function (data) {
+    var path = Path(data.output.configPath + data.value).toString();
+    Zip.archive(path, data.output.basePath, data.target.files.paths());
+    Log.info('Wrote file ' + path);
+
+    // this is a bit nasty
+    data.output.currentPaths = data.target.files && data.target.files.paths();
+});
+
 (function () {
     pack.transforms.add('template', 'content', function (data) {
         var value = data.value;
@@ -1829,16 +1844,15 @@ _.extend(pack, new Pack());
                 normaliseTemplateSettings();
                 
                 var template = pack.templates[templateSettings.name];
-                var path = Path(file.path);
                 if (template) {
                     Log.debug('Applying template ' + templateSettings.name + ' to ' + Path(file.path).filename());
                     var templateData = {
                         content: file.content,
-                        path: path,
-                        configPath: Path(output.basePath),
-                        pathRelativeToConfig: Path(file.path.replace(path.matchFolder(output.basePath), '').replace(/\\/g, '/')),
-                        includePath: includePath(),
-                        pathRelativeToInclude: Path(file.path.replace(path.matchFolder(includePath()), '').replace(/\\/g, '/')),
+                        path: Path(file.path),
+                        configPath: file.configPath,
+                        pathRelativeToConfig: file.pathRelativeToConfig,
+                        includePath: file.includePath,
+                        pathRelativeToInclude: file.pathRelativeToInclude,
                         data: templateSettings.data || {}
                     };
 

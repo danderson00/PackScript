@@ -40,10 +40,16 @@
 
             function getFiles(filespec) {
                 return _.map(getFileNames(filespec), function (file) {
+                    var includePath = Path(output.basePath + filespec).withoutFilename();
+                    var path = Path(file);
                     return {
-                        path: file,
+                        path: path,
                         template: value.template,
-                        filespec: filespec
+                        filespec: filespec,
+                        configPath: Path(output.basePath),
+                        pathRelativeToConfig: Path(file.replace(path.matchFolder(output.basePath), '').replace(/\\/g, '/')),
+                        includePath: includePath,
+                        pathRelativeToInclude: Path(file.replace(path.matchFolder(includePath), '').replace(/\\/g, '/')),
                     };
                 });
             }
@@ -70,7 +76,7 @@
             }
         }
     }
-    
+
     function formatInclude(include) {
         if (include.constructor === String)
             return include;

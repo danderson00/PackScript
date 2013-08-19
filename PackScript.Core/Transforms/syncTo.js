@@ -1,5 +1,5 @@
-﻿pack.transforms.add('zipTo', 'finalise', function (data) {
-    var path = Path(data.output.basePath + data.value).toString();
+﻿pack.transforms.add('syncTo', 'finalise', function (data) {
+    var path = Path(data.output.configPath + data.value).toString();
     Zip.archive(path, data.output.basePath, data.target.files.paths());
     Log.info('Wrote file ' + path);
 

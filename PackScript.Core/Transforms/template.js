@@ -12,16 +12,15 @@
                 normaliseTemplateSettings();
                 
                 var template = pack.templates[templateSettings.name];
-                var path = Path(file.path);
                 if (template) {
                     Log.debug('Applying template ' + templateSettings.name + ' to ' + Path(file.path).filename());
                     var templateData = {
                         content: file.content,
-                        path: path,
-                        configPath: Path(output.basePath),
-                        pathRelativeToConfig: Path(file.path.replace(path.matchFolder(output.basePath), '').replace(/\\/g, '/')),
-                        includePath: includePath(),
-                        pathRelativeToInclude: Path(file.path.replace(path.matchFolder(includePath()), '').replace(/\\/g, '/')),
+                        path: Path(file.path),
+                        configPath: file.configPath,
+                        pathRelativeToConfig: file.pathRelativeToConfig,
+                        includePath: file.includePath,
+                        pathRelativeToInclude: file.pathRelativeToInclude,
                         data: templateSettings.data || {}
                     };
 

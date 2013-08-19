@@ -21,7 +21,7 @@
 
     test("template renders built-in data", function () {
         var output = { basePath: '/test/' };
-        var data = { files: new FileList({ path: '/test/files/file', content: 'content', filespec: '/files/*.*' }) };
+        var data = { files: new FileList({ path: '/test/files/file', content: 'content', filespec: '/files/*.*', configPath: '/test/', pathRelativeToConfig: 'files/file', includePath: '/test/files/', pathRelativeToInclude: 'file' }) };
         pack.templates = { 'template': '<%=path%>|<%=content%>|<%=configPath%>|<%=pathRelativeToConfig%>|<%=includePath%>|<%=pathRelativeToInclude%>' };
         pack.transforms.template.apply(wrap('template', output, data));
 
