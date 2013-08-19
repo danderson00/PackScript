@@ -22,7 +22,8 @@ function filesAsSpy() {
     Files = {
         getFilenames: sinon.spy(),
         getFileContents: sinon.spy(),
-        writeFile: sinon.spy()
+        writeFile: sinon.spy(),
+        copyFile: sinon.spy()
     };
 };
 

@@ -38,3 +38,17 @@ Pack.prototype.configOutputs = function(path) {
         return output.configPath === path;
     });
 };
+
+Pack.prototype.addOutput = function (transforms, configPath) {
+    var self = this;
+
+    if (transforms)
+        return Pack.utils.executeSingleOrArray(transforms, addSingleOutput);
+
+    function addSingleOutput(transforms) {
+        if (transforms)
+            var output = new Pack.Output(transforms, configPath);
+        self.outputs.push(output);
+        return output;
+    }
+};

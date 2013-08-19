@@ -4,13 +4,13 @@
     
     transforms.add('include', 'includeFiles', function (data) {
         if(data.options.log !== false)
-            Log.debug('Including ' + formatInclude(data.value) + ' in ' + (data.output.transforms && data.output.transforms.to));
+            Log.debug('Including ' + formatInclude(data.value) + ' in ' + data.output.targetPath());
         data.target.files.include(loadFileList(data.value, data.output));
     });
     
     transforms.add('exclude', 'excludeFiles', function (data) {
         if (data.options.log !== false)
-            Log.debug('Excluding ' + formatInclude(data.value) + ' from ' + (data.output.transforms && data.output.transforms.to));
+            Log.debug('Excluding ' + formatInclude(data.value) + ' from ' + data.output.targetPath());
         data.target.files.exclude(loadFileList(data.value, data.output));
     });
 

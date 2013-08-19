@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
-using System.Threading;
 using PackScript.Api.Log;
 
 namespace PackScript.Api.Files
@@ -11,11 +10,12 @@ namespace PackScript.Api.Files
     {
         public string Name { get { return "Files"; } }
         private ILogApi Log { get; set; }
-        private int[] RetryWaits = new[] {100, 500, 1000};
+        private Retry Retry { get; set; }
 
-        public FilesApi(ILogApi log)
+        public FilesApi(ILogApi log, Retry retry)
         {
             Log = log;
+            Retry = retry;
         }
 
         public virtual string[] getFilenames(string filespec, bool recursive = false)
@@ -37,52 +37,40 @@ namespace PackScript.Api.Files
 
         public virtual Dictionary<string, string> getFileContents(string[] files)
         {
-            return files.ToDictionary(x => x, TryRead);
+            return files.ToDictionary(x => x, Read);
         }
 
         public virtual void writeFile(string path, string content)
         {
-            TryWrite(path, content);
+            Write(path, content);
         }
 
-        private string TryRead(string path)
+        public virtual void copyFile(string from, string to)
         {
-            for (int i = 0; i < RetryWaits.Count(); i++)
-                try
-                {
-                    return File.ReadAllText(path);
-                }
-                catch (Exception ex)
-                {
-                    LogException("read", ex, path, i + 1);
-                    Thread.Sleep(RetryWaits[i]);
-                }
-            return "";
+            Copy(from, to);
         }
 
-        private void TryWrite(string path, string content)
+        private string Read(string path)
         {
-            for (int i = 0; i < RetryWaits.Count(); i++)
-                try
+            return Retry.Func("read", path, () => File.ReadAllText(path));
+        }
+
+        private void Write(string path, string content)
+        {
+            Retry.Action("write", path, () =>
                 {
                     using (var writer = File.CreateText(path))
                         writer.Write(content);
-                    return;
-                }
-                catch (Exception ex)
-                {
-                    LogException("write", ex, path, i + 1);
-                    Thread.Sleep(RetryWaits[i]);
-                }
+                });
         }
 
-        private void LogException(string operation, Exception ex, string path, int i)
+        private void Copy(string from, string to)
         {
-            if (i == RetryWaits.Count())
-            {
-                var message = string.Format("Unable to {0} file after {1} attempts: {2} ({3})", operation, i, path, ex.Message);
-                Log.error(message);
-            }
+            Retry.Action("copy", from, () =>
+                {
+                    Directory.CreateDirectory(Path.GetDirectoryName(to));
+                    File.Copy(from, to);
+                });
         }
     }
 }

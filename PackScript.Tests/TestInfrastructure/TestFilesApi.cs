@@ -10,12 +10,14 @@ namespace PackScript.Tests.TestInfrastructure
         public List<Call<string, bool>> getFilenamesCalls { get; private set; }
         public List<Call<string[]>> getFileContentsCalls { get; private set; }
         public List<Call<string, string>> writeFileCalls { get; private set; }
+        public List<Call<string, string>> copyFileCalls { get; private set; }
 
-        public TestFilesApi() : base(new DebugLogApi())
+        public TestFilesApi() : base(new DebugLogApi(), new Retry(new DebugLogApi()))
         {
             getFilenamesCalls = new List<Call<string, bool>>();
             getFileContentsCalls = new List<Call<string[]>>();
             writeFileCalls = new List<Call<string, string>>();
+            copyFileCalls = new List<Call<string, string>>();
         }
 
         public string Output(string file)
@@ -40,6 +42,11 @@ namespace PackScript.Tests.TestInfrastructure
         public override void writeFile(string path, string content)
         {
             writeFileCalls.Add(Call.Create(path, content));
+        }
+
+        public override void copyFile(string from, string to)
+        {
+            copyFileCalls.Add(Call.Create(from, to));
         }
 
         #endregion

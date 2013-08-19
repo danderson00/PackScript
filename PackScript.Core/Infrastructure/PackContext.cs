@@ -51,7 +51,7 @@ namespace PackScript.Core.Infrastructure
 
         public PackContext AddDefaultApis()
         {
-            return AddApi(new FilesApi(new DebugLogApi()))
+            return AddApi(new FilesApi(new DebugLogApi(), new Retry(new DebugLogApi())))
                   .AddApi(new DebugLogApi())
                   .AddApi(new ZipApi());
         }

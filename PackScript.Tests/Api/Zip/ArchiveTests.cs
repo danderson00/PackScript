@@ -1,4 +1,5 @@
-﻿using System.IO;
+﻿using System.Collections.Generic;
+using System.IO;
 using FluentAssertions;
 using NUnit.Framework;
 using PackScript.Api.Zip;
@@ -14,7 +15,10 @@ namespace PackScript.Tests.Api.Zip
             if (File.Exists("output.zip"))
                 File.Delete("output.zip");
 
-            Archive.Compress("output.zip", "", new [] { "PackScript.Tests.dll" });
+            Archive.Compress("output.zip", new Dictionary<string, object>
+                {
+                    { "Test\\PackScript.Tests.dll", "PackScript.Tests.dll" }
+                });
 
             File.Exists("output.zip").Should().BeTrue();
         }

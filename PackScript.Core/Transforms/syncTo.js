@@ -1,9 +1,14 @@
 ﻿pack.transforms.add('syncTo', 'finalise', function (data) {
-    var path = Path(data.output.configPath + data.value).toString();
-    Zip.archive(path, data.output.basePath, data.target.files.paths());
-    Log.info('Wrote file ' + path);
+    var targetFolder = Path(data.output.basePath + data.value + '/');
+    var files = data.target.files.list;
 
-    // this is a bit nasty
+    _.each(files, function(file) {
+        Files.copyFile(file.path.toString(), targetFolder + file.pathRelativeToInclude);
+    });
+
+    Log.info('Copied ' + files.length + ' files to ' + targetFolder);
+
+    // this should be moved to a separate transform. It is consumed by Output.matches
     data.output.currentPaths = data.target.files && data.target.files.paths();
 });
 

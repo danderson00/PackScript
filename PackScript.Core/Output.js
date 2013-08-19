@@ -6,8 +6,9 @@
 };
 
 Pack.Output.prototype.matches = function (path, transformRepository, refresh) {
+    // we save the list of file paths so we don't need to hit the filesystem for each check
+    // this gets set by finalise transforms to, zipTo and syncTo
     if(refresh || !this.currentPaths)
-        // this is a bit nasty, along with the finalise transform
         this.currentPaths = transformRepository.applyEventsTo(['includeFiles', 'excludeFiles'], this, { log: false }).files.paths();
     
     return _.any(this.currentPaths, function(filePath) {
@@ -19,16 +20,8 @@ Pack.Output.prototype.build = function(transformRepository) {
     return transformRepository.applyTo(this);
 };
 
-Pack.prototype.addOutput = function (transforms, configPath) {
-    var self = this;
-    
-    if (transforms)
-        return Pack.utils.executeSingleOrArray(transforms, addSingleOutput);
-    
-    function addSingleOutput(transforms) {
-        if (transforms)
-            var output = new Pack.Output(transforms, configPath);
-            self.outputs.push(output);
-            return output;
-    }
+Pack.Output.prototype.targetPath = function () {
+    return this.transforms.to ||
+        this.transforms.zipTo ||
+        this.transforms.syncTo;
 };

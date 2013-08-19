@@ -31,5 +31,10 @@ namespace PackScript.Tests.TestInfrastructure
         {
             Writes.Add(new KeyValuePair<string, string>(path, content));
         }
+
+        public void copyFile(string from, string to)
+        {
+            
+        }
     }
 }

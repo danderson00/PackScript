@@ -2,7 +2,7 @@
     return {
         value: value,
         output: output,
-        target: target,
+        target: target || new Pack.Container(),
         options: options || {}
     };
 }

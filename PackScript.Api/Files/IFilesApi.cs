@@ -8,5 +8,6 @@ namespace PackScript.Api.Files
         string[] getFilenames(string filespec, bool recursive = false);
         Dictionary<string, string> getFileContents(string[] files);
         void writeFile(string path, string content);
+        void copyFile(string from, string to);
     }
 }

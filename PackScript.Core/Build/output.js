@@ -1197,6 +1197,20 @@ Pack.prototype.configOutputs = function(path) {
     return _.filter(this.outputs, function (output) {
         return output.configPath === path;
     });
+};
+
+Pack.prototype.addOutput = function (transforms, configPath) {
+    var self = this;
+
+    if (transforms)
+        return Pack.utils.executeSingleOrArray(transforms, addSingleOutput);
+
+    function addSingleOutput(transforms) {
+        if (transforms)
+            var output = new Pack.Output(transforms, configPath);
+        self.outputs.push(output);
+        return output;
+    }
 };Pack.TransformRepository = function () {
     var self = this;
 
@@ -1447,8 +1461,9 @@ Pack.prototype.outputsFor = function(path) {
 };
 
 Pack.Output.prototype.matches = function (path, transformRepository, refresh) {
+    // we save the list of file paths so we don't need to hit the filesystem for each check
+    // this gets set by finalise transforms to, zipTo and syncTo
     if(refresh || !this.currentPaths)
-        // this is a bit nasty, along with the finalise transform
         this.currentPaths = transformRepository.applyEventsTo(['includeFiles', 'excludeFiles'], this, { log: false }).files.paths();
     
     return _.any(this.currentPaths, function(filePath) {
@@ -1460,18 +1475,10 @@ Pack.Output.prototype.build = function(transformRepository) {
     return transformRepository.applyTo(this);
 };
 
-Pack.prototype.addOutput = function (transforms, configPath) {
-    var self = this;
-    
-    if (transforms)
-        return Pack.utils.executeSingleOrArray(transforms, addSingleOutput);
-    
-    function addSingleOutput(transforms) {
-        if (transforms)
-            var output = new Pack.Output(transforms, configPath);
-            self.outputs.push(output);
-            return output;
-    }
+Pack.Output.prototype.targetPath = function () {
+    return this.transforms.to ||
+        this.transforms.zipTo ||
+        this.transforms.syncTo;
 };(function () {
     var options = Pack.options;
 
@@ -1540,7 +1547,6 @@ Pack.prototype.build = function (outputs) {
 };
 
 Pack.prototype.fileChanged = function (path, oldPath, changeType) {
-    
     if (Path(path).match(Pack.options.configurationFileFilter) || Path(path).match(Pack.options.packFileFilter))
         this.handleConfigChange(path, oldPath, changeType);
     else if (Path(path).match('*' + Pack.options.templateFileExtension))
@@ -1581,7 +1587,18 @@ var pack = function (transforms) {
 // this seems to be the only way of getting the config API I want - pack({ ... }); and pack.outputs etc.
 // the only way to have a function with extra properties is to extend a named function
 _.extend(pack, new Pack());
-(function () {
+
+function sync(options) {
+    options.syncTo = options.to;
+    delete options.to;
+    pack(options);
+}
+
+function zip(options) {
+    options.zipTo = options.to;
+    delete options.to;
+    pack(options);
+}(function () {
     pack.transforms.add('combine', 'output', function (data) {
         var target = data.target;
         var output = data.output;
@@ -1656,13 +1673,13 @@ _.extend(pack, new Pack());
     
     transforms.add('include', 'includeFiles', function (data) {
         if(data.options.log !== false)
-            Log.debug('Including ' + formatInclude(data.value) + ' in ' + (data.output.transforms && data.output.transforms.to));
+            Log.debug('Including ' + formatInclude(data.value) + ' in ' + data.output.targetPath());
         data.target.files.include(loadFileList(data.value, data.output));
     });
     
     transforms.add('exclude', 'excludeFiles', function (data) {
         if (data.options.log !== false)
-            Log.debug('Excluding ' + formatInclude(data.value) + ' from ' + (data.output.transforms && data.output.transforms.to));
+            Log.debug('Excluding ' + formatInclude(data.value) + ' from ' + data.output.targetPath());
         data.target.files.exclude(loadFileList(data.value, data.output));
     });
 
@@ -1822,11 +1839,16 @@ _.extend(pack, new Pack());
 })();
 
 pack.transforms.add('syncTo', 'finalise', function (data) {
-    var path = Path(data.output.configPath + data.value).toString();
-    Zip.archive(path, data.output.basePath, data.target.files.paths());
-    Log.info('Wrote file ' + path);
+    var targetFolder = Path(data.output.basePath + data.value + '/');
+    var files = data.target.files.list;
 
-    // this is a bit nasty
+    _.each(files, function(file) {
+        Files.copyFile(file.path.toString(), targetFolder + file.pathRelativeToInclude);
+    });
+
+    Log.info('Copied ' + files.length + ' files to ' + targetFolder);
+
+    // this should be moved to a separate transform. It is consumed by Output.matches
     data.output.currentPaths = data.target.files && data.target.files.paths();
 });
 
@@ -1879,7 +1901,7 @@ pack.transforms.add('syncTo', 'finalise', function (data) {
     Files.writeFile(path.toString(), data.target.output);
     Log.info('Wrote file ' + path);
 
-    // this is a bit nasty
+    // this should be moved to a separate transform - consumed by Output.matches
     data.output.currentPaths = data.target.files && data.target.files.paths();
 });
 
@@ -1903,10 +1925,16 @@ pack.transforms.add('syncTo', 'finalise', function (data) {
 
 pack.transforms.add('zipTo', 'finalise', function (data) {
     var path = Path(data.output.basePath + data.value).toString();
-    Zip.archive(path, data.output.basePath, data.target.files.paths());
+
+    var files = {};
+    _.each(data.target.files.list, function(file) {
+        files[file.pathRelativeToInclude.toString()] = file.path.toString();
+    });
+
+    Zip.archive(path, files);
     Log.info('Wrote file ' + path);
 
-    // this is a bit nasty
+    // this should be moved to a separate transform - consumed by Output.matches
     data.output.currentPaths = data.target.files && data.target.files.paths();
 });
 

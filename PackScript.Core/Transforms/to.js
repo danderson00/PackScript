@@ -3,7 +3,7 @@
     Files.writeFile(path.toString(), data.target.output);
     Log.info('Wrote file ' + path);
 
-    // this is a bit nasty
+    // this should be moved to a separate transform - consumed by Output.matches
     data.output.currentPaths = data.target.files && data.target.files.paths();
 });
 

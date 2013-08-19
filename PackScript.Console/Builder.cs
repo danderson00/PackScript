@@ -20,7 +20,7 @@ namespace PackScript.Console
             var log = new ConsoleLogger();
             var context = new PackContext(options.Directory, log)
                 .RegisterJavascript(typeof(IApi).Assembly)
-                .AddApi(new FilesApi(new ConsoleLogger()))
+                .AddApi(new FilesApi(new ConsoleLogger(), new Retry(new ConsoleLogger())))
                 .AddApi(new ZipApi())
                 .AddApi(new AjaxMinJavascriptMinifier())
                 .AddApi(new AjaxMinStylesheetMinifier())

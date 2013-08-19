@@ -111,7 +111,7 @@
     <None Include="FileList.js" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="setup.js" />
+    <None Include="api.js" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="build.pack.js" />
