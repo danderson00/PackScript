@@ -28,6 +28,8 @@ Main Configuration API
 <pre>
 pack({
 	to: 'path/filename.ext',
+    syncTo: 'destination/path',
+    zipTo: 'path/filename.zip',
 	include: 'filespec' || {
 		files: 'filespec',
 		recursive: true/false,
@@ -51,7 +53,48 @@ pack({
 	sass: true/false,
 	xdt: ['transform.config']
 });
-</pre>
+
+sync({
+    to: 'destination/path',
+	include: 'filespec' || {
+		files: 'filespec',
+		recursive: true/false,
+		template:'template name' || { name: 'template name', data: { value: 'passedToTemplate' } } || [],
+		prioritise: 'filename.ext' || [],
+		first: 'filename.ext' || [],
+		last: 'filename.ext' || []
+	} || [,[]],
+	exclude: 'filespec' || {
+		files: 'filespec',
+		recursive: true/false
+	} || [,[]],
+	recursive: true/false,
+	prioritise: 'filename.ext' || [],
+	first: 'filename.ext' || [],
+	last: 'filename.ext' || [],
+	includeConfigs: true/false</pre>
+});
+
+zip({
+    to: 'destination/path',
+	include: 'filespec' || {
+		files: 'filespec',
+		recursive: true/false,
+		template:'template name' || { name: 'template name', data: { value: 'passedToTemplate' } } || [],
+		prioritise: 'filename.ext' || [],
+		first: 'filename.ext' || [],
+		last: 'filename.ext' || []
+	} || [,[]],
+	exclude: 'filespec' || {
+		files: 'filespec',
+		recursive: true/false
+	} || [,[]],
+	recursive: true/false,
+	prioritise: 'filename.ext' || [],
+	first: 'filename.ext' || [],
+	last: 'filename.ext' || [],
+	includeConfigs: true/false</pre>
+});
 
 
 Configuration Options
