@@ -9,7 +9,7 @@ namespace PackScript.Api.AjaxMin
 
         public string minify(string source)
         {
-            return new Minifier().MinifyJavaScript(source, new CodeSettings { TermSemicolons = true, PreserveImportantComments = false });
+            return new Minifier().MinifyJavaScript(source, new CodeSettings { TermSemicolons = true, PreserveImportantComments = true });
         }
     }
 }
