@@ -145,6 +145,9 @@
     <Content Include="Core\commands.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
+    <Content Include="Core\Api.tests.js" />
+    <Content Include="Core\Embedded\Tribe.tests.js" />
+    <Content Include="Core\Pack.tests.js" />
     <Content Include="Core\Resources\jquery-1.9.1.min.js" />
     <Content Include="Core\tests.js" />
     <Content Include="Core\Transforms\transforms.syncTo.tests.js">
@@ -154,8 +157,8 @@
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Core\Resources\helpers.js" />
-    <Content Include="Core\Tribe\source.js" />
-    <Content Include="Core\Tribe\T.document.tests.js" />
+    <Content Include="Core\Embedded\source.js" />
+    <Content Include="Core\Embedded\T.document.tests.js" />
     <Content Include="Core\utils.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

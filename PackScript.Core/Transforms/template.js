@@ -29,10 +29,8 @@
                     } catch(ex) {
                         Pack.utils.logError(ex, "An error occurred applying template " + templateSettings.name);
                     }
-                }
-
-                function includePath() {
-                    return Path(output.basePath + file.filespec).withoutFilename();
+                } else if (templateSettings.name) {
+                    Log.warn("Unable to find template '" + templateSettings.name + "'.");
                 }
 
                 function normaliseTemplateSettings() {

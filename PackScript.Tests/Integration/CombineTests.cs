@@ -65,5 +65,18 @@ namespace PackScript.Tests.Integration
         {
             api.Output("last").Should().Be("root.jssubfolder.jsroot.txtsubfolder.txt");
         }
+
+        [Test]
+        public void Multiple()
+        {
+            api.Output("multiple1").Should().Be("root.jsroot.txt");
+            api.Output("multiple2").Should().Be("root.txtroot.js");
+        }
+
+        [Test]
+        public void Alternate_syntax()
+        {
+            api.Output("alternate").Should().Be("root.jsroot.txt");
+        }
     }
 }

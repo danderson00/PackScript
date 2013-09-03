@@ -11,10 +11,10 @@
         'Output.js',
         'resources.js',
         'commands.js',
-        'api.js',
+        'Api.js',
         { files: 'Transforms/*.js', prioritise: ['combine.js', 'sass.js'] },
-        'Tribe/*.pack.config.js',
-        { files: 'Tribe/*.template.*', template: 'Pack.embedTemplate' }
+        { files: 'Embedded/*.pack.config.js', recursive: true },
+        { files: 'Embedded/*.template.*', template: 'Pack.embedTemplate', recursive: true }
     ],
     includeConfigs: true
 });

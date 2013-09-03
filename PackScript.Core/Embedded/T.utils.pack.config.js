@@ -4,7 +4,7 @@
         path = (protocol || 'tribe') + '://' + fullPath;
     }
 
-    return ('//@ sourceURL=' + path.replace(/\\/g, '/'));
+    return ('\\n//@ sourceURL=' + path.replace(/\\/g, '/'));
 };
 
 T.modelScriptEnvironment = function (resourcePath, prefix) {
@@ -21,4 +21,12 @@ T.embedString = function (source) {
         .replace(/\r/g, "")
         .replace(/\n/g, "\\n")
         .replace(/\'/g, "\\'");
+};
+
+T.prepareForEval = function (content) {
+    return content
+        .replace(/\r/g, "")         // exclude windows linefeeds
+        .replace(/\\/g, "\\\\")     // double escape
+        .replace(/\n/g, "\\n")      // replace literal newlines with control characters
+        .replace(/\"/g, "\\\"");    // escape double quotes
 };

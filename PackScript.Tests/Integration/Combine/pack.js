@@ -47,3 +47,11 @@ pack({
         recursive: true
     }
 });
+
+pack({ include: '*.*' })
+    .to({
+        '../TestOutput/multiple1': {},
+        '../TestOutput/multiple2': { prioritise: 'root.txt' }
+    });
+
+pack('*.*').to('../TestOutput/alternate');

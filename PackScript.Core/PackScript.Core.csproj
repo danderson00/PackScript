@@ -111,34 +111,29 @@
     <None Include="FileList.js" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="api.js" />
+    <None Include="Api.js" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="build.pack.js" />
     <Content Include="Container.js" />
+    <Content Include="Embedded\Tribe\T.Script.template.js" />
+    <Content Include="Embedded\Tribe\Tribe.pack.config.js" />
     <Content Include="Transforms\syncTo.js" />
     <Content Include="Transforms\zipTo.js" />
-    <Content Include="Tribe\1.pack.config.js" />
-    <Content Include="Tribe\embedCss.template.js" />
-    <Content Include="Tribe\embedHeaderContent.template.js" />
-    <Content Include="Tribe\embedTemplate.template.js" />
-    <Content Include="Tribe\Pack.embedTemplate.template.js" />
-    <Content Include="Tribe\T.chrome.pack.config.js" />
-    <Content Include="Tribe\T.chrome.template.js" />
-    <Content Include="Tribe\T.document.pack.config.js" />
-    <Content Include="Tribe\T.document.template.js" />
-    <Content Include="Tribe\T.mockjax.outer.template.js" />
-    <Content Include="Tribe\T.mockjax.pack.config.js" />
-    <Content Include="Tribe\T.mockjax.template.js" />
-    <Content Include="Tribe\T.model.template.js" />
-    <Content Include="Tribe\T.panes.pack.config.js" />
-    <Content Include="Tribe\T.scripts.pack.config.js" />
-    <Content Include="Tribe\T.scriptUrl.pack.config.js" />
-    <Content Include="Tribe\T.scriptUrl.template.js" />
-    <Content Include="Tribe\T.template.template.htm" />
-    <Content Include="Tribe\T.testModule.pack.config.js" />
-    <Content Include="Tribe\T.testModule.template.js" />
-    <Content Include="Tribe\T.utils.pack.config.js" />
+    <Content Include="Embedded\1.pack.config.js" />
+    <Content Include="Embedded\Tribe\T.Style.template.js" />
+    <Content Include="Embedded\Tribe\T.Template.template.js" />
+    <Content Include="Embedded\Pack.embedTemplate.template.js" />
+    <Content Include="Embedded\T.document.pack.config.js" />
+    <Content Include="Embedded\T.document.template.js" />
+    <Content Include="Embedded\T.mockjax.outer.template.js" />
+    <Content Include="Embedded\T.mockjax.pack.config.js" />
+    <Content Include="Embedded\T.mockjax.template.js" />
+    <Content Include="Embedded\Tribe\T.Model.template.js" />
+    <Content Include="Embedded\Tribe\T.Script.debug.template.js" />
+    <Content Include="Embedded\T.testModule.pack.config.js" />
+    <Content Include="Embedded\T.testModule.template.js" />
+    <Content Include="Embedded\T.utils.pack.config.js" />
     <EmbeddedResource Include="Transforms\xdt.js" />
     <None Include="Transforms\outputTemplate.js" />
     <EmbeddedResource Include="Transforms\sass.js" />

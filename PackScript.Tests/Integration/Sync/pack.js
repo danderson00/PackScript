@@ -13,3 +13,5 @@ sync({
     include: '*.js',
     recursive: true
 });
+
+sync('*.js').to('Target/Alternate');

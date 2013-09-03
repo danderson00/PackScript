@@ -15,12 +15,16 @@ Pack.utils.logError = function (error, message) {
 };
 
 Pack.utils.executeSingleOrArray = function (value, func, reverse) {
-    if (_.isArray(value))
-        return _.map(reverse ? value.reverse() : value, function(individualValue) {
+    if (_.isArguments(value))
+        value = _.toArray(value);
+    
+    if (_.isArray(value)) {
+        var array = _.flatten(value);
+        return _.map(reverse ? array.reverse() : array, function (individualValue) {
             // we can't shortcut this or may introduce unintended arguments from the _.map function
             return func(individualValue);
         });
-    else
+    } else
         return func(value);
 };
 

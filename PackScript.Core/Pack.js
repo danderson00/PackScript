@@ -41,14 +41,17 @@ Pack.prototype.configOutputs = function(path) {
 
 Pack.prototype.addOutput = function (transforms, configPath) {
     var self = this;
+    return Pack.utils.executeSingleOrArray(transforms, addSingleOutput);
 
-    if (transforms)
-        return Pack.utils.executeSingleOrArray(transforms, addSingleOutput);
-
-    function addSingleOutput(transforms) {
-        if (transforms)
-            var output = new Pack.Output(transforms, configPath);
-        self.outputs.push(output);
+    function addSingleOutput(transform) {
+        if (transform) {
+            var output = new Pack.Output(transform, configPath);
+            self.outputs.push(output);
+        }
         return output;
-    }
+    }    
+};
+
+Pack.prototype.removeOutput = function(output) {
+    this.outputs.splice(this.outputs.indexOf(output), 1);
 };

@@ -42,6 +42,13 @@ namespace PackScript.Tests.Integration
             api.copyFileCalls[3].SecondArg.Should().Be(FullPath("Target/Recursive/Child/test.js"));
         }
 
+        [Test]
+        public void Alternate()
+        {
+            api.copyFileCalls[4].FirstArg.Should().Be(FullPath(@"test.js"));
+            api.copyFileCalls[4].SecondArg.Should().Be(FullPath("Target/Alternate/test.js"));
+        }
+
         private string FullPath(string path)
         {
             return Path.GetFullPath(@"..\..\Integration\Sync\") + path;

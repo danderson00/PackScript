@@ -1,4 +1,4 @@
-﻿module('T.document');
+﻿module('Embedded.T.document');
 
 var source = loadSource();
 
@@ -36,7 +36,7 @@ test("captureMembers logs error if documentation is invalid", function() {
 function loadSource() {
     var result;
     $.ajax({
-        url: 'Core/Tribe/source.js',
+        url: 'Core/Embedded/source.js',
         async: false,
         success: function(content) {
             result = content;

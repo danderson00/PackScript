@@ -1201,16 +1201,19 @@ Pack.prototype.configOutputs = function(path) {
 
 Pack.prototype.addOutput = function (transforms, configPath) {
     var self = this;
+    return Pack.utils.executeSingleOrArray(transforms, addSingleOutput);
 
-    if (transforms)
-        return Pack.utils.executeSingleOrArray(transforms, addSingleOutput);
-
-    function addSingleOutput(transforms) {
-        if (transforms)
-            var output = new Pack.Output(transforms, configPath);
-        self.outputs.push(output);
+    function addSingleOutput(transform) {
+        if (transform) {
+            var output = new Pack.Output(transform, configPath);
+            self.outputs.push(output);
+        }
         return output;
-    }
+    }    
+};
+
+Pack.prototype.removeOutput = function(output) {
+    this.outputs.splice(this.outputs.indexOf(output), 1);
 };Pack.TransformRepository = function () {
     var self = this;
 
@@ -1343,12 +1346,16 @@ Pack.utils.logError = function (error, message) {
 };
 
 Pack.utils.executeSingleOrArray = function (value, func, reverse) {
-    if (_.isArray(value))
-        return _.map(reverse ? value.reverse() : value, function(individualValue) {
+    if (_.isArguments(value))
+        value = _.toArray(value);
+    
+    if (_.isArray(value)) {
+        var array = _.flatten(value);
+        return _.map(reverse ? array.reverse() : array, function (individualValue) {
             // we can't shortcut this or may introduce unintended arguments from the _.map function
             return func(individualValue);
         });
-    else
+    } else
         return func(value);
 };
 
@@ -1578,27 +1585,80 @@ Pack.prototype.executeTransform = function (name, output) {
     if(this.transforms[name])
         return this.transforms[name].apply(output.transforms[name], output);
 };
-// define our static pack function
-var pack = function (transforms) {
-    pack.addOutput(transforms, Context.configPath);
+Pack.Api = function () {
+    var self = this;
+    
+    this.pack = function (options) {
+        options = unwrapOptions(options, arguments);
+        return addOutputs(options, 'to');
+    };
+
+    this.sync = function(options) {
+        options = unwrapOptions(options, arguments);
+        renameProperties(options, 'to', 'syncTo');
+        return addOutputs(options, 'syncTo');
+    };
+
+    this.zip = function(options) {
+        options = unwrapOptions(options, arguments);
+        renameProperties(options, 'to', 'zipTo');
+        return addOutputs(options, 'zipTo');
+    };
+    
+    function addOutputs(options, transformName) {
+        var outputs = self.pack.addOutput(options, Context.configPath);
+
+        if (outputs.length === 1)
+            return createWrapper(outputs[0]);
+
+        return _.map(outputs, createWrapper);
+
+        function createWrapper(output) {
+            return {
+                output: output,
+                to: function (targets) {
+                    self.pack.removeOutput(output);
+                    _.each(unwrapTargets(targets), addMergedTransforms);
+                }
+            };
+            
+            function unwrapTargets(targets) {
+                if (targets.constructor === String) {
+                    var unwrapped = {};
+                    unwrapped[targets] = {};
+                    return unwrapped;
+                }
+                return targets;
+            }
+
+            function addMergedTransforms(targetTransforms, path) {
+                var transforms = _.extend({}, output.transforms, targetTransforms);
+                transforms[transformName] = path;
+                self.pack.addOutput(transforms, output.configPath);
+            }            
+        }
+    }
+    
+    function unwrapOptions(options, args) {
+        // If we're passed a string or an array, assume we want this to be the include option
+        if (options.constructor === String || _.isArray(options))
+            return [{ include: options }];
+        return _.toArray(args);
+    }
+    
+    function renameProperties(array, from, to) {
+        _.each(array, function(target) {
+            target[to] = target[from];
+            delete target[from];
+        });
+    }
+
+    // extend the pack member of the api object with a new instance of a Pack object
+    _.extend(self.pack, new Pack());
 };
 
-// extend the static function with an instance of Pack
-// this seems to be the only way of getting the config API I want - pack({ ... }); and pack.outputs etc.
-// the only way to have a function with extra properties is to extend a named function
-_.extend(pack, new Pack());
-
-function sync(options) {
-    options.syncTo = options.to;
-    delete options.to;
-    pack(options);
-}
-
-function zip(options) {
-    options.zipTo = options.to;
-    delete options.to;
-    pack(options);
-}(function () {
+// make an instance of the api available globally
+_.extend(this, new Pack.Api());(function () {
     pack.transforms.add('combine', 'output', function (data) {
         var target = data.target;
         var output = data.output;
@@ -1883,10 +1943,8 @@ pack.transforms.add('syncTo', 'finalise', function (data) {
                     } catch(ex) {
                         Pack.utils.logError(ex, "An error occurred applying template " + templateSettings.name);
                     }
-                }
-
-                function includePath() {
-                    return Path(output.basePath + file.filespec).withoutFilename();
+                } else if (templateSettings.name) {
+                    Log.warn("Unable to find template '" + templateSettings.name + "'.");
                 }
 
                 function normaliseTemplateSettings() {
@@ -1939,23 +1997,7 @@ pack.transforms.add('zipTo', 'finalise', function (data) {
 });
 
 T = { Panes: {} };
-T.chrome = function() {
-    return {
-        name: 'T.chrome'
-    };
-};
-
-T.chromeScript = function(domain, protocol) {
-    return [T.scriptUrl(domain, protocol), T.chrome()];
-};
-
-T.prepareForEval = function (content) {
-    return content
-        .replace(/\r/g, "")         // exclude windows linefeeds
-        .replace(/\\/g, "\\\\")     // double escape
-        .replace(/\n/g, "\\n")      // replace literal newlines with control characters
-        .replace(/\"/g, "\\\"");    // escape double quotes
-};T = this.T || {};
+T = this.T || {};
 T.document = function (objectName) {
     return {
         name: 'T.document',
@@ -2068,35 +2110,6 @@ function trim(source) {
     function mock404(url) {
         return "$.mockjax({ url: '" + url + "', status: 404, responseTime: 0 });\n";
     }
-};T.panes = function (folder, prefix, domain) {
-    return [
-        { files: folder + '/*.css', recursive: true, template: 'embedCss' },
-        { files: folder + '/*.htm', recursive: true, template: { name: 'embedTemplate', data: { prefix: prefix } } },
-        { files: folder + '/*.js', recursive: true, template: { name: 'T.model', data: { domain: domain, prefix: prefix } } }
-    ];
-};
-
-T.panes.chrome = function(folder, prefix, domain) {
-    return [
-        { files: folder + '/*.css', recursive: true, template: ['embedCss', 'T.chrome'] },
-        { files: folder + '/*.htm', recursive: true, template: [{ name: 'embedTemplate', data: { prefix: prefix } }, 'T.chrome'] },
-        { files: folder + '/*.js', recursive: true, template: [{ name: 'T.model', data: { domain: domain, prefix: prefix } }, 'T.chrome'] }
-    ];
-};T.scripts = function (folder, chrome, domain) {
-    return {
-        files: folder + '/*.js',
-        recursive: true,
-        template: chrome && [T.scriptUrl(domain), T.chrome()]
-    };
-};
-
-T.scripts.chrome = function (folder, domain) {
-    return T.scripts(folder, true, domain);
-};T.scriptUrl = function(domain, protocol) {
-    return {
-        name: 'T.scriptUrl',
-        data: { domain: domain, protocol: protocol }
-    };
 };T.testModule = function(prefix) {
     return {
         name: 'T.testModule',
@@ -2108,7 +2121,7 @@ T.scripts.chrome = function (folder, domain) {
         path = (protocol || 'tribe') + '://' + fullPath;
     }
 
-    return ('//@ sourceURL=' + path.replace(/\\/g, '/'));
+    return ('\\n//@ sourceURL=' + path.replace(/\\/g, '/'));
 };
 
 T.modelScriptEnvironment = function (resourcePath, prefix) {
@@ -2125,15 +2138,74 @@ T.embedString = function (source) {
         .replace(/\r/g, "")
         .replace(/\n/g, "\\n")
         .replace(/\'/g, "\\'");
-};pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/embedCss.template.js', '$(\'<style/>\')\n    .attr(\'class\', \'__tribe\')\n    .text(\'<%= MinifyStylesheet.minify(content).replace(/\\\'/g, "\\\\\'") %>\')\n    .appendTo(\'head\');\n');
-pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/embedHeaderContent.template.js', '$(\'head\').append(\'<%= embedString(content) %>\');\n');
-pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/embedTemplate.template.js', '$(\'head\')\n    .append(\'<script type="text/template" id="<%=T.templateIdentifier(pathRelativeToInclude, data.prefix)%>"><%=T.embedString(content)%></script>\');\n');
-pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/Pack.embedTemplate.template.js', 'pack.storeTemplate(\'<%=path.toString().replace(/\\\\/g, "/")%>\', \'<%=T.embedString(content)%>\');\n');
-pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/T.chrome.template.js', 'window.eval("<%= T.prepareForEval(content) %>");\n');
-pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/T.document.template.js', '<%= data.documentation(content) %>');
-pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/T.mockjax.outer.template.js', '<%= content %>\n<%= data.mockGaps() %>');
-pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/T.mockjax.template.js', '$.mockjax({\n    url: \'<%= pathRelativeToConfig %>\',\n    responseText: \'<%= T.embedString(content) %>\',\n    responseTime: 0\n});\n<% data.registerUrl(pathRelativeToConfig) %>');
-pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/T.model.template.js', '<%=T.modelScriptEnvironment(pathRelativeToInclude, data.prefix)%>\n<%=content%>\n<%=T.sourceUrlTag(pathRelativeToConfig, data.domain, data.protocol)%>\n');
-pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/T.scriptUrl.template.js', '\n<%=content%>\n<%=T.sourceUrlTag(pathRelativeToConfig, data.domain, data.protocol)%>\n');
-pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/T.template.template.htm', '<script type="text/template" id="<%=T.templateIdentifier(pathRelativeToInclude, data.prefix)%>"><%=content%></script>\n');
-pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Tribe/T.testModule.template.js', '(function () {\n    var moduleFunction = module;\n    module = function(name, lifecycle) {\n        return moduleFunction(\'<%=data.prefix%>.\' + name, lifecycle);\n    };\n    \n<%=content%>\n        \n    module = moduleFunction;\n})();');
+};
+
+T.prepareForEval = function (content) {
+    return content
+        .replace(/\r/g, "")         // exclude windows linefeeds
+        .replace(/\\/g, "\\\\")     // double escape
+        .replace(/\n/g, "\\n")      // replace literal newlines with control characters
+        .replace(/\"/g, "\\\"");    // escape double quotes
+};T.scripts = function (pathOrOptions, debug) {
+    var options = normaliseOptions(pathOrOptions, debug);
+    return include(options.debug ? 'T.Script.debug' : 'T.Script', 'js', options);
+};
+
+T.models = function(pathOrOptions, debug) {
+    var options = normaliseOptions(pathOrOptions, debug);
+    var template = [
+        { name: 'T.Model', data: options },
+        { name: options.debug ? 'T.Script.debug' : 'T.Script', data: options }
+    ];
+    return include(template, 'js', options);
+};
+
+T.templates = function(pathOrOptions, debug) {
+    var options = normaliseOptions(pathOrOptions, debug);
+    return include('T.Template', 'htm', options);
+};
+
+T.styles = function(pathOrOptions, debug) {
+    var options = normaliseOptions(pathOrOptions, debug);
+    return include('T.Style', 'css', options);
+};
+
+T.panes = function (pathOrOptions, debug) {
+    return [
+        T.models(pathOrOptions, debug),
+        T.templates(pathOrOptions, debug),
+        T.styles(pathOrOptions, debug)
+    ];
+};
+
+function include(template, extension, data) {
+    if (template.constructor === String)
+        template = { name: template, data: data };
+
+    var path = data.path;
+    if (Path(data.path).extension().toString() !== extension)
+        path += '/*.' + extension;
+    
+    return {
+        files: path,
+        recursive: true,
+        template: template
+    };
+}
+
+function normaliseOptions(pathOrOptions, debug) {
+    if (pathOrOptions.constructor === String)
+        pathOrOptions = { path: pathOrOptions };
+    if (debug === true)
+        pathOrOptions.debug = true;
+    return pathOrOptions;
+}pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Pack.embedTemplate.template.js', 'pack.storeTemplate(\'<%=path.toString().replace(/\\\\/g, "/")%>\', \'<%=T.embedString(content)%>\');\n');
+pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/T.document.template.js', '<%= data.documentation(content) %>');
+pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/T.mockjax.outer.template.js', '<%= content %>\n<%= data.mockGaps() %>');
+pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/T.mockjax.template.js', '$.mockjax({\n    url: \'<%= pathRelativeToConfig %>\',\n    responseText: \'<%= T.embedString(content) %>\',\n    responseTime: 0\n});\n<% data.registerUrl(pathRelativeToConfig) %>');
+pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/T.testModule.template.js', '(function () {\n    var moduleFunction = module;\n    module = function(name, lifecycle) {\n        return moduleFunction(\'<%=data.prefix%>.\' + name, lifecycle);\n    };\n    \n<%=content%>\n        \n    module = moduleFunction;\n})();');
+pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Model.template.js', '<%=T.modelScriptEnvironment(pathRelativeToInclude, data.prefix)%>\n<%=content%>\n');
+pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Script.debug.template.js', 'window.eval("<%= T.prepareForEval(content) + T.sourceUrlTag(pathRelativeToConfig, data.domain, data.protocol) %>");\n');
+pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Script.template.js', '// <%= pathRelativeToConfig %>\n<%= content %>\n');
+pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Style.template.js', '$(\'<style/>\')\n    .attr(\'class\', \'__tribe\')\n    .text(\'<%= MinifyStylesheet.minify(content).replace(/\\\'/g, "\\\\\'") %>\')\n    .appendTo(\'head\');\n');
+pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Template.template.js', '$(\'head\')\n    .append(\'<script type="text/template" id="<%=T.templateIdentifier(pathRelativeToInclude, data.prefix)%>"><%=T.embedString(content)%></script>\');\n');

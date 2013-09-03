@@ -6188,6 +6188,91 @@ if (typeof module == "object" && typeof require == "function") {
 
 return sinon;}.call(typeof window != 'undefined' && window || {}));
 (function () {
+    var api;
+    
+    module('Api', {
+        setup: function () { api = new Pack.Api(); }
+    });
+
+    test("pack converts strings to include transform", function () {
+        api.pack('*.js');
+        equal(api.pack.outputs.length, 1);
+        equal(api.pack.outputs[0].transforms.include, '*.js');
+    });
+
+    test("pack converts arrays to include transform", function () {
+        var files = ['*.js', '*.txt'];
+        api.pack(files);
+        equal(api.pack.outputs.length, 1);
+        equal(api.pack.outputs[0].transforms.include, files);
+    });
+
+    test("pack returns wrapper object when passed a string", function() {
+        var wrapper = api.pack('*.*');
+        ok(wrapper.to);
+        equal(wrapper.output.transforms.include, '*.*');
+    });
+
+    test("pack returns wrapper object when passed an object", function() {
+        var wrapper = api.pack({ to: 'target' });
+        ok(wrapper.to);
+        equal(wrapper.output.transforms.to, 'target');
+    });
+
+    test("pack returns array of wrapper objects when passed multiple arguments", function () {
+        var wrappers = api.pack({}, {});
+        equal(wrappers.length, 2);
+        ok(wrappers[0].to);
+        ok(wrappers[1].to);
+    });
+
+    test("pack.to adds single target when passed a string", function() {
+        api.pack('*.js').to('output.js');
+        equal(api.pack.outputs.length, 1);
+        equal(api.pack.outputs[0].transforms.to, 'output.js');
+    });
+
+    test("pack.to adds an output for each target", function () {
+        api.pack({}).to({ '1': {}, '2': {} });
+        equal(api.pack.outputs.length, 2);
+    });
+
+    test("pack.to sets 'to' transform from object key", function () {
+        api.pack({}).to({ '1': {} });
+        equal(api.pack.outputs[0].transforms.to, '1');
+    });
+
+    test("pack.to merges transforms from each target", function () {
+        api.pack({ '1': 1 }).to({ target1: { '2': 2 }, target2: { '3': 3 } });
+        equal(api.pack.outputs[0].transforms['1'], 1);
+        equal(api.pack.outputs[0].transforms['2'], 2);
+        equal(api.pack.outputs[0].transforms['3'], undefined);
+        equal(api.pack.outputs[1].transforms['1'], 1);
+        equal(api.pack.outputs[1].transforms['2'], undefined);
+        equal(api.pack.outputs[1].transforms['3'], 3);
+    });
+
+    test("api.pack.to overrides existing transforms", function () {
+        api.pack({ '1': 1 }).to({ target1: { '1': 2 } });
+        equal(api.pack.outputs[0].transforms['1'], 2);
+    });
+
+    test("sync renames 'to' property to 'syncTo'", function() {
+        equal(api.sync({ to: 'target' }).output.transforms.syncTo, 'target');
+    });
+
+    test("sync.to adds single target when passed a string", function () {
+        api.sync('*.js').to('output');
+        equal(api.pack.outputs.length, 1);
+        equal(api.pack.outputs[0].transforms.syncTo, 'output');
+    });
+
+    test("sync.to adds an output for each target", function () {
+        api.sync('*.*').to({ '1': {}, '2': {} });
+        equal(api.pack.outputs.length, 2);
+    });
+})();
+(function () {
     var p;
     
     module("commands", { setup: setup });
@@ -6370,6 +6455,28 @@ return sinon;}.call(typeof window != 'undefined' && window || {}));
             equal(value, 'value');
         });
         pack.executeTransform('test', output);
+    });
+})();
+(function () {
+    var pack;
+
+    module('Pack', {
+        setup: function () { pack = new Pack(); }
+    });
+
+    test("addOutput accepts single objects", function () {
+        pack.addOutput({});
+        equal(pack.outputs.length, 1);
+    });
+
+    test("addOutput accepts arrays", function () {
+        pack.addOutput([{}, {}]);
+        equal(pack.outputs.length, 2);
+    });
+
+    test("addOutput accepts nested arrays", function () {
+        pack.addOutput([{}, [{}, {}]]);
+        equal(pack.outputs.length, 3);
     });
 })();
 (function () {
@@ -6575,8 +6682,115 @@ return sinon;}.call(typeof window != 'undefined' && window || {}));
         equal(result[0], 2);
         equal(result[1], 4);
     });
+
+    test("executeSingleOrArray handles arguments object", function () {
+        (function() {
+            var result = Pack.utils.executeSingleOrArray(arguments, function() { });
+            equal(result.length, 3);
+        })(1, 2, 3);
+    });
+
+    test("executeSingleOrArray flattens arrays if requested", function () {
+        var result = Pack.utils.executeSingleOrArray([1, [2, 3]], function () { }, true);
+        equal(result.length, 3);
+    });
 })();
-(function () {
+module('Embedded.T.document');
+
+var source = loadSource();
+
+test("extractDocumentation trims and concatenates", function () {
+    var d = T.document.extractDocumentation("test\n   ////    { \n////           test: 'test\n////description'\ntest\n////}");
+    equal(d, "{ test: 'test description' }");
+});
+
+test("findOrCreateNamespace finds existing namespace", function() {
+    var target = { test1: { test2: { test3: {} } } };
+    equal(T.document.findOrCreateNamespace(target, 'test1.test2'), target.test1.test2);
+});
+
+test("findOrCreateNamespace creates new namespace", function () {
+    var target = { };
+    equal(T.document.findOrCreateNamespace(target, 'test1.test2'), target.test1.test2);
+});
+
+test("captureMembers constructs namespace tree", function() {
+    var documentation = T.document.extractDocumentation(source);
+    var result = T.document.captureMembers(documentation);
+    ok(result.Test);
+    ok(result.Test.test1);
+    ok(result.Test.test1.functions);
+    equal(result.Test.test1.functions.length, 1);
+    equal(result.Test.test1.functions[0].name, 'blah');
+});
+
+test("captureMembers logs error if documentation is invalid", function() {
+    log = { error: sinon.spy() };
+    T.document.captureMembers('invalid javascript');
+    ok(log.error.calledOnce);
+});
+
+function loadSource() {
+    var result;
+    $.ajax({
+        url: 'Core/Embedded/source.js',
+        async: false,
+        success: function(content) {
+            result = content;
+        }
+    });
+    return result;
+}module('Embedded.T.scripts');
+
+test("Specifying folder includes all js files", function() {
+    var include = T.scripts('Scripts');
+    equal(include.files, 'Scripts/*.js');
+    equal(include.template.name, 'T.Script');
+});
+
+test("Specifying file includes single file", function () {
+    var include = T.scripts('test.js');
+    equal(include.files, 'test.js');
+});
+
+test("Specifying filespec includes filespec", function () {
+    var include = T.scripts('Tests/*.tests.js');
+    equal(include.files, 'Tests/*.tests.js');
+});
+
+test("Specifying debug uses debug template", function () {
+    var include = T.scripts('Scripts', true);
+    equal(include.template.name, 'T.Script.debug');
+});
+
+test("Path can be specified in object", function () {
+    var include = T.scripts({ path: 'Scripts' });
+    equal(include.files, 'Scripts/*.js');
+});
+
+test("Debug can be specified in object", function () {
+    var include = T.scripts({ path: 'Scripts', debug: true });
+    equal(include.template.name, 'T.Script.debug');
+});
+
+module('Embedded.T.panes');
+
+test("T.panes includes relevant files from specified folder", function () {
+    var includes = T.panes('Panes');
+    equal(includes.length, 3);
+    equal(includes[0].files, 'Panes/*.js');
+    equal(includes[1].files, 'Panes/*.htm');
+    equal(includes[2].files, 'Panes/*.css');
+});
+
+module('Embedded.T.models');
+
+test("T.models uses model and script templates", function () {
+    var include = T.models('Panes');
+    equal(include.template.length, 2);
+    equal(include.template[0].name, 'T.Model');
+    equal(include.template[1].name, 'T.Script');
+});(function () {
     module("transforms.files", { setup: filesAsSpy });
 
     test("include calls getFilenames with correct arguments when string is passed", function () {
@@ -6919,49 +7133,3 @@ return sinon;}.call(typeof window != 'undefined' && window || {}));
         ok(spy.thirdCall.args[0].value, '2');
     });
 })();
-module('T.document');
-
-var source = loadSource();
-
-test("extractDocumentation trims and concatenates", function () {
-    var d = T.document.extractDocumentation("test\n   ////    { \n////           test: 'test\n////description'\ntest\n////}");
-    equal(d, "{ test: 'test description' }");
-});
-
-test("findOrCreateNamespace finds existing namespace", function() {
-    var target = { test1: { test2: { test3: {} } } };
-    equal(T.document.findOrCreateNamespace(target, 'test1.test2'), target.test1.test2);
-});
-
-test("findOrCreateNamespace creates new namespace", function () {
-    var target = { };
-    equal(T.document.findOrCreateNamespace(target, 'test1.test2'), target.test1.test2);
-});
-
-test("captureMembers constructs namespace tree", function() {
-    var documentation = T.document.extractDocumentation(source);
-    var result = T.document.captureMembers(documentation);
-    ok(result.Test);
-    ok(result.Test.test1);
-    ok(result.Test.test1.functions);
-    equal(result.Test.test1.functions.length, 1);
-    equal(result.Test.test1.functions[0].name, 'blah');
-});
-
-test("captureMembers logs error if documentation is invalid", function() {
-    log = { error: sinon.spy() };
-    T.document.captureMembers('invalid javascript');
-    ok(log.error.calledOnce);
-});
-
-function loadSource() {
-    var result;
-    $.ajax({
-        url: 'Core/Tribe/source.js',
-        async: false,
-        success: function(content) {
-            result = content;
-        }
-    });
-    return result;
-}
