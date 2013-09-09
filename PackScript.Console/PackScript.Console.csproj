@@ -64,7 +64,7 @@
     <Compile Include="AssemblyLoaderExtensions.cs" />
     <Compile Include="Builder.cs" />
     <Compile Include="ChangeTypeMap.cs" />
-    <Compile Include="ConsoleLogger.cs" />
+    <Compile Include="ConsoleLogProvider.cs" />
     <Compile Include="OptionsProvider.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

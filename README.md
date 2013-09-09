@@ -100,11 +100,10 @@ zip({
 Configuration Options
 =====================
 <pre>
-Pack.options = {
+pack.options = {
     configurationFileFilter: '*pack.config.js',
     packFileFilter: '*pack.js',
-    templateFileExtension: '.template.*',
-    logLevel: 'debug'
+    templateFileExtension: '.template.*'
 };
 </pre>
 

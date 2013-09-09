@@ -9,10 +9,10 @@ namespace PackScript.Api.Files
     public class FilesApi : IFilesApi
     {
         public string Name { get { return "Files"; } }
-        private ILogApi Log { get; set; }
+        private LogApi Log { get; set; }
         private Retry Retry { get; set; }
 
-        public FilesApi(ILogApi log, Retry retry)
+        public FilesApi(LogApi log, Retry retry)
         {
             Log = log;
             Retry = retry;

@@ -55,3 +55,5 @@ pack({ include: '*.*' })
     });
 
 pack('*.*').to('../TestOutput/alternate');
+
+pack(['*.js', 'Subfolder/*.js']).to('../TestOutput/alternateArray');

@@ -9,9 +9,9 @@ namespace PackScript.Api.Xdt
     public class XdtApi : IApi
     {
         public string Name { get { return "Xdt"; } }
-        private ILogApi Logger { get; set; }
+        private LogApi Logger { get; set; }
 
-        public XdtApi(ILogApi logger)
+        public XdtApi(LogApi logger)
         {
             Logger = logger;
         }

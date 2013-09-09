@@ -12,7 +12,7 @@ namespace PackScript.Tests.TestInfrastructure
         public List<Call<string, string>> writeFileCalls { get; private set; }
         public List<Call<string, string>> copyFileCalls { get; private set; }
 
-        public TestFilesApi() : base(new DebugLogApi(), new Retry(new DebugLogApi()))
+        public TestFilesApi() : base(Log.Api, new Retry(Log.Api))
         {
             getFilenamesCalls = new List<Call<string, bool>>();
             getFileContentsCalls = new List<Call<string[]>>();

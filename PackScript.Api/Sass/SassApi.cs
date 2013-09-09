@@ -8,9 +8,9 @@ namespace PackScript.Api.Sass
     public class SassApi : IApi
     {
         private string RubyPath { get; set; }
-        private ILogApi Log { get; set; }
+        private LogApi Log { get; set; }
 
-        public SassApi(string rubyPath, ILogApi log)
+        public SassApi(string rubyPath, LogApi log)
         {
             RubyPath = rubyPath;
             Log = log;

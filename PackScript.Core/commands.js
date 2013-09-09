@@ -18,9 +18,9 @@ Pack.prototype.build = function (outputs) {
 };
 
 Pack.prototype.fileChanged = function (path, oldPath, changeType) {
-    if (Path(path).match(Pack.options.configurationFileFilter) || Path(path).match(Pack.options.packFileFilter))
+    if (Path(path).match(this.options.configurationFileFilter) || Path(path).match(this.options.packFileFilter))
         this.handleConfigChange(path, oldPath, changeType);
-    else if (Path(path).match('*' + Pack.options.templateFileExtension))
+    else if (Path(path).match('*' + this.options.templateFileExtension))
         this.handleTemplateChange(path, oldPath, changeType);
     else
         this.handleFileChange(path, oldPath, changeType);

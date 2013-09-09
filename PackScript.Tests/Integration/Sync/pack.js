@@ -1,17 +1,17 @@
 ﻿sync({
-    to: 'Target/Simple',
+    to: '../TestOutput/Sync/Simple',
     include: '*.js'
 });
 
 sync({
-    to: 'Target/Child',
+    to: '../TestOutput/Sync/Child',
     include: 'Child/*.js'
 });
 
 sync({
-    to: 'Target/Recursive',
+    to: '../TestOutput/Sync/Recursive',
     include: '*.js',
     recursive: true
 });
 
-sync('*.js').to('Target/Alternate');
+sync('*.js').to('../TestOutput/Sync/Alternate');

@@ -8,7 +8,6 @@
             'test.js': 'var test = "test";'
         };
         Files.writeFile = sinon.spy();
-        Pack.options.clean = false;
         var output = new Pack.Output({ to: "output.js", include: "test.js" }, "path/");
         pack.build(output);
         ok(Files.writeFile.calledOnce);

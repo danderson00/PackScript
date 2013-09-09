@@ -5,7 +5,7 @@ using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 using PackScript.Api.Zip;
-using PackScript.Core.Infrastructure;
+using PackScript.Core.Host;
 using PackScript.Tests.TestInfrastructure;
 
 namespace PackScript.Tests.Integration
@@ -48,7 +48,7 @@ namespace PackScript.Tests.Integration
             var files = (Dictionary<string, object>)zip.ReceivedCalls().ElementAt(2).GetArguments()[1];
             files.Count.Should().Be(1);
             files.ElementAt(0).Key.Should().Be("test.js");
-            files.ElementAt(0).Value.Should().Be(FullPath("Child/test.js"));
+            files.ElementAt(0).Value.Should().Be(FullPath("Child\\test.js"));
         }
 
         [Test]

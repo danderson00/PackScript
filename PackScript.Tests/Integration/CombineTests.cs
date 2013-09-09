@@ -1,6 +1,6 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
-using PackScript.Core.Infrastructure;
+using PackScript.Core.Host;
 using PackScript.Tests.TestInfrastructure;
 
 namespace PackScript.Tests.Integration
@@ -77,6 +77,12 @@ namespace PackScript.Tests.Integration
         public void Alternate_syntax()
         {
             api.Output("alternate").Should().Be("root.jsroot.txt");
+        }
+
+        [Test]
+        public void Alternate_syntax_with_array()
+        {
+            api.Output("alternateArray").Should().Be("root.jssubfolder.js");
         }
     }
 }

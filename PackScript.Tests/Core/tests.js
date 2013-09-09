@@ -6282,7 +6282,6 @@ return sinon;}.call(typeof window != 'undefined' && window || {}));
             'test.js': 'var test = "test";'
         };
         Files.writeFile = sinon.spy();
-        Pack.options.clean = false;
         var output = new Pack.Output({ to: "output.js", include: "test.js" }, "path/");
         pack.build(output);
         ok(Files.writeFile.calledOnce);
@@ -6745,7 +6744,6 @@ function loadSource() {
 test("Specifying folder includes all js files", function() {
     var include = T.scripts('Scripts');
     equal(include.files, 'Scripts/*.js');
-    equal(include.template.name, 'T.Script');
 });
 
 test("Specifying file includes single file", function () {
@@ -6758,9 +6756,16 @@ test("Specifying filespec includes filespec", function () {
     equal(include.files, 'Tests/*.tests.js');
 });
 
-test("Specifying debug uses debug template", function () {
+test("T.Script template is used if debug is not specified", function () {
+    var include = T.scripts('Scripts');
+    var output = { transforms: {} };
+    equal(include.template(output), 'T.Script');
+});
+
+test("T.Script.debug template is used if debug transform is specified", function () {
     var include = T.scripts('Scripts', true);
-    equal(include.template.name, 'T.Script.debug');
+    var output = { transforms: { debug: true } };
+    equal(include.template(output), 'T.Script.debug');
 });
 
 test("Path can be specified in object", function () {
@@ -6770,7 +6775,8 @@ test("Path can be specified in object", function () {
 
 test("Debug can be specified in object", function () {
     var include = T.scripts({ path: 'Scripts', debug: true });
-    equal(include.template.name, 'T.Script.debug');
+    var output = { transforms: {} };
+    equal(include.template(output), 'T.Script.debug');
 });
 
 module('Embedded.T.panes');
@@ -6787,9 +6793,10 @@ module('Embedded.T.models');
 
 test("T.models uses model and script templates", function () {
     var include = T.models('Panes');
-    equal(include.template.length, 2);
-    equal(include.template[0].name, 'T.Model');
-    equal(include.template[1].name, 'T.Script');
+    var template = include.template({ transforms: {} });
+    equal(template.length, 2);
+    equal(template[0].name, 'T.Model');
+    equal(template[1].name, 'T.Script');
 });(function () {
     module("transforms.files", { setup: filesAsSpy });
 
@@ -6801,6 +6808,12 @@ test("T.models uses model and script templates", function () {
 
     test("include calls getFilenames with correct arguments when object is passed", function () {
         pack.transforms.include.apply(wrap({ files: '*.js', recursive: false }, new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
+        ok(Files.getFilenames.calledOnce);
+        ok(Files.getFilenames.calledWithExactly('path/*.js', false));
+    });
+
+    test("include calls getFilenames with correct arguments when function is passed", function () {
+        pack.transforms.include.apply(wrap(function() { return { files: '*.js', recursive: false }; }, new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
         ok(Files.getFilenames.calledOnce);
         ok(Files.getFilenames.calledWithExactly('path/*.js', false));
     });
@@ -7072,6 +7085,21 @@ test("T.models uses model and script templates", function () {
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, 'path/');
+    });
+
+    test("When function is passed as template value, actual value is set from function evaluation", function () {
+        expect(4);
+        var output = {};
+        var data = { files: new FileList({ path: 'filepath', content: 'filecontent' }) };
+        pack.templates = { 'template': 'templatecontent' };
+        pack.transforms.template.apply(wrap(function(currentOutput, target) {
+            equal(currentOutput, output);
+            equal(target, data);
+            return 'template';
+        }, output, data));
+
+        equal(data.files.list.length, 1);
+        equal(data.files.list[0].content, 'templatecontent');
     });
 })();
 (function () {

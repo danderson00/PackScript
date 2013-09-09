@@ -4,7 +4,7 @@ using FluentAssertions;
 using NUnit.Framework;
 using PackScript.Api.Log;
 using PackScript.Api.Sass;
-using PackScript.Core.Infrastructure;
+using PackScript.Core.Host;
 using PackScript.Tests.TestInfrastructure;
 
 namespace PackScript.Tests.Integration
@@ -23,7 +23,7 @@ namespace PackScript.Tests.Integration
                 Assert.Inconclusive("Can't find ruby.exe");
 
             api = new TestFilesApi();
-            context = ContextFactory.Create(@"..\..\Integration\Sass", api, new SassApi(rubyPath, new DebugLogApi())).ScanForResources().BuildAll();
+            context = ContextFactory.Create(@"..\..\Integration\Sass", api, new SassApi(rubyPath, Log.Api)).ScanForResources().BuildAll();
         }
 
         [Test]

@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using FluentAssertions;
 using NUnit.Framework;
-using PackScript.Core.Infrastructure;
+using PackScript.Core.Host;
 using PackScript.Tests.TestInfrastructure;
 
 namespace PackScript.Tests.Integration
@@ -22,36 +22,36 @@ namespace PackScript.Tests.Integration
         [Test]
         public void Simple()
         {
-            api.copyFileCalls[0].FirstArg.Should().Be(FullPath("test.js"));
-            api.copyFileCalls[0].SecondArg.Should().Be(FullPath("Target/Simple/test.js"));
+            api.copyFileCalls[0].FirstArg.Should().Be(FullPath(@"Sync\test.js"));
+            api.copyFileCalls[0].SecondArg.Should().Be(FullPath("TestOutput/Sync/Simple/test.js"));
         }
 
         [Test]
         public void Child()
         {
-            api.copyFileCalls[1].FirstArg.Should().Be(FullPath(@"Child\test.js"));
-            api.copyFileCalls[1].SecondArg.Should().Be(FullPath("Target/Child/test.js"));
+            api.copyFileCalls[1].FirstArg.Should().Be(FullPath(@"Sync\Child\test.js"));
+            api.copyFileCalls[1].SecondArg.Should().Be(FullPath("TestOutput/Sync/Child/test.js"));
         }
 
         [Test]
         public void Recursive()
         {
-            api.copyFileCalls[2].FirstArg.Should().Be(FullPath(@"test.js"));
-            api.copyFileCalls[2].SecondArg.Should().Be(FullPath("Target/Recursive/test.js"));
-            api.copyFileCalls[3].FirstArg.Should().Be(FullPath(@"Child\test.js"));
-            api.copyFileCalls[3].SecondArg.Should().Be(FullPath("Target/Recursive/Child/test.js"));
+            api.copyFileCalls[2].FirstArg.Should().Be(FullPath(@"Sync\test.js"));
+            api.copyFileCalls[2].SecondArg.Should().Be(FullPath("TestOutput/Sync/Recursive/test.js"));
+            api.copyFileCalls[3].FirstArg.Should().Be(FullPath(@"Sync\Child\test.js"));
+            api.copyFileCalls[3].SecondArg.Should().Be(FullPath("TestOutput/Sync/Recursive/Child/test.js"));
         }
 
         [Test]
         public void Alternate()
         {
-            api.copyFileCalls[4].FirstArg.Should().Be(FullPath(@"test.js"));
-            api.copyFileCalls[4].SecondArg.Should().Be(FullPath("Target/Alternate/test.js"));
+            api.copyFileCalls[4].FirstArg.Should().Be(FullPath(@"Sync\test.js"));
+            api.copyFileCalls[4].SecondArg.Should().Be(FullPath("TestOutput/Sync/Alternate/test.js"));
         }
 
         private string FullPath(string path)
         {
-            return Path.GetFullPath(@"..\..\Integration\Sync\") + path;
+            return Path.GetFullPath(@"..\..\Integration\") + path;
         }
     }
 }

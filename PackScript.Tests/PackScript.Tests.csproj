@@ -95,6 +95,7 @@
     <Compile Include="Api\Files\PathExtensionsTests.cs" />
     <Compile Include="Api\Xdt\MergeTests.cs" />
     <Compile Include="Api\Zip\ArchiveTests.cs" />
+    <Compile Include="Console\OptionsProviderTests.cs" />
     <Compile Include="Integration\CombineTests.cs" />
     <Compile Include="Integration\ConfigLoadTests.cs" />
     <Compile Include="Integration\ConfigChangeTests.cs" />
@@ -113,6 +114,7 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="TestInfrastructure\Call.cs" />
     <Compile Include="TestInfrastructure\ContextFactory.cs" />
+    <Compile Include="TestInfrastructure\Log.cs" />
     <Compile Include="TestInfrastructure\StubFilesApi.cs" />
     <Compile Include="TestInfrastructure\TestFilesApi.cs" />
     <Compile Include="TestInfrastructure\TestApi.cs" />
@@ -131,6 +133,10 @@
     <ProjectReference Include="..\PackScript.Api\PackScript.Api.csproj">
       <Project>{D8D13DAC-C70B-4C7F-80DA-2E52D52A2CA8}</Project>
       <Name>PackScript.Api</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\PackScript.Console\PackScript.Console.csproj">
+      <Project>{f00d522a-b6bf-4d3d-9a28-abce46cf6f07}</Project>
+      <Name>PackScript.Console</Name>
     </ProjectReference>
     <ProjectReference Include="..\PackScript.Core\PackScript.Core.csproj">
       <Project>{1f79b176-1d08-4db8-bc58-20566c9c8fbb}</Project>

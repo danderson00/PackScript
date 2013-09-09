@@ -13,6 +13,12 @@
         ok(Files.getFilenames.calledWithExactly('path/*.js', false));
     });
 
+    test("include calls getFilenames with correct arguments when function is passed", function () {
+        pack.transforms.include.apply(wrap(function() { return { files: '*.js', recursive: false }; }, new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
+        ok(Files.getFilenames.calledOnce);
+        ok(Files.getFilenames.calledWithExactly('path/*.js', false));
+    });
+
     test("include calls getFilenames with correct arguments when function is passed and no list exists", function () {
         pack.transforms.include.apply(wrap(function () { }, new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
         ok(Files.getFilenames.calledOnce);

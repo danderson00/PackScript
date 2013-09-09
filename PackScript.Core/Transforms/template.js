@@ -8,6 +8,9 @@
 
         function applyTemplates(file) {
             var templateConfiguration = file.template || value;
+            if (_.isFunction(templateConfiguration))
+                templateConfiguration = templateConfiguration(data.output, data.target);
+            
             Pack.utils.executeSingleOrArray(templateConfiguration, function(templateSettings) {
                 normaliseTemplateSettings();
                 

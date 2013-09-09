@@ -2,7 +2,7 @@
 using NUnit.Framework;
 using PackScript.Api.Log;
 using PackScript.Api.Xdt;
-using PackScript.Core.Infrastructure;
+using PackScript.Core.Host;
 using PackScript.Tests.TestInfrastructure;
 
 namespace PackScript.Tests.Integration
@@ -17,7 +17,7 @@ namespace PackScript.Tests.Integration
         public void Setup()
         {
             api = new TestFilesApi();
-            context = ContextFactory.Create(@"..\..\Integration\Xdt", api, new XdtApi(new DebugLogApi())).ScanForResources().BuildAll();
+            context = ContextFactory.Create(@"..\..\Integration\Xdt", api, new XdtApi(Log.Api)).ScanForResources().BuildAll();
         }
 
         [Test]

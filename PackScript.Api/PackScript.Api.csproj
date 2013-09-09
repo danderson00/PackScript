@@ -59,8 +59,10 @@
     <Compile Include="Files\Retry.cs" />
     <Compile Include="Interfaces\IContainJavascript.cs" />
     <Compile Include="Interfaces\IApi.cs" />
-    <Compile Include="Log\DebugLogApi.cs" />
-    <Compile Include="Log\ILogApi.cs" />
+    <Compile Include="Log\DebugLogProvider.cs" />
+    <Compile Include="Log\ILogProvider.cs" />
+    <Compile Include="Log\LogApi.cs" />
+    <Compile Include="Log\LogLevel.cs" />
     <Compile Include="Minify\IMinifyJavascript.cs" />
     <Compile Include="Minify\IMinifyMarkup.cs" />
     <Compile Include="Minify\IMinifyStylesheet.cs" />

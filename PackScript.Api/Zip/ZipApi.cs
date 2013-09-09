@@ -8,7 +8,7 @@ namespace PackScript.Api.Zip
     {
         public string Name { get { return "Zip"; } }
 
-        public ILogApi Log { get; set; }
+        public LogApi Log { get; set; }
 
         public void archive(string to, Dictionary<string, object> files)
         {

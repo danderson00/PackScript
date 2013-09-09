@@ -2,14 +2,16 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
+using Newtonsoft.Json;
 using Noesis.Javascript.Console;
 using PackScript.Api.AjaxMin;
 using PackScript.Api.Files;
 using PackScript.Api.Interfaces;
+using PackScript.Api.Log;
 using PackScript.Api.Sass;
 using PackScript.Api.Xdt;
 using PackScript.Api.Zip;
-using PackScript.Core.Infrastructure;
+using PackScript.Core.Host;
 
 namespace PackScript.Console
 {
@@ -17,14 +19,14 @@ namespace PackScript.Console
     {
         public static void Build(dynamic options)
         {
-            var log = new ConsoleLogger();
-            var context = new PackContext(options.Directory, log)
+            var log = new LogApi(new ConsoleLogProvider());
+            var context = new PackContext(options.directory, log)
                 .RegisterJavascript(typeof(IApi).Assembly)
-                .AddApi(new FilesApi(new ConsoleLogger(), new Retry(new ConsoleLogger())))
+                .AddApi(new FilesApi(log, new Retry(log)))
                 .AddApi(new ZipApi())
                 .AddApi(new AjaxMinJavascriptMinifier())
                 .AddApi(new AjaxMinStylesheetMinifier())
-                .AddApi(new XdtApi(new ConsoleLogger()))
+                .AddApi(new XdtApi(log))
                 .AddApi(log);
 
             if (HasProperty(options, "RubyPath"))
@@ -34,12 +36,13 @@ namespace PackScript.Console
                 context.ScanForResources(options.ResourcePath);
 
             context
+                .SetOptions(JsonConvert.SerializeObject(options))
                 .ScanForResources()
                 .BuildAll();
 
-            if (options.Watch)
+            if (options.watch)
             {
-                WatchFolder(context, options.Directory);
+                WatchFolder(context, options.directory);
                 SystemConsole.Attach(context.Context);
             }
         }

@@ -1163,14 +1163,18 @@ Pack.Container = function() {
     this.templates = {};
     this.loadedConfigs = [];
     this.transforms = new Pack.TransformRepository();
+    
+    this.options = {
+        configurationFileFilter: '*pack.config.js',
+        packFileFilter: '*pack.js',
+        templateFileExtension: '.template.*',
+        logLevel: 'debug'
+    };
 }
 
-Pack.options = {
-    configurationFileFilter: '*pack.config.js',
-    packFileFilter: '*pack.js',
-    templateFileExtension: '.template.*',
-    logLevel: 'debug',
-    clean: true
+Pack.prototype.setOptions = function(options) {
+    _.extend(this.options, options);
+    Log.setLevel(this.options.logLevel);
 };
 
 Pack.prototype.matchingOutputs = function (paths, refresh) {
@@ -1487,8 +1491,6 @@ Pack.Output.prototype.targetPath = function () {
         this.transforms.zipTo ||
         this.transforms.syncTo;
 };(function () {
-    var options = Pack.options;
-
     Pack.prototype.scanForResources = function (path) {
         this.scanForConfigs(path);
         this.scanForTemplates(path);
@@ -1496,8 +1498,8 @@ Pack.Output.prototype.targetPath = function () {
 
     Pack.prototype.scanForConfigs = function (path) {
         var allConfigs = _.union(
-            Files.getFilenames(path + options.configurationFileFilter, true),
-            Files.getFilenames(path + options.packFileFilter, true));
+            Files.getFilenames(path + this.options.configurationFileFilter, true),
+            Files.getFilenames(path + this.options.packFileFilter, true));
         this.loadedConfigs = allConfigs;
         var configs = Files.getFileContents(this.loadedConfigs);
         for (var configPath in configs)
@@ -1513,23 +1515,23 @@ Pack.Output.prototype.targetPath = function () {
 
     Pack.prototype.scanForTemplates = function (path) {
         Log.info("Loading templates from " + path);
-        var files = Files.getFilenames(path + '*' + options.templateFileExtension, true);
+        var files = Files.getFilenames(path + '*' + this.options.templateFileExtension, true);
         for (var index in files)
             this.loadTemplate(files[index]);
     };
 
     Pack.prototype.loadTemplate = function(path) {
-        Log.debug("Loaded template " + templateName(path));
+        Log.debug("Loaded template " + templateName(path, this.options.templateFileExtension));
         var loadedTemplates = Files.getFileContents([path]);
         this.storeTemplate(path, loadedTemplates[path]);
     };
 
     Pack.prototype.storeTemplate = function(path, template) {
-        this.templates[templateName(path)] = template;
+        this.templates[templateName(path, this.options.templateFileExtension)] = template;
     };
 
-    function templateName(path) {
-        var replaceRegex = new RegExp(Path(path).match(options.templateFileExtension) + '$');
+    function templateName(path, fileExtension) {
+        var replaceRegex = new RegExp(Path(path).match(fileExtension) + '$');
         return Path(path).filename().toString().replace(replaceRegex, '');
     }
 
@@ -1554,9 +1556,9 @@ Pack.prototype.build = function (outputs) {
 };
 
 Pack.prototype.fileChanged = function (path, oldPath, changeType) {
-    if (Path(path).match(Pack.options.configurationFileFilter) || Path(path).match(Pack.options.packFileFilter))
+    if (Path(path).match(this.options.configurationFileFilter) || Path(path).match(this.options.packFileFilter))
         this.handleConfigChange(path, oldPath, changeType);
-    else if (Path(path).match('*' + Pack.options.templateFileExtension))
+    else if (Path(path).match('*' + this.options.templateFileExtension))
         this.handleTemplateChange(path, oldPath, changeType);
     else
         this.handleFileChange(path, oldPath, changeType);
@@ -1667,13 +1669,9 @@ _.extend(this, new Pack.Api());(function () {
         target.output = _.pluck(target.files.list, 'content').join('');
         
         function log() {
-            if (data.options.log !== false) {
-                if (Pack.options.logLevel === 'debug')
-                    Log.debug('(' + filenames() + ') -> ' + (output.transforms && output.transforms.to));
-                if (target.files.list.length === 0)
-                    Log.warn('No files to include for ' + (output.transforms && output.transforms.to));
-            }
-
+            Log.debug('(' + filenames() + ') -> ' + (output.transforms && output.transforms.to));
+            if (target.files.list.length === 0)
+                Log.warn('No files to include for ' + (output.transforms && output.transforms.to));
         }
         
         function filenames() {
@@ -1732,32 +1730,31 @@ _.extend(this, new Pack.Api());(function () {
     var transforms = pack.transforms;
     
     transforms.add('include', 'includeFiles', function (data) {
-        if(data.options.log !== false)
-            Log.debug('Including ' + formatInclude(data.value) + ' in ' + data.output.targetPath());
+        Log.debug('Including ' + formatInclude(data.value) + ' in ' + data.output.targetPath());
         data.target.files.include(loadFileList(data.value, data.output));
     });
     
     transforms.add('exclude', 'excludeFiles', function (data) {
-        if (data.options.log !== false)
-            Log.debug('Excluding ' + formatInclude(data.value) + ' from ' + data.output.targetPath());
+        Log.debug('Excluding ' + formatInclude(data.value) + ' from ' + data.output.targetPath());
         data.target.files.exclude(loadFileList(data.value, data.output));
     });
 
     function loadFileList(allValues, output) {
         var allFiles = new FileList();
-        utils.executeSingleOrArray(allValues, recurseValues);
+        utils.executeSingleOrArray(allValues, includeValue);
         return allFiles;
 
-        function recurseValues(value) {
-            if (_.isArray(value))
-                return utils.executeSingleOrArray(value, recurseValues);
-            else
-                allFiles.include(loadIndividualFileList(value));
+        function includeValue(value) {
+            allFiles.include(loadIndividualFileList(value));
         }
 
         function loadIndividualFileList(value) {
             var files = new FileList();
 
+            if (_.isFunction(value))
+                value = value(output);
+            if (!value)
+                value = '*.*';
             if (value.constructor === String)
                 files.include(getFiles(value));
             else if (_.isObject(value))
@@ -1922,6 +1919,9 @@ pack.transforms.add('syncTo', 'finalise', function (data) {
 
         function applyTemplates(file) {
             var templateConfiguration = file.template || value;
+            if (_.isFunction(templateConfiguration))
+                templateConfiguration = templateConfiguration(data.output, data.target);
+            
             Pack.utils.executeSingleOrArray(templateConfiguration, function(templateSettings) {
                 normaliseTemplateSettings();
                 
@@ -2146,17 +2146,37 @@ T.prepareForEval = function (content) {
         .replace(/\\/g, "\\\\")     // double escape
         .replace(/\n/g, "\\n")      // replace literal newlines with control characters
         .replace(/\"/g, "\\\"");    // escape double quotes
+};T.webTargets = function(path) {
+    var targets = {};
+    targets[path + '.js'] = {};
+    targets[path + '.min.js'] = { minify: true };
+    targets[path + '.debug.js'] = { debug: true };
+    return targets;
+};
+
+T.webDependency = function(path) {
+    return function(output) {
+        if (output.transforms.minify)
+            return path + '.min.js';
+        if (output.transforms.debug)
+            return path + '.debug.js';
+        return path + '.js';
+    };
 };T.scripts = function (pathOrOptions, debug) {
     var options = normaliseOptions(pathOrOptions, debug);
-    return include(options.debug ? 'T.Script.debug' : 'T.Script', 'js', options);
+    return include(function(output) {
+        return (options.debug || output.transforms.debug) ? 'T.Script.debug' : 'T.Script';
+    }, 'js', options);
 };
 
 T.models = function(pathOrOptions, debug) {
     var options = normaliseOptions(pathOrOptions, debug);
-    var template = [
-        { name: 'T.Model', data: options },
-        { name: options.debug ? 'T.Script.debug' : 'T.Script', data: options }
-    ];
+    var template = function(output) {
+        return [
+            { name: 'T.Model', data: options },
+            { name: (options.debug || output.transforms.debug) ? 'T.Script.debug' : 'T.Script', data: options }
+        ];
+    };
     return include(template, 'js', options);
 };
 

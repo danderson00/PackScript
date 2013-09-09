@@ -7,10 +7,10 @@ namespace PackScript.Api.Files
 {
     public class Retry
     {
-        private ILogApi Log { get; set; }
+        private LogApi Log { get; set; }
         private int[] RetryWaits = new[] { 100, 500, 1000 };
 
-        public Retry(ILogApi log)
+        public Retry(LogApi log)
         {
             Log = log;
         }

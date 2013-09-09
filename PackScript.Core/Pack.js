@@ -3,14 +3,18 @@
     this.templates = {};
     this.loadedConfigs = [];
     this.transforms = new Pack.TransformRepository();
+    
+    this.options = {
+        configurationFileFilter: '*pack.config.js',
+        packFileFilter: '*pack.js',
+        templateFileExtension: '.template.*',
+        logLevel: 'debug'
+    };
 }
 
-Pack.options = {
-    configurationFileFilter: '*pack.config.js',
-    packFileFilter: '*pack.js',
-    templateFileExtension: '.template.*',
-    logLevel: 'debug',
-    clean: true
+Pack.prototype.setOptions = function(options) {
+    _.extend(this.options, options);
+    Log.setLevel(this.options.logLevel);
 };
 
 Pack.prototype.matchingOutputs = function (paths, refresh) {

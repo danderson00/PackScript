@@ -3,32 +3,31 @@
     var transforms = pack.transforms;
     
     transforms.add('include', 'includeFiles', function (data) {
-        if(data.options.log !== false)
-            Log.debug('Including ' + formatInclude(data.value) + ' in ' + data.output.targetPath());
+        Log.debug('Including ' + formatInclude(data.value) + ' in ' + data.output.targetPath());
         data.target.files.include(loadFileList(data.value, data.output));
     });
     
     transforms.add('exclude', 'excludeFiles', function (data) {
-        if (data.options.log !== false)
-            Log.debug('Excluding ' + formatInclude(data.value) + ' from ' + data.output.targetPath());
+        Log.debug('Excluding ' + formatInclude(data.value) + ' from ' + data.output.targetPath());
         data.target.files.exclude(loadFileList(data.value, data.output));
     });
 
     function loadFileList(allValues, output) {
         var allFiles = new FileList();
-        utils.executeSingleOrArray(allValues, recurseValues);
+        utils.executeSingleOrArray(allValues, includeValue);
         return allFiles;
 
-        function recurseValues(value) {
-            if (_.isArray(value))
-                return utils.executeSingleOrArray(value, recurseValues);
-            else
-                allFiles.include(loadIndividualFileList(value));
+        function includeValue(value) {
+            allFiles.include(loadIndividualFileList(value));
         }
 
         function loadIndividualFileList(value) {
             var files = new FileList();
 
+            if (_.isFunction(value))
+                value = value(output);
+            if (!value)
+                value = '*.*';
             if (value.constructor === String)
                 files.include(getFiles(value));
             else if (_.isObject(value))

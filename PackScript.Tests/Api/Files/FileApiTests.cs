@@ -5,13 +5,14 @@ using FluentAssertions;
 using NUnit.Framework;
 using PackScript.Api.Files;
 using PackScript.Api.Log;
+using PackScript.Tests.TestInfrastructure;
 
 namespace PackScript.Tests.Api.Files
 {
     [TestFixture]
     public class FileApiTests
     {
-        private FilesApi api = new FilesApi(new DebugLogApi(), new Retry(new DebugLogApi()));
+        private FilesApi api = new FilesApi(Log.Api, new Retry(Log.Api));
 
         [SetUp]
         public void SetUp()

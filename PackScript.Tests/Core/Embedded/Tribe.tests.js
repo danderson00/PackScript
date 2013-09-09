@@ -3,7 +3,6 @@
 test("Specifying folder includes all js files", function() {
     var include = T.scripts('Scripts');
     equal(include.files, 'Scripts/*.js');
-    equal(include.template.name, 'T.Script');
 });
 
 test("Specifying file includes single file", function () {
@@ -16,9 +15,16 @@ test("Specifying filespec includes filespec", function () {
     equal(include.files, 'Tests/*.tests.js');
 });
 
-test("Specifying debug uses debug template", function () {
+test("T.Script template is used if debug is not specified", function () {
+    var include = T.scripts('Scripts');
+    var output = { transforms: {} };
+    equal(include.template(output), 'T.Script');
+});
+
+test("T.Script.debug template is used if debug transform is specified", function () {
     var include = T.scripts('Scripts', true);
-    equal(include.template.name, 'T.Script.debug');
+    var output = { transforms: { debug: true } };
+    equal(include.template(output), 'T.Script.debug');
 });
 
 test("Path can be specified in object", function () {
@@ -28,7 +34,8 @@ test("Path can be specified in object", function () {
 
 test("Debug can be specified in object", function () {
     var include = T.scripts({ path: 'Scripts', debug: true });
-    equal(include.template.name, 'T.Script.debug');
+    var output = { transforms: {} };
+    equal(include.template(output), 'T.Script.debug');
 });
 
 module('Embedded.T.panes');
@@ -45,7 +52,8 @@ module('Embedded.T.models');
 
 test("T.models uses model and script templates", function () {
     var include = T.models('Panes');
-    equal(include.template.length, 2);
-    equal(include.template[0].name, 'T.Model');
-    equal(include.template[1].name, 'T.Script');
+    var template = include.template({ transforms: {} });
+    equal(template.length, 2);
+    equal(template[0].name, 'T.Model');
+    equal(template[1].name, 'T.Script');
 });

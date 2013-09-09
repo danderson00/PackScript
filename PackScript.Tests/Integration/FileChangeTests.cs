@@ -2,7 +2,7 @@
 using System.Linq;
 using FluentAssertions;
 using NUnit.Framework;
-using PackScript.Core.Infrastructure;
+using PackScript.Core.Host;
 using PackScript.Tests.TestInfrastructure;
 
 namespace PackScript.Tests.Integration

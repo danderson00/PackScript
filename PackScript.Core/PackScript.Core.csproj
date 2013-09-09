@@ -88,9 +88,9 @@
     <None Include="utils.js" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Infrastructure\ContextData.cs" />
-    <Compile Include="Infrastructure\ApiContext.cs" />
-    <Compile Include="Infrastructure\PackContext.cs" />
+    <Compile Include="Host\ContextData.cs" />
+    <Compile Include="Host\ApiContext.cs" />
+    <Compile Include="Host\PackContext.cs" />
   </ItemGroup>
   <ItemGroup>
     <Reference Include="Noesis.Javascript">
@@ -116,6 +116,7 @@
   <ItemGroup>
     <Content Include="build.pack.js" />
     <Content Include="Container.js" />
+    <Content Include="Embedded\Tribe\T.webTargets.pack.config.js" />
     <Content Include="Embedded\Tribe\T.Script.template.js" />
     <Content Include="Embedded\Tribe\Tribe.pack.config.js" />
     <Content Include="Transforms\syncTo.js" />

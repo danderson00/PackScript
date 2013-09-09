@@ -1,14 +1,18 @@
 ﻿T.scripts = function (pathOrOptions, debug) {
     var options = normaliseOptions(pathOrOptions, debug);
-    return include(options.debug ? 'T.Script.debug' : 'T.Script', 'js', options);
+    return include(function(output) {
+        return (options.debug || output.transforms.debug) ? 'T.Script.debug' : 'T.Script';
+    }, 'js', options);
 };
 
 T.models = function(pathOrOptions, debug) {
     var options = normaliseOptions(pathOrOptions, debug);
-    var template = [
-        { name: 'T.Model', data: options },
-        { name: options.debug ? 'T.Script.debug' : 'T.Script', data: options }
-    ];
+    var template = function(output) {
+        return [
+            { name: 'T.Model', data: options },
+            { name: (options.debug || output.transforms.debug) ? 'T.Script.debug' : 'T.Script', data: options }
+        ];
+    };
     return include(template, 'js', options);
 };
 

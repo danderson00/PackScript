@@ -55,4 +55,19 @@
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, 'path/');
     });
+
+    test("When function is passed as template value, actual value is set from function evaluation", function () {
+        expect(4);
+        var output = {};
+        var data = { files: new FileList({ path: 'filepath', content: 'filecontent' }) };
+        pack.templates = { 'template': 'templatecontent' };
+        pack.transforms.template.apply(wrap(function(currentOutput, target) {
+            equal(currentOutput, output);
+            equal(target, data);
+            return 'template';
+        }, output, data));
+
+        equal(data.files.list.length, 1);
+        equal(data.files.list[0].content, 'templatecontent');
+    });
 })();
