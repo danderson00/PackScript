@@ -1468,7 +1468,7 @@ Pack.prototype.outputsFor = function(path) {
     this.configPath = configPath;
     this.basePath = Path(configPath).withoutFilename().toString();
     this.outputPath = Path(this.basePath + (transforms && transforms.to)).toString();
-    this.transforms = transforms;
+    this.transforms = transforms || {};
 };
 
 Pack.Output.prototype.matches = function (path, transformRepository, refresh) {
@@ -1730,12 +1730,12 @@ _.extend(this, new Pack.Api());(function () {
     var transforms = pack.transforms;
     
     transforms.add('include', 'includeFiles', function (data) {
-        Log.debug('Including ' + formatInclude(data.value) + ' in ' + data.output.targetPath());
+        Log.debug('Including ' + formatInclude(data.value, data.output) + ' in ' + data.output.targetPath());
         data.target.files.include(loadFileList(data.value, data.output));
     });
     
     transforms.add('exclude', 'excludeFiles', function (data) {
-        Log.debug('Excluding ' + formatInclude(data.value) + ' from ' + data.output.targetPath());
+        Log.debug('Excluding ' + formatInclude(data.value, data.output) + ' from ' + data.output.targetPath());
         data.target.files.exclude(loadFileList(data.value, data.output));
     });
 
@@ -1803,13 +1803,19 @@ _.extend(this, new Pack.Api());(function () {
         }
     }
 
-    function formatInclude(include) {
+    function formatInclude(include, output) {
+        if(_.isFunction(include))
+            include = include(output);        
+        include = include || {};
+        
         if (include.constructor === String)
             return include;
         if (include.files)
             return include.files;
         if (include.constructor === Array)
-            return _.map(include, formatInclude).join(', ');
+            return _.map(include, function(include) {
+                return formatInclude(include, output);
+            }).join(', ');
         return include.toString();
     }
 })();
@@ -1935,7 +1941,8 @@ pack.transforms.add('syncTo', 'finalise', function (data) {
                         pathRelativeToConfig: file.pathRelativeToConfig,
                         includePath: file.includePath,
                         pathRelativeToInclude: file.pathRelativeToInclude,
-                        data: templateSettings.data || {}
+                        data: templateSettings.data || {},
+                        output: output
                     };
 
                     try {

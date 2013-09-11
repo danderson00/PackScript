@@ -10,7 +10,7 @@ Older versions of Windows may also require msvcp100.dll and msvcr100.dll from th
 
 You can see the core unit tests at http://danderson00.github.com/PackScript/PackScript.Tests/Core/Resources/runner.htm.
 
-Sass integration is currently external and requires [Ruby](http://rubyinstaller.org/downloads/) and [Sass](http://sass-lang.com/). Set the RubyPath AppSetting to the Ruby bin folder to enable integration. An internal implementation based on IronRuby will be provided soon.
+Sass integration is currently external and requires [Ruby](http://rubyinstaller.org/downloads/) and [Sass](http://sass-lang.com/). Set the rubyPath AppSetting to the Ruby bin folder to enable integration. An internal implementation based on IronRuby will be provided soon.
 
 Command Line Usage
 ==================

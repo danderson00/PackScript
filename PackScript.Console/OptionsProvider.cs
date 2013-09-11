@@ -12,10 +12,15 @@ namespace PackScript.Console
     {
         public static dynamic Create(string[] arguments)
         {
-            dynamic result = new ExpandoObject();
-            ParseAppSettings(result);
-            ParseArguments(arguments, result);
-            return result;
+            IDictionary<string, Object> options = new ExpandoObject();
+
+            options["watch"] = false;
+            options["directory"] = Directory.GetCurrentDirectory();
+
+            ParseAppSettings(options);
+            ParseArguments(arguments, options);
+
+            return options;
         }
 
         private static void ParseAppSettings(IDictionary<string, Object> options)
@@ -26,9 +31,6 @@ namespace PackScript.Console
 
         private static void ParseArguments(string[] arguments, IDictionary<string, Object> options)
         {
-            options["watch"] = false;
-            options["directory"] = Directory.GetCurrentDirectory();
-
             foreach (string argument in arguments)
                 ParseArgument(argument, options);
         }
@@ -37,16 +39,12 @@ namespace PackScript.Console
         {
             var match = Regex.Match(argument, @"\/([^\:]+)[\:]*(.*)");
             if (match.Success)
-            {
                 if (string.IsNullOrEmpty(match.Groups[2].Value))
                     options[match.Groups[1].Value] = true;
                 else
                     options[match.Groups[1].Value] = match.Groups[2].Value;
-            }
             else
-            {
                 options["directory"] = StripQuotes(argument);
-            }
         }
 
         private static string StripQuotes(string source)

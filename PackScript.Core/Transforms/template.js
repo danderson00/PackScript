@@ -24,7 +24,8 @@
                         pathRelativeToConfig: file.pathRelativeToConfig,
                         includePath: file.includePath,
                         pathRelativeToInclude: file.pathRelativeToInclude,
-                        data: templateSettings.data || {}
+                        data: templateSettings.data || {},
+                        output: output
                     };
 
                     try {

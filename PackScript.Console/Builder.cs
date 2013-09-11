@@ -29,11 +29,11 @@ namespace PackScript.Console
                 .AddApi(new XdtApi(log))
                 .AddApi(log);
 
-            if (HasProperty(options, "RubyPath"))
-                context.AddApi(new SassApi(options.RubyPath, log));
+            if (HasProperty(options, "rubyPath"))
+                context.AddApi(new SassApi(options.rubyPath, log));
 
-            if (HasProperty(options, "ResourcePath"))
-                context.ScanForResources(options.ResourcePath);
+            if (HasProperty(options, "resourcePath"))
+                context.ScanForResources(options.resourcePath);
 
             context
                 .SetOptions(JsonConvert.SerializeObject(options))

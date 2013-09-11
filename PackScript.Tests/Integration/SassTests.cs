@@ -1,8 +1,6 @@
-﻿using System;
-using System.IO;
+﻿using System.IO;
 using FluentAssertions;
 using NUnit.Framework;
-using PackScript.Api.Log;
 using PackScript.Api.Sass;
 using PackScript.Core.Host;
 using PackScript.Tests.TestInfrastructure;

@@ -2,7 +2,7 @@
     this.configPath = configPath;
     this.basePath = Path(configPath).withoutFilename().toString();
     this.outputPath = Path(this.basePath + (transforms && transforms.to)).toString();
-    this.transforms = transforms;
+    this.transforms = transforms || {};
 };
 
 Pack.Output.prototype.matches = function (path, transformRepository, refresh) {
