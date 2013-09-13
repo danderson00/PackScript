@@ -1,7 +1,10 @@
 ﻿T.scripts = function (pathOrOptions, debug) {
     var options = normaliseOptions(pathOrOptions, debug);
     return include(function(output) {
-        return (options.debug || output.transforms.debug) ? 'T.Script.debug' : 'T.Script';
+        return {
+            name: (options.debug || output.transforms.debug) ? 'T.Script.debug' : 'T.Script',
+            data: options
+        };
     }, 'js', options);
 };
 
