@@ -18,13 +18,13 @@ test("Specifying filespec includes filespec", function () {
 test("T.Script template is used if debug is not specified", function () {
     var include = T.scripts('Scripts');
     var output = { transforms: {} };
-    equal(include.template(output), 'T.Script');
+    equal(include.template(output).name, 'T.Script');
 });
 
 test("T.Script.debug template is used if debug transform is specified", function () {
     var include = T.scripts('Scripts', true);
     var output = { transforms: { debug: true } };
-    equal(include.template(output), 'T.Script.debug');
+    equal(include.template(output).name, 'T.Script.debug');
 });
 
 test("Path can be specified in object", function () {
@@ -35,7 +35,7 @@ test("Path can be specified in object", function () {
 test("Debug can be specified in object", function () {
     var include = T.scripts({ path: 'Scripts', debug: true });
     var output = { transforms: {} };
-    equal(include.template(output), 'T.Script.debug');
+    equal(include.template(output).name, 'T.Script.debug');
 });
 
 module('Embedded.T.panes');
