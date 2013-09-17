@@ -1587,80 +1587,7 @@ Pack.prototype.executeTransform = function (name, output) {
     if(this.transforms[name])
         return this.transforms[name].apply(output.transforms[name], output);
 };
-Pack.Api = function () {
-    var self = this;
-    
-    this.pack = function (options) {
-        options = unwrapOptions(options, arguments);
-        return addOutputs(options, 'to');
-    };
-
-    this.sync = function(options) {
-        options = unwrapOptions(options, arguments);
-        renameProperties(options, 'to', 'syncTo');
-        return addOutputs(options, 'syncTo');
-    };
-
-    this.zip = function(options) {
-        options = unwrapOptions(options, arguments);
-        renameProperties(options, 'to', 'zipTo');
-        return addOutputs(options, 'zipTo');
-    };
-    
-    function addOutputs(options, transformName) {
-        var outputs = self.pack.addOutput(options, Context.configPath);
-
-        if (outputs.length === 1)
-            return createWrapper(outputs[0]);
-
-        return _.map(outputs, createWrapper);
-
-        function createWrapper(output) {
-            return {
-                output: output,
-                to: function (targets) {
-                    self.pack.removeOutput(output);
-                    _.each(unwrapTargets(targets), addMergedTransforms);
-                }
-            };
-            
-            function unwrapTargets(targets) {
-                if (targets.constructor === String) {
-                    var unwrapped = {};
-                    unwrapped[targets] = {};
-                    return unwrapped;
-                }
-                return targets;
-            }
-
-            function addMergedTransforms(targetTransforms, path) {
-                var transforms = _.extend({}, output.transforms, targetTransforms);
-                transforms[transformName] = path;
-                self.pack.addOutput(transforms, output.configPath);
-            }            
-        }
-    }
-    
-    function unwrapOptions(options, args) {
-        // If we're passed a string or an array, assume we want this to be the include option
-        if (options.constructor === String || _.isArray(options))
-            return [{ include: options }];
-        return _.toArray(args);
-    }
-    
-    function renameProperties(array, from, to) {
-        _.each(array, function(target) {
-            target[to] = target[from];
-            delete target[from];
-        });
-    }
-
-    // extend the pack member of the api object with a new instance of a Pack object
-    _.extend(self.pack, new Pack());
-};
-
-// make an instance of the api available globally
-_.extend(this, new Pack.Api());(function () {
+(function () {
     pack.transforms.add('combine', 'output', function (data) {
         var target = data.target;
         var output = data.output;
@@ -2117,11 +2044,6 @@ function trim(source) {
     function mock404(url) {
         return "$.mockjax({ url: '" + url + "', status: 404, responseTime: 0 });\n";
     }
-};T.testModule = function(prefix) {
-    return {
-        name: 'T.testModule',
-        data: { prefix: prefix }
-    };
 };T.sourceUrlTag = function (path, domain, protocol) {
     if (path.toString().indexOf('://') === -1) {
         var fullPath = Path((domain || '') + '/' + path).makeRelative().toString();
@@ -2233,7 +2155,6 @@ function normaliseOptions(pathOrOptions, debug) {
 pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/T.document.template.js', '<%= data.documentation(content) %>');
 pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/T.mockjax.outer.template.js', '<%= content %>\n<%= data.mockGaps() %>');
 pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/T.mockjax.template.js', '$.mockjax({\n    url: \'<%= pathRelativeToConfig %>\',\n    responseText: \'<%= T.embedString(content) %>\',\n    responseTime: 0\n});\n<% data.registerUrl(pathRelativeToConfig) %>');
-pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/T.testModule.template.js', '(function () {\n    var moduleFunction = module;\n    module = function(name, lifecycle) {\n        return moduleFunction(\'<%=data.prefix%>.\' + name, lifecycle);\n    };\n    \n<%=content%>\n        \n    module = moduleFunction;\n})();');
 pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Model.template.js', '<%=T.modelScriptEnvironment(pathRelativeToInclude, data.prefix)%>\n<%=content%>\n');
 pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Script.debug.template.js', 'window.eval("<%= T.prepareForEval(content) + T.sourceUrlTag(pathRelativeToConfig, data.domain, data.protocol) %>");\n');
 pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Script.template.js', '// <%= pathRelativeToConfig %>\n<%= content %>\n');

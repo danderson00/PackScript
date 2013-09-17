@@ -132,8 +132,6 @@
     <Content Include="Embedded\T.mockjax.template.js" />
     <Content Include="Embedded\Tribe\T.Model.template.js" />
     <Content Include="Embedded\Tribe\T.Script.debug.template.js" />
-    <Content Include="Embedded\T.testModule.pack.config.js" />
-    <Content Include="Embedded\T.testModule.template.js" />
     <Content Include="Embedded\T.utils.pack.config.js" />
     <EmbeddedResource Include="Transforms\xdt.js" />
     <None Include="Transforms\outputTemplate.js" />
