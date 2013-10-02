@@ -1,19 +1,28 @@
 ﻿using System;
+using Newtonsoft.Json;
 using PackScript.Api.Files;
 using PackScript.Api.Log;
 using PackScript.Api.Zip;
+using PackScript.Core.Build;
 
-namespace PackScript.Core.Host
+namespace PackScript.Host
 {
     public class PackContext : ApiContext<PackContext>
     {
         private LogApi Logger { get; set; }
+        public dynamic Options { get; set; }
 
-        public PackContext(string path, LogApi logger)
+        // options.directory and options.excludedDirectories must be set.
+        // Perhaps this should be a class now instead of a dynamic object.
+        public PackContext(dynamic options, LogApi logger)
         {
+            Options = options;
             Logger = logger;
-            RegisterJavascript(GetType().Assembly);
-            AddApi(new ContextData { rootPath = path.EndsWith("\\") ? path : path + "\\" });
+            RegisterJavascript(typeof(AssemblyHook).Assembly);
+            AddApi(new ContextData { rootPath = EnsureTrailingSlash(Options.directory) });
+            AddApi(logger);
+            var serialised = JsonConvert.SerializeObject(options);
+            Execute(string.Format("pack.setOptions({0})", serialised));
         }
 
         public PackContext ScanForResources(string path = null)
@@ -49,24 +58,16 @@ namespace PackScript.Core.Host
             return this;
         }
 
-        public PackContext SetOptions(string options)
-        {
-            try
-            {
-                Execute(string.Format("pack.setOptions({0})", options));
-            }
-            catch (Exception ex)
-            {
-                Logger.error(string.Format("An error occurred handling a file change: {0}", ex.Message));
-            }
-            return this;
-        }
-
         public PackContext AddDefaultApis()
         {
-            return AddApi(new FilesApi(Logger, new Retry(Logger)))
+            return AddApi(new FilesApi(Logger, new Retry(Logger), Options.excludedDirectories))
                   .AddApi(Logger)
                   .AddApi(new ZipApi());
+        }
+
+        private string EnsureTrailingSlash(string path)
+        {
+            return path.EndsWith("\\") ? path : path + "\\";
         }
     }
 }

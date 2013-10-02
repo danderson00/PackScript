@@ -6,7 +6,7 @@ using PackScript.Tests.TestInfrastructure;
 namespace PackScript.Tests.Integration
 {
     [TestFixture]
-    public class OutputTemplateTests
+    public class ExcludedDirectoriesTests
     {
         private TestFilesApi api;
         private PackContext context;
@@ -14,14 +14,14 @@ namespace PackScript.Tests.Integration
         [SetUp]
         public void Setup()
         {
-            api = new TestFilesApi();
-            context = ContextFactory.Create(@"..\..\Integration\OutputTemplate", api).ScanForResources().BuildAll();
+            api = new TestFilesApi("excluded");
+            context = ContextFactory.Create(@"..\..\Integration\ExcludedDirectories", api).ScanForResources().BuildAll();
         }
 
         [Test]
-        public void OutputTemplate()
+        public void Configuration_files_in_excluded_directories_are_not_parsed()
         {
-            api.Output("outputTemplate").Should().Be("// license\r\nfunction");
+            api.OutputExists("excluded").Should().BeFalse();
         }
     }
 }

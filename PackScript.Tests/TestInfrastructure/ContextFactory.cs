@@ -1,8 +1,7 @@
-﻿using System.Linq;
+﻿using System.Dynamic;
+using System.Linq;
 using PackScript.Api.Interfaces;
-using PackScript.Api.Log;
-using Noesis.Javascript.Dynamic;
-using PackScript.Core.Host;
+using PackScript.Host;
 
 namespace PackScript.Tests.TestInfrastructure
 {
@@ -12,7 +11,10 @@ namespace PackScript.Tests.TestInfrastructure
 
         public static PackContext Create(string path, params IApi[] apis)
         {
-            return new PackContext(path, Log.Api).LoadApis(apis);
+            dynamic options = new ExpandoObject();
+            options.directory = path;
+            options.excludedDirectories = "excluded";
+            return new PackContext(options, Log.Api).LoadApis(apis);
         }
 
         private static PackContext LoadApis(this PackContext context, IApi[] apis)

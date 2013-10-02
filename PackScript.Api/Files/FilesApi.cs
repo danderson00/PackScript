@@ -11,11 +11,13 @@ namespace PackScript.Api.Files
         public string Name { get { return "Files"; } }
         private LogApi Log { get; set; }
         private Retry Retry { get; set; }
+        private string[] ExcludedDirectories { get; set; }
 
-        public FilesApi(LogApi log, Retry retry)
+        public FilesApi(LogApi log, Retry retry, string excludedDirectories = "")
         {
             Log = log;
             Retry = retry;
+            ExcludedDirectories = excludedDirectories.Split(';');
         }
 
         public virtual string[] getFilenames(string filespec, bool recursive = false)
@@ -24,7 +26,7 @@ namespace PackScript.Api.Files
             {
                 var options = recursive ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly;
                 return Directory.GetFiles(Path.GetDirectoryName(filespec), Path.GetFileName(filespec), options)
-                                .Where(x => x.Matches(filespec))
+                                .Where(x => x.Matches(filespec) && !InExcludedDirectory(x))
                                 .Select(Path.GetFullPath)
                                 .ToArray();
             }
@@ -48,6 +50,11 @@ namespace PackScript.Api.Files
         public virtual void copyFile(string from, string to)
         {
             Copy(from, to);
+        }
+
+        private bool InExcludedDirectory(string path)
+        {
+            return ExcludedDirectories.Any(x => path.Contains(string.Format("\\{0}\\", x)));
         }
 
         private string Read(string path)

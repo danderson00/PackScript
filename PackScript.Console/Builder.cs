@@ -11,7 +11,7 @@ using PackScript.Api.Log;
 using PackScript.Api.Sass;
 using PackScript.Api.Xdt;
 using PackScript.Api.Zip;
-using PackScript.Core.Host;
+using PackScript.Host;
 
 namespace PackScript.Console
 {
@@ -20,14 +20,13 @@ namespace PackScript.Console
         public static void Build(dynamic options)
         {
             var log = new LogApi(new ConsoleLogProvider());
-            var context = new PackContext(options.directory, log)
+            var context = new PackContext(options, log)
                 .RegisterJavascript(typeof(IApi).Assembly)
-                .AddApi(new FilesApi(log, new Retry(log)))
+                .AddApi(new FilesApi(log, new Retry(log), options.excludedDirectories))
                 .AddApi(new ZipApi())
                 .AddApi(new AjaxMinJavascriptMinifier())
                 .AddApi(new AjaxMinStylesheetMinifier())
-                .AddApi(new XdtApi(log))
-                .AddApi(log);
+                .AddApi(new XdtApi(log));
 
             if (HasProperty(options, "rubyPath"))
                 context.AddApi(new SassApi(options.rubyPath, log));
@@ -36,7 +35,6 @@ namespace PackScript.Console
                 context.ScanForResources(options.resourcePath);
 
             context
-                .SetOptions(JsonConvert.SerializeObject(options))
                 .ScanForResources()
                 .BuildAll();
 

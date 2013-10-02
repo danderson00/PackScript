@@ -1,6 +1,6 @@
 ﻿using PackScript.Api.Interfaces;
 
-namespace PackScript.Core.Host
+namespace PackScript.Host
 {
     public class ContextData : IApi
     {

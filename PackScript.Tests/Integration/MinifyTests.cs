@@ -1,7 +1,7 @@
 ﻿using FluentAssertions;
 using NUnit.Framework;
 using PackScript.Api.AjaxMin;
-using PackScript.Core.Host;
+using PackScript.Host;
 using PackScript.Tests.TestInfrastructure;
 
 namespace PackScript.Tests.Integration

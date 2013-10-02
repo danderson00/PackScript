@@ -3,7 +3,7 @@ using System.Reflection;
 using Noesis.Javascript.Dynamic;
 using PackScript.Api.Interfaces;
 
-namespace PackScript.Core.Host
+namespace PackScript.Host
 {
     public class ApiContext<T> : JContext where T : ApiContext<T>
     {

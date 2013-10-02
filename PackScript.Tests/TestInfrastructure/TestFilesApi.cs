@@ -12,7 +12,7 @@ namespace PackScript.Tests.TestInfrastructure
         public List<Call<string, string>> writeFileCalls { get; private set; }
         public List<Call<string, string>> copyFileCalls { get; private set; }
 
-        public TestFilesApi() : base(Log.Api, new Retry(Log.Api))
+        public TestFilesApi(string excludedDirectories = "") : base(Log.Api, new Retry(Log.Api), excludedDirectories)
         {
             getFilenamesCalls = new List<Call<string, bool>>();
             getFileContentsCalls = new List<Call<string[]>>();
@@ -23,6 +23,11 @@ namespace PackScript.Tests.TestInfrastructure
         public string Output(string file)
         {
             return writeFileCalls.Last(x => x.FirstArg.EndsWith("/" + file) || x.FirstArg.EndsWith("\\" + file)).SecondArg;
+        }
+
+        public bool OutputExists(string file)
+        {
+            return writeFileCalls.Any(x => x.FirstArg.EndsWith("/" + file) || x.FirstArg.EndsWith("\\" + file));
         }
 
         #region Overrides

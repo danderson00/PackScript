@@ -99,6 +99,7 @@
     <Compile Include="Integration\CombineTests.cs" />
     <Compile Include="Integration\ConfigLoadTests.cs" />
     <Compile Include="Integration\ConfigChangeTests.cs" />
+    <Compile Include="Integration\ExcludedDirectoriesTests.cs" />
     <Compile Include="Integration\SyncTests.cs" />
     <Compile Include="Integration\XdtTests.cs" />
     <Compile Include="Integration\OutputTemplateTests.cs" />
@@ -138,9 +139,9 @@
       <Project>{f00d522a-b6bf-4d3d-9a28-abce46cf6f07}</Project>
       <Name>PackScript.Console</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PackScript.Core\PackScript.Core.csproj">
-      <Project>{1f79b176-1d08-4db8-bc58-20566c9c8fbb}</Project>
-      <Name>PackScript.Core</Name>
+    <ProjectReference Include="..\PackScript.Host\PackScript.Host.csproj">
+      <Project>{4b434c73-21a2-4191-80f2-98c11a629690}</Project>
+      <Name>PackScript.Host</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -184,6 +185,8 @@
     <Content Include="Integration\ExcludeConfigAndTarget\output.js" />
     <Content Include="Integration\ExcludeConfigAndTarget\pack.js" />
     <Content Include="Integration\ExcludeConfigAndTarget\root.js" />
+    <Content Include="Integration\ExcludedDirectories\excluded\content.txt" />
+    <Content Include="Integration\ExcludedDirectories\excluded\pack.js" />
     <Content Include="Integration\FileChange\input.template.js" />
     <Content Include="Integration\Minify\root.htm" />
     <Content Include="Integration\Minify\root.css" />

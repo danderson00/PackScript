@@ -16,6 +16,7 @@ namespace PackScript.Console
 
             options["watch"] = false;
             options["directory"] = Directory.GetCurrentDirectory();
+            options["excludedDirectories"] = "csx;bin;obj";
 
             ParseAppSettings(options);
             ParseArguments(arguments, options);

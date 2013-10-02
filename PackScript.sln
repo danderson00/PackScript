@@ -31,6 +31,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Samples", "Samples", "{6C2C
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Debugging", "Samples\Debugging\Debugging.csproj", "{95510985-E1BD-4E07-9CA9-AF36B9128B26}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackScript.Host", "PackScript.Host\PackScript.Host.csproj", "{4B434C73-21A2-4191-80F2-98C11A629690}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -61,6 +63,10 @@ Global
 		{95510985-E1BD-4E07-9CA9-AF36B9128B26}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{95510985-E1BD-4E07-9CA9-AF36B9128B26}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{95510985-E1BD-4E07-9CA9-AF36B9128B26}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4B434C73-21A2-4191-80F2-98C11A629690}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4B434C73-21A2-4191-80F2-98C11A629690}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4B434C73-21A2-4191-80F2-98C11A629690}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4B434C73-21A2-4191-80F2-98C11A629690}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

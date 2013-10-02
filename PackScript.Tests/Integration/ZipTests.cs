@@ -5,7 +5,7 @@ using FluentAssertions;
 using NSubstitute;
 using NUnit.Framework;
 using PackScript.Api.Zip;
-using PackScript.Core.Host;
+using PackScript.Host;
 using PackScript.Tests.TestInfrastructure;
 
 namespace PackScript.Tests.Integration

@@ -49,6 +49,7 @@
     <EmbeddedResource Include="Libraries\underscore.js" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Api.js" />
     <None Include="Transforms\load.js" />
   </ItemGroup>
   <ItemGroup>
@@ -88,30 +89,7 @@
     <None Include="utils.js" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Host\ContextData.cs" />
-    <Compile Include="Host\ApiContext.cs" />
-    <Compile Include="Host\PackContext.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <Reference Include="Noesis.Javascript">
-      <HintPath>..\Dependencies\Noesis.Javascript.dll</HintPath>
-    </Reference>
-    <Reference Include="Noesis.Javascript.Dynamic">
-      <HintPath>..\Dependencies\Noesis.Javascript.Dynamic.dll</HintPath>
-    </Reference>
-    <Reference Include="System" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\PackScript.Api\PackScript.Api.csproj">
-      <Project>{d8d13dac-c70b-4c7f-80da-2e52d52a2ca8}</Project>
-      <Name>PackScript.Api</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <None Include="FileList.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="Api.js" />
   </ItemGroup>
   <ItemGroup>
     <Content Include="build.pack.js" />
@@ -138,7 +116,12 @@
     <EmbeddedResource Include="Transforms\sass.js" />
     <None Include="Transforms\files.js" />
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Compile Include="Build\AssemblyHook.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>if exist "$(SolutionDir)Build\Stable\PackScript.exe" "$(SolutionDir)Build\Stable\PackScript.exe" "$(ProjectDir)"</PreBuildEvent>
