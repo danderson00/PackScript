@@ -114,6 +114,9 @@
     <EmbeddedResource Include="..\packages\SharpZipLib.0.86.0\lib\20\ICSharpCode.SharpZipLib.dll">
       <Link>Static References\ICSharpCode.SharpZipLib.dll</Link>
     </EmbeddedResource>
+    <EmbeddedResource Include="..\PackScript.Host\bin\Debug\PackScript.Host.dll">
+      <Link>Static References\PackScript.Host.dll</Link>
+    </EmbeddedResource>
     <Content Include="PackScript.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
