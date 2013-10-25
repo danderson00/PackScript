@@ -99,6 +99,7 @@
     <Compile Include="Integration\CombineTests.cs" />
     <Compile Include="Integration\ConfigLoadTests.cs" />
     <Compile Include="Integration\ConfigChangeTests.cs" />
+    <Compile Include="Integration\EmbeddedTests.cs" />
     <Compile Include="Integration\ExcludedDirectoriesTests.cs" />
     <Compile Include="Integration\SyncTests.cs" />
     <Compile Include="Integration\XdtTests.cs" />
@@ -113,6 +114,7 @@
     <Compile Include="Core\NQUnit\QUnitTests.cs" />
     <Compile Include="Integration\ZipTests.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="TestInfrastructure\AssertionExtensions.cs" />
     <Compile Include="TestInfrastructure\Call.cs" />
     <Compile Include="TestInfrastructure\ContextFactory.cs" />
     <Compile Include="TestInfrastructure\Log.cs" />
@@ -182,6 +184,11 @@
     <Content Include="Integration\ConfigLoad\pack.js" />
     <Content Include="Integration\ConfigLoad\Subfolder\pack.config.js" />
     <Content Include="Integration\ConfigLoad\Subfolder\pack.js" />
+    <Content Include="Integration\Embedded\template2.htm" />
+    <Content Include="Integration\Embedded\pack.js" />
+    <Content Include="Integration\Embedded\stylesheet2.css" />
+    <Content Include="Integration\Embedded\stylesheet1.css" />
+    <Content Include="Integration\Embedded\template1.htm" />
     <Content Include="Integration\ExcludeConfigAndTarget\output.js" />
     <Content Include="Integration\ExcludeConfigAndTarget\pack.js" />
     <Content Include="Integration\ExcludeConfigAndTarget\root.js" />

@@ -1883,7 +1883,9 @@ _.extend(this, new Pack.Api());(function () {
                 var templateData = {
                     content: target.output,
                     configPath: Path(output.configPath),
-                    data: value.data || {}
+                    data: value.data || {},
+                    output: output,
+                    target: target
                 };
 
                 try {
@@ -1942,7 +1944,8 @@ pack.transforms.add('syncTo', 'finalise', function (data) {
                         includePath: file.includePath,
                         pathRelativeToInclude: file.pathRelativeToInclude,
                         data: templateSettings.data || {},
-                        output: output
+                        output: output,
+                        target: target
                     };
 
                     try {
@@ -2231,5 +2234,5 @@ pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/T.mockjax.te
 pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Model.template.js', '<%=T.modelScriptEnvironment(pathRelativeToInclude, data.prefix)%>\n<%=content%>\n');
 pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Script.debug.template.js', 'window.eval("<%= T.prepareForEval(content) + T.sourceUrlTag(pathRelativeToConfig, data.domain, data.protocol) %>");\n');
 pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Script.template.js', '// <%= pathRelativeToConfig %>\n<%= content %>\n');
-pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Style.template.js', '$(\'<style/>\')\n    .attr(\'class\', \'__tribe\')\n    .text(\'<%= MinifyStylesheet.minify(content).replace(/\\\'/g, "\\\\\'") %>\')\n    .appendTo(\'head\');\n');
-pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Template.template.js', '$(\'head\')\n    .append(\'<script type="text/template" id="<%=T.templateIdentifier(pathRelativeToInclude, data.prefix)%>"><%=T.embedString(content)%></script>\');\n');
+pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Style.template.js', '//<% if(!target.includesStylesheetHelper) { %>\nwindow.__appendStyle = function (content) {\n    var element = document.getElementById(\'__tribeStyles\');\n    if (!element) {\n        element = document.createElement(\'style\');\n        element.className = \'__tribe\';\n        element.id = \'__tribeStyles\';\n        document.getElementsByTagName(\'head\')[0].appendChild(element);\n    }\n\n    if(element.styleSheet)\n        element.styleSheet.cssText += content;\n    else\n        element.appendChild(document.createTextNode(content));\n};//<% target.includesStylesheetHelper = true; } %>\nwindow.__appendStyle(\'<%= MinifyStylesheet.minify(content).replace(/\\\'/g, "\\\\\'") %>\');');
+pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Template.template.js', '//<% if(!target.includesTemplateHelper) { %>\nwindow.__appendTemplate = function (content, id) {\n    var element = document.createElement(\'script\');\n    element.className = \'__tribe\';\n    element.setAttribute(\'type\', \'text/template\');\n    element.id = id;\n    element.text = content;\n    document.getElementsByTagName(\'head\')[0].appendChild(element);\n};//<% target.includesTemplateHelper = true; } %>\nwindow.__appendTemplate(\'<%=T.embedString(content)%>\', \'<%=T.templateIdentifier(pathRelativeToInclude, data.prefix)%>\');');

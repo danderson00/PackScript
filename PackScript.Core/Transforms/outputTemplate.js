@@ -14,7 +14,9 @@
                 var templateData = {
                     content: target.output,
                     configPath: Path(output.configPath),
-                    data: value.data || {}
+                    data: value.data || {},
+                    output: output,
+                    target: target
                 };
 
                 try {
