@@ -47,7 +47,7 @@ function include(template, extension, data) {
     
     return {
         files: path,
-        recursive: true,
+        recursive: data.recursive !== false,
         template: template
     };
 }

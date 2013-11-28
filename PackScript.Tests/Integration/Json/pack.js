@@ -1,0 +1,1 @@
+﻿pack({ json: { string: 'test', number: 2.2, bool: true } }).to('../TestOutput/json');

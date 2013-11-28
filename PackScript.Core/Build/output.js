@@ -1821,6 +1821,10 @@ _.extend(this, new Pack.Api());(function () {
 })();
 
 (function () {
+    pack.transforms.add('json', 'output', function (data) {
+        data.target.output = JSON.stringify(data.value);
+    });
+})();(function () {
     pack.transforms.add('load', 'content', function (data) {
         var target = data.target;
         var output = data.output;
@@ -2216,7 +2220,7 @@ function include(template, extension, data) {
     
     return {
         files: path,
-        recursive: true,
+        recursive: data.recursive !== false,
         template: template
     };
 }
