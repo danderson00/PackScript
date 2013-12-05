@@ -1,5 +1,5 @@
 ﻿(function () {
-    module("transforms.content", { setup: filesAsSpy });
+    QUnit.module("transforms.content", { setup: filesAsSpy });
 
     test("load calls getFileContents passing file names", function () {
         pack.transforms.load.apply(wrap(true, {}, { files: new FileList('1', '3') }));
@@ -8,7 +8,7 @@
     });
     
 
-    module("transforms.output", { setup: filesAsSpy });
+    QUnit.module("transforms.output", { setup: filesAsSpy });
 
     test("combine joins all files contents", function () {
         var data = { files: new FileList({ path: 'file1', content: '1' }, { path: 'file2', content: '2' }, { path: 'file3', content: '3' }) };
@@ -17,7 +17,7 @@
     });
 
 
-    module("transforms.finalise", { setup: filesAsSpy });
+    QUnit.module("transforms.finalise", { setup: filesAsSpy });
 
     test("write calls writeFile with correct arguments", function () {
         var output = new Pack.Output({ to: '../test.txt' }, 'C:\\temp\\');

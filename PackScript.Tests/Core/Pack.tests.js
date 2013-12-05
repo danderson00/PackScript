@@ -1,7 +1,7 @@
 ﻿(function () {
     var pack;
 
-    module('Pack', {
+    QUnit.module('Pack', {
         setup: function () { pack = new Pack(); }
     });
 

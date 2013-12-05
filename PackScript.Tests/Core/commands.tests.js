@@ -1,7 +1,7 @@
 ﻿(function () {
     var p;
     
-    module("commands", { setup: setup });
+    QUnit.module("commands", { setup: setup });
 
     test("build writes full output", function () {
         Files.files = {
@@ -46,6 +46,6 @@
 
     function setup() {
         filesAsMock();
-        p = new Pack();
+        p = new Pack({ throttle: false });
     }
 })();

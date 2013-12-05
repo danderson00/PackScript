@@ -1,5 +1,5 @@
 ﻿(function () {
-    module("transforms.outputTemplate");
+    QUnit.module("transforms.outputTemplate");
 
     test("outputTemplate renders underscore template", function () {
         var data = { output: '' };

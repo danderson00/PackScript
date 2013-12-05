@@ -33,6 +33,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Debugging", "Samples\Debugg
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackScript.Host", "PackScript.Host\PackScript.Host.csproj", "{4B434C73-21A2-4191-80F2-98C11A629690}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PackScript.Node", "PackScript.Node\PackScript.Node.csproj", "{236A3AB0-D8A2-4CBB-AB60-BCBE78D3D718}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -67,6 +69,10 @@ Global
 		{4B434C73-21A2-4191-80F2-98C11A629690}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4B434C73-21A2-4191-80F2-98C11A629690}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4B434C73-21A2-4191-80F2-98C11A629690}.Release|Any CPU.Build.0 = Release|Any CPU
+		{236A3AB0-D8A2-4CBB-AB60-BCBE78D3D718}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{236A3AB0-D8A2-4CBB-AB60-BCBE78D3D718}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{236A3AB0-D8A2-4CBB-AB60-BCBE78D3D718}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{236A3AB0-D8A2-4CBB-AB60-BCBE78D3D718}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -1,5 +1,5 @@
 ﻿(function () {
-    module("FileList");
+    QUnit.module("FileList");
 
     test("include adds single string", function () {
         var files = new FileList()

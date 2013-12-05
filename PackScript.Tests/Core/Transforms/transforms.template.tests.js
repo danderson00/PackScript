@@ -1,5 +1,5 @@
 ﻿(function () {
-    module("transforms.template");
+    QUnit.module("transforms.template");
 
     test("template renders underscore template", function () {
         var data = { files: new FileList({ path: 'filepath', content: 'filecontent' }) };

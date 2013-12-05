@@ -1,5 +1,5 @@
 ﻿(function () {
-    module("Path");
+    QUnit.module("Path");
 
     test('Path handles empty arguments', function() {
         equal(Path('').toString(), '');

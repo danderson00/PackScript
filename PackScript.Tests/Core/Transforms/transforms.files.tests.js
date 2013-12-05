@@ -1,5 +1,5 @@
 ﻿(function () {
-    module("transforms.files", { setup: filesAsSpy });
+    QUnit.module("transforms.files", { setup: filesAsSpy });
 
     test("include calls getFilenames with correct arguments when string is passed", function () {
         pack.transforms.include.apply(wrap('*.js', new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));

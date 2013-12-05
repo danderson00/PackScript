@@ -1,15 +1,16 @@
-﻿function Pack() {
+﻿function Pack(options) {
     this.outputs = [];
     this.templates = {};
     this.loadedConfigs = [];
     this.transforms = new Pack.TransformRepository();
     
-    this.options = {
+    this.options = _.extend({
         configurationFileFilter: '*pack.config.js',
         packFileFilter: '*pack.js',
         templateFileExtension: '.template.*',
-        logLevel: 'debug'
-    };
+        logLevel: 'debug',
+        throttleTimeout: 200
+    }, options);
 }
 
 Pack.prototype.setOptions = function(options) {

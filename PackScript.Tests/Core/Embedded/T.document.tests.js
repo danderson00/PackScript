@@ -1,4 +1,4 @@
-﻿module('Embedded.T.document');
+﻿QUnit.module('Embedded.T.document');
 
 var source = loadSource();
 
@@ -34,13 +34,14 @@ test("captureMembers logs error if documentation is invalid", function() {
 });
 
 function loadSource() {
-    var result;
-    $.ajax({
-        url: 'Core/Embedded/source.js',
-        async: false,
-        success: function(content) {
-            result = content;
-        }
-    });
-    return result;
+    //var result;
+    //$.ajax({
+    //    url: 'Core/Embedded/source.js',
+    //    async: false,
+    //    success: function(content) {
+    //        result = content;
+    //    }
+    //});
+    //return result;
+    return '//// namespace(\'Test.test1\');\n//// func({ name: \'blah\', \n////     description: \'test\n////                   test\', arguments: [{}], returns: \'test\' });\nfunction blah() { }';
 }

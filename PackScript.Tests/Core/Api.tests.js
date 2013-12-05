@@ -1,7 +1,7 @@
 ﻿(function () {
     var api;
     
-    module('Api', {
+    QUnit.module('Api', {
         setup: function () { api = new Pack.Api(); }
     });
 

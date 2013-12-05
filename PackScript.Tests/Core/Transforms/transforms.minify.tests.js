@@ -1,5 +1,5 @@
 ﻿(function () {
-    module("transforms.minify", { setup: minifierAsSpy });
+    QUnit.module("transforms.minify", { setup: minifierAsSpy });
     
     test("minify calls appropriate API functions", function () {        
         pack.transforms.minify.apply(wrap(true, { transforms: { to: 'test.js' } }, { output: 'js' }));

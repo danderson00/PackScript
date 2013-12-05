@@ -43,9 +43,6 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Build\output.js" />
-  </ItemGroup>
-  <ItemGroup>
     <EmbeddedResource Include="Libraries\underscore.js" />
   </ItemGroup>
   <ItemGroup>
@@ -93,6 +90,11 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="build.pack.js" />
+    <Content Include="Build\packscript.core.js" />
+    <Content Include="Build\packscript.core.node.js" />
+    <Content Include="changeHandlers.js" />
+    <Content Include="setup.node.js" />
+    <Content Include="throttle.js" />
     <Content Include="Container.js" />
     <Content Include="Embedded\Tribe\T.webTargets.pack.config.js" />
     <Content Include="Embedded\Tribe\T.Script.template.js" />

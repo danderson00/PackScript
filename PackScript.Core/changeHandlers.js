@@ -1,0 +1,27 @@
+﻿Pack.prototype.fileChanged = function (path, oldPath, changeType) {
+    if (Path(path).match(this.options.configurationFileFilter) || Path(path).match(this.options.packFileFilter))
+        this.handleConfigChange(path, oldPath, changeType);
+    else if (Path(path).match('*' + this.options.templateFileExtension))
+        this.handleTemplateChange(path, oldPath, changeType);
+    else
+        this.handleFileChange(path, oldPath, changeType);
+};
+
+Pack.prototype.handleFileChange = function (path, oldPath, changeType) {
+    var refresh = changeType === 'add';
+    var pathToTest = changeType === 'rename' ? oldPath : path;
+    this.build(this.matchingOutputs(pathToTest, refresh));
+};
+
+Pack.prototype.handleConfigChange = function (path, oldPath, changeType) {
+    this.removeConfigOutputs(oldPath);
+    if (changeType !== 'delete') {
+        this.loadConfig(path, Files.getFileContents([path])[path]);
+        this.build(this.configOutputs(path));
+    }
+};
+
+Pack.prototype.handleTemplateChange = function (path, oldPath, changeType) {
+    if (changeType !== 'delete')
+        this.loadTemplate(path);
+};

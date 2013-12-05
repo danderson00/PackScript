@@ -158,15 +158,14 @@
     <Content Include="Core\Api.tests.js" />
     <Content Include="Core\Embedded\Tribe.tests.js" />
     <Content Include="Core\Pack.tests.js" />
-    <Content Include="Core\Resources\jquery-1.9.1.min.js" />
-    <Content Include="Core\tests.js" />
+    <Content Include="Core\Libraries\jquery-1.9.1.min.js" />
     <Content Include="Core\Transforms\transforms.syncTo.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Core\Transforms\transforms.outputTemplate.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Core\Resources\helpers.js" />
+    <Content Include="Core\Infrastructure\helpers.js" />
     <Content Include="Core\Embedded\source.js" />
     <Content Include="Core\Embedded\T.document.tests.js" />
     <Content Include="Core\utils.tests.js">
@@ -258,13 +257,13 @@
     <Content Include="Core\Path.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Core\Resources\apis.js" />
-    <Content Include="Core\Resources\sinon.js" />
+    <Content Include="Core\Infrastructure\apis.js" />
+    <Content Include="Core\Libraries\sinon.js" />
     <Content Include="Core\resources.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Core\Resources\qunit.css" />
-    <Content Include="Core\Resources\qunit.js" />
+    <Content Include="Core\Libraries\qunit.css" />
+    <Content Include="Core\Libraries\qunit.js" />
     <Content Include="Integration\Template\Templates\builtinData.template.htm" />
   </ItemGroup>
   <ItemGroup>

@@ -1,7 +1,7 @@
 ﻿pack({
     to: 'tests.js',
     include: [
-        'Resources/*.js',
+        'Infrastructure/*.js',
         '*.tests.js'
     ],
     recursive: true

@@ -1,5 +1,5 @@
 ﻿(function () {
-    module("transforms.syncTo", { setup: filesAsSpy });
+    QUnit.module("transforms.syncTo", { setup: filesAsSpy });
 
     var data = {
         files: {

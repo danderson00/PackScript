@@ -1,5 +1,5 @@
 ﻿(function () {
-    module("Output", { setup: filesAsMock });
+    QUnit.module("Output", { setup: filesAsMock });
 
     test("matches returns true if file list contains file", function() {
         var output = new Pack.Output({ include: '*.*' }, '');

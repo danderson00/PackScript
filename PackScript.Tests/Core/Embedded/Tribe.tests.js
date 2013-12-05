@@ -1,4 +1,4 @@
-﻿module('Embedded.T.scripts');
+﻿QUnit.module('Embedded.T.scripts');
 
 test("Specifying folder includes all js files", function() {
     var include = T.scripts('Scripts');
@@ -38,7 +38,7 @@ test("Debug can be specified in object", function () {
     equal(include.template(output).name, 'T.Script.debug');
 });
 
-module('Embedded.T.panes');
+QUnit.module('Embedded.T.panes');
 
 test("T.panes includes relevant files from specified folder", function () {
     var includes = T.panes('Panes');
@@ -48,7 +48,7 @@ test("T.panes includes relevant files from specified folder", function () {
     equal(includes[2].files, 'Panes/*.css');
 });
 
-module('Embedded.T.models');
+QUnit.module('Embedded.T.models');
 
 test("T.models uses model and script templates", function () {
     var include = T.models('Panes');

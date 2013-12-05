@@ -1,7 +1,7 @@
 ﻿(function () {
     var t;
     
-    module("transforms", {
+    QUnit.module("transforms", {
         setup: function () {
             t = new Pack.TransformRepository();
         }

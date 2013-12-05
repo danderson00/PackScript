@@ -71,4 +71,7 @@
 };
 
 // make an instance of the api available globally
-_.extend(this, new Pack.Api());
+if(typeof (global) === 'undefined')
+    _.extend(this, new Pack.Api());
+else
+    _.extend(global, new Pack.Api());

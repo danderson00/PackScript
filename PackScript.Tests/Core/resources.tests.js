@@ -1,7 +1,7 @@
 ﻿(function () {
     var p;
     
-    module("templates", { setup: setup });
+    QUnit.module("templates", { setup: setup });
 
     test("scanForTemplates loads files and passes to loadConfig", function () {
         Files.files = {
@@ -15,7 +15,7 @@
     });
 
 
-    module("configs", { setup: setup });
+    QUnit.module("configs", { setup: setup });
 
     test("scanForConfigs loads files and passes to loadConfig", function () {
         Files.files = {
