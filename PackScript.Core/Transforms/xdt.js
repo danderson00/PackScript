@@ -1,5 +1,5 @@
 ﻿(function () {
-    pack.transforms.add('xdt', 'output', function (data) {
+    Pack.transforms.add('xdt', 'output', function (data) {
         var target = data.target;
         var output = data.output;
 

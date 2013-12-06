@@ -10,6 +10,7 @@
     'commands.js',
     'changeHandlers.js',
     'Api.js',
+    'exports.js',
     { files: 'Transforms/*.js', prioritise: ['combine.js', 'sass.js'] },
     { files: 'Embedded/*.pack.config.js', recursive: true },
     { files: 'Embedded/*.template.*', template: 'Pack.embedTemplate', recursive: true }

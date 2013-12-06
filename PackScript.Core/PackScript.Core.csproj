@@ -90,9 +90,10 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="build.pack.js" />
-    <Content Include="Build\packscript.core.js" />
+    <EmbeddedResource Include="Build\packscript.core.js" />
     <Content Include="Build\packscript.core.node.js" />
     <Content Include="changeHandlers.js" />
+    <Content Include="exports.js" />
     <Content Include="setup.node.js" />
     <Content Include="throttle.js" />
     <Content Include="Container.js" />

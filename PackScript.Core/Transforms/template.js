@@ -1,5 +1,5 @@
 ﻿(function () {
-    pack.transforms.add('template', 'content', function (data) {
+    Pack.transforms.add('template', 'content', function (data) {
         var value = data.value;
         var output = data.output;
         var target = data.target;

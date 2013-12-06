@@ -6,7 +6,7 @@ Pack.Container = function() {
     this.outputs = [];
     this.templates = {};
     this.loadedConfigs = [];
-    this.transforms = new Pack.TransformRepository();
+    this.transforms = Pack.transforms;
     
     this.options = _.extend({
         configurationFileFilter: '*pack.config.js',
@@ -88,7 +88,8 @@ Pack.prototype.removeOutput = function(output) {
         });
         return target;
     };
-};function Path(path) {
+};
+Pack.transforms = new Pack.TransformRepository();function Path(path) {
     path = path ? normalise(path.toString()) : '';
     var filenameIndex = pathWithSlashes(path).lastIndexOf("/") + 1;
     var extensionIndex = path.lastIndexOf(".");
@@ -452,7 +453,7 @@ Pack.prototype.handleConfigChange = function (path, oldPath, changeType) {
 Pack.prototype.handleTemplateChange = function (path, oldPath, changeType) {
     if (changeType !== 'delete')
         this.loadTemplate(path);
-};Pack.Api = function () {
+};Pack.Api = function (packOptions) {
     var self = this;
     
     this.pack = function (options) {
@@ -521,38 +522,40 @@ Pack.prototype.handleTemplateChange = function (path, oldPath, changeType) {
     }
 
     // extend the pack member of the api object with a new instance of a Pack object
-    _.extend(self.pack, new Pack());
+    _.extend(self.pack, new Pack(packOptions));
 };
+// the assumption here is that the built file will be run as a node module and this variable won't be exposed globally
+// the embedded stuff depends on this. probably should change how it works...
+var instance = new Pack.Api();
+    
+if (typeof exports !== 'undefined') {
+    if (typeof module !== 'undefined' && module.exports)
+        exports = module.exports = instance;
+} //else
+    // this is necessary for the Windows console version that runs on Noesis.Javascript
+    _.extend(this, instance);
+Pack.transforms.add('combine', 'output', function (data) {
+    var target = data.target;
+    var output = data.output;
+        
+    log();
+    target.output = _.pluck(target.files.list, 'content').join('');
+        
+    function log() {
+        Log.debug('(' + filenames() + ') -> ' + (output.transforms && output.transforms.to));
+        if (target.files.list.length === 0)
+            Log.warn('No files to include for ' + (output.transforms && output.transforms.to));
+    }
+        
+    function filenames() {
+        return _.map(target.files.paths(), function (path) {
+            return Path(path).filename();
+        }).join(', ');;
+    }
+});
 
-// make an instance of the api available globally
-if(typeof (global) === 'undefined')
-    _.extend(this, new Pack.Api());
-else
-    _.extend(global, new Pack.Api());
 (function () {
-    pack.transforms.add('combine', 'output', function (data) {
-        var target = data.target;
-        var output = data.output;
-        
-        log();
-        target.output = _.pluck(target.files.list, 'content').join('');
-        
-        function log() {
-            Log.debug('(' + filenames() + ') -> ' + (output.transforms && output.transforms.to));
-            if (target.files.list.length === 0)
-                Log.warn('No files to include for ' + (output.transforms && output.transforms.to));
-        }
-        
-        function filenames() {
-            return _.map(target.files.paths(), function (path) {
-                return Path(path).filename();
-            }).join(', ');;
-        }
-    });
-})();
-
-(function () {
-    pack.transforms.add('sass', 'output', function (data) {
+    Pack.transforms.add('sass', 'output', function (data) {
         var target = data.target;
         var output = data.output;
 
@@ -570,7 +573,7 @@ else
 
 (function () {
     var utils = Pack.utils;
-    var transforms = pack.transforms;
+    var transforms = Pack.transforms;
     
     transforms.add('prioritise', 'includeFiles', first);
     transforms.add('first', 'includeFiles', first);
@@ -596,7 +599,7 @@ else
 
 (function () {
     var utils = Pack.utils;
-    var transforms = pack.transforms;
+    var transforms = Pack.transforms;
     
     transforms.add('include', 'includeFiles', function (data) {
         Log.debug('Including ' + formatInclude(data.value, data.output) + ' in ' + data.output.targetPath());
@@ -690,11 +693,11 @@ else
 })();
 
 (function () {
-    pack.transforms.add('json', 'output', function (data) {
+    Pack.transforms.add('json', 'output', function (data) {
         data.target.output = JSON.stringify(data.value);
     });
 })();(function () {
-    pack.transforms.add('load', 'content', function (data) {
+    Pack.transforms.add('load', 'content', function (data) {
         var target = data.target;
         var output = data.output;
         var fileContents = Files.getFileContents(target.files.paths());
@@ -709,7 +712,7 @@ else
 })();
 
 (function () {
-    pack.transforms.add('minify', 'output', function (data) {
+    Pack.transforms.add('minify', 'output', function (data) {
         var output = data.output;
         var target = data.target;
         
@@ -741,7 +744,7 @@ else
 })();
 
 (function () {
-    pack.transforms.add('outputTemplate', 'output', function (data) {
+    Pack.transforms.add('outputTemplate', 'output', function (data) {
         var value = data.value;
         var target = data.target;
         var output = data.output;
@@ -776,7 +779,7 @@ else
     });
 })();
 
-pack.transforms.add('syncTo', 'finalise', function (data) {
+Pack.transforms.add('syncTo', 'finalise', function (data) {
     var targetFolder = Path(data.output.basePath + data.value + '/');
     var files = data.target.files.list;
 
@@ -791,7 +794,7 @@ pack.transforms.add('syncTo', 'finalise', function (data) {
 });
 
 (function () {
-    pack.transforms.add('template', 'content', function (data) {
+    Pack.transforms.add('template', 'content', function (data) {
         var value = data.value;
         var output = data.output;
         var target = data.target;
@@ -837,7 +840,7 @@ pack.transforms.add('syncTo', 'finalise', function (data) {
             });
         }
     });    
-})();pack.transforms.add('to', 'finalise', function (data) {
+})();Pack.transforms.add('to', 'finalise', function (data) {
     var path = Path(data.output.basePath + data.output.transforms.to);
     Files.writeFile(path.toString(), data.target.output);
     Log.info('Wrote file ' + path);
@@ -847,7 +850,7 @@ pack.transforms.add('syncTo', 'finalise', function (data) {
 });
 
 (function () {
-    pack.transforms.add('xdt', 'output', function (data) {
+    Pack.transforms.add('xdt', 'output', function (data) {
         var target = data.target;
         var output = data.output;
 
@@ -864,7 +867,7 @@ pack.transforms.add('syncTo', 'finalise', function (data) {
     });
 })();
 
-pack.transforms.add('zipTo', 'finalise', function (data) {
+Pack.transforms.add('zipTo', 'finalise', function (data) {
     var path = Path(data.output.basePath + data.value).toString();
 
     var files = {};
@@ -1100,12 +1103,12 @@ function normaliseOptions(pathOrOptions, debug) {
     if (debug === true)
         pathOrOptions.debug = true;
     return pathOrOptions;
-}pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Pack.embedTemplate.template.js', 'pack.storeTemplate(\'<%=path.toString().replace(/\\\\/g, "/")%>\', \'<%=T.embedString(content)%>\');\n');
-pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/T.document.template.js', '<%= data.documentation(content) %>');
-pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/T.mockjax.outer.template.js', '<%= content %>\n<%= data.mockGaps() %>');
-pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/T.mockjax.template.js', '$.mockjax({\n    url: \'<%= pathRelativeToConfig %>\',\n    responseText: \'<%= T.embedString(content) %>\',\n    responseTime: 0\n});\n<% data.registerUrl(pathRelativeToConfig) %>');
-pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Model.template.js', '<%=T.modelScriptEnvironment(pathRelativeToInclude, data.prefix)%>\n<%=content%>\n');
-pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Script.debug.template.js', 'window.eval("<%= T.prepareForEval(content) + T.sourceUrlTag(pathRelativeToConfig, data.domain, data.protocol) %>");\n');
-pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Script.template.js', '// <%= pathRelativeToConfig %>\n<%= content %>\n');
-pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Style.template.js', '//<% if(!target.includesStylesheetHelper) { %>\nwindow.__appendStyle = function (content) {\n    var element = document.getElementById(\'__tribeStyles\');\n    if (!element) {\n        element = document.createElement(\'style\');\n        element.className = \'__tribe\';\n        element.id = \'__tribeStyles\';\n        document.getElementsByTagName(\'head\')[0].appendChild(element);\n    }\n\n    if(element.styleSheet)\n        element.styleSheet.cssText += content;\n    else\n        element.appendChild(document.createTextNode(content));\n};//<% target.includesStylesheetHelper = true; } %>\nwindow.__appendStyle(\'<%= MinifyStylesheet.minify(content).replace(/\\\'/g, "\\\\\'") %>\');');
-pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Template.template.js', '//<% if(!target.includesTemplateHelper) { %>\nwindow.__appendTemplate = function (content, id) {\n    var element = document.createElement(\'script\');\n    element.className = \'__tribe\';\n    element.setAttribute(\'type\', \'text/template\');\n    element.id = id;\n    element.text = content;\n    document.getElementsByTagName(\'head\')[0].appendChild(element);\n};//<% target.includesTemplateHelper = true; } %>\nwindow.__appendTemplate(\'<%=T.embedString(content)%>\', \'<%=T.templateIdentifier(pathRelativeToInclude, data.prefix)%>\');');
+}instance.pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Pack.embedTemplate.template.js', 'instance.pack.storeTemplate(\'<%=path.toString().replace(/\\\\/g, "/")%>\', \'<%=T.embedString(content)%>\');\n');
+instance.pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/T.document.template.js', '<%= data.documentation(content) %>');
+instance.pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/T.mockjax.outer.template.js', '<%= content %>\n<%= data.mockGaps() %>');
+instance.pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/T.mockjax.template.js', '$.mockjax({\n    url: \'<%= pathRelativeToConfig %>\',\n    responseText: \'<%= T.embedString(content) %>\',\n    responseTime: 0\n});\n<% data.registerUrl(pathRelativeToConfig) %>');
+instance.pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Model.template.js', '<%=T.modelScriptEnvironment(pathRelativeToInclude, data.prefix)%>\n<%=content%>\n');
+instance.pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Script.debug.template.js', 'window.eval("<%= T.prepareForEval(content) + T.sourceUrlTag(pathRelativeToConfig, data.domain, data.protocol) %>");\n');
+instance.pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Script.template.js', '// <%= pathRelativeToConfig %>\n<%= content %>\n');
+instance.pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Style.template.js', '//<% if(!target.includesStylesheetHelper) { %>\nwindow.__appendStyle = function (content) {\n    var element = document.getElementById(\'__tribeStyles\');\n    if (!element) {\n        element = document.createElement(\'style\');\n        element.className = \'__tribe\';\n        element.id = \'__tribeStyles\';\n        document.getElementsByTagName(\'head\')[0].appendChild(element);\n    }\n\n    if(element.styleSheet)\n        element.styleSheet.cssText += content;\n    else\n        element.appendChild(document.createTextNode(content));\n};//<% target.includesStylesheetHelper = true; } %>\nwindow.__appendStyle(\'<%= MinifyStylesheet.minify(content).replace(/\\\'/g, "\\\\\'") %>\');');
+instance.pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Template.template.js', '//<% if(!target.includesTemplateHelper) { %>\nwindow.__appendTemplate = function (content, id) {\n    var element = document.createElement(\'script\');\n    element.className = \'__tribe\';\n    element.setAttribute(\'type\', \'text/template\');\n    element.id = id;\n    element.text = content;\n    document.getElementsByTagName(\'head\')[0].appendChild(element);\n};//<% target.includesTemplateHelper = true; } %>\nwindow.__appendTemplate(\'<%=T.embedString(content)%>\', \'<%=T.templateIdentifier(pathRelativeToInclude, data.prefix)%>\');');

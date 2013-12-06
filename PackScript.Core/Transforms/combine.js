@@ -1,22 +1,20 @@
-﻿(function () {
-    pack.transforms.add('combine', 'output', function (data) {
-        var target = data.target;
-        var output = data.output;
+﻿Pack.transforms.add('combine', 'output', function (data) {
+    var target = data.target;
+    var output = data.output;
         
-        log();
-        target.output = _.pluck(target.files.list, 'content').join('');
+    log();
+    target.output = _.pluck(target.files.list, 'content').join('');
         
-        function log() {
-            Log.debug('(' + filenames() + ') -> ' + (output.transforms && output.transforms.to));
-            if (target.files.list.length === 0)
-                Log.warn('No files to include for ' + (output.transforms && output.transforms.to));
-        }
+    function log() {
+        Log.debug('(' + filenames() + ') -> ' + (output.transforms && output.transforms.to));
+        if (target.files.list.length === 0)
+            Log.warn('No files to include for ' + (output.transforms && output.transforms.to));
+    }
         
-        function filenames() {
-            return _.map(target.files.paths(), function (path) {
-                return Path(path).filename();
-            }).join(', ');;
-        }
-    });
-})();
+    function filenames() {
+        return _.map(target.files.paths(), function (path) {
+            return Path(path).filename();
+        }).join(', ');;
+    }
+});
 

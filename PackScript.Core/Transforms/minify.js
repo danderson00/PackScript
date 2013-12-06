@@ -1,5 +1,5 @@
 ﻿(function () {
-    pack.transforms.add('minify', 'output', function (data) {
+    Pack.transforms.add('minify', 'output', function (data) {
         var output = data.output;
         var target = data.target;
         

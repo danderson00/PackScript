@@ -1,5 +1,5 @@
 ﻿(function () {
-    pack.transforms.add('sass', 'output', function (data) {
+    Pack.transforms.add('sass', 'output', function (data) {
         var target = data.target;
         var output = data.output;
 

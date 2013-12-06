@@ -1,1 +1,1 @@
-﻿pack.storeTemplate('<%=path.toString().replace(/\\/g, "/")%>', '<%=T.embedString(content)%>');
+﻿instance.pack.storeTemplate('<%=path.toString().replace(/\\/g, "/")%>', '<%=T.embedString(content)%>');

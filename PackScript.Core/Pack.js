@@ -2,7 +2,7 @@
     this.outputs = [];
     this.templates = {};
     this.loadedConfigs = [];
-    this.transforms = new Pack.TransformRepository();
+    this.transforms = Pack.transforms;
     
     this.options = _.extend({
         configurationFileFilter: '*pack.config.js',

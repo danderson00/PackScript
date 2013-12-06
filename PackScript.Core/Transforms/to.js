@@ -1,4 +1,4 @@
-﻿pack.transforms.add('to', 'finalise', function (data) {
+﻿Pack.transforms.add('to', 'finalise', function (data) {
     var path = Path(data.output.basePath + data.output.transforms.to);
     Files.writeFile(path.toString(), data.target.output);
     Log.info('Wrote file ' + path);

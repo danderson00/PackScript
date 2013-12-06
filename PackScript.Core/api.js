@@ -1,4 +1,4 @@
-﻿Pack.Api = function () {
+﻿Pack.Api = function (packOptions) {
     var self = this;
     
     this.pack = function (options) {
@@ -67,11 +67,5 @@
     }
 
     // extend the pack member of the api object with a new instance of a Pack object
-    _.extend(self.pack, new Pack());
+    _.extend(self.pack, new Pack(packOptions));
 };
-
-// make an instance of the api available globally
-if(typeof (global) === 'undefined')
-    _.extend(this, new Pack.Api());
-else
-    _.extend(global, new Pack.Api());

@@ -1,6 +1,6 @@
 ﻿(function () {
     var utils = Pack.utils;
-    var transforms = pack.transforms;
+    var transforms = Pack.transforms;
     
     transforms.add('prioritise', 'includeFiles', first);
     transforms.add('first', 'includeFiles', first);

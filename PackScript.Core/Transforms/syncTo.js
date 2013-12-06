@@ -1,4 +1,4 @@
-﻿pack.transforms.add('syncTo', 'finalise', function (data) {
+﻿Pack.transforms.add('syncTo', 'finalise', function (data) {
     var targetFolder = Path(data.output.basePath + data.value + '/');
     var files = data.target.files.list;
 

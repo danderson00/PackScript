@@ -1,5 +1,2 @@
-﻿QUnit.module('API.Files');
+﻿QUnit.module('Api.Files');
 
-test("test runner", function() {
-    ok(true);
-});

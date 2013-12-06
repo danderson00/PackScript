@@ -158,7 +158,6 @@
     <Content Include="Core\Api.tests.js" />
     <Content Include="Core\Embedded\Tribe.tests.js" />
     <Content Include="Core\Pack.tests.js" />
-    <Content Include="Core\Libraries\jquery-1.9.1.min.js" />
     <Content Include="Core\Transforms\transforms.syncTo.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

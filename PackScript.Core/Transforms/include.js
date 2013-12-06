@@ -1,6 +1,6 @@
 ﻿(function () {
     var utils = Pack.utils;
-    var transforms = pack.transforms;
+    var transforms = Pack.transforms;
     
     transforms.add('include', 'includeFiles', function (data) {
         Log.debug('Including ' + formatInclude(data.value, data.output) + ' in ' + data.output.targetPath());

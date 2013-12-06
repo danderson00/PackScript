@@ -1,5 +1,5 @@
 ﻿(function () {
-    pack.transforms.add('load', 'content', function (data) {
+    Pack.transforms.add('load', 'content', function (data) {
         var target = data.target;
         var output = data.output;
         var fileContents = Files.getFileContents(target.files.paths());

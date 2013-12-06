@@ -20,23 +20,20 @@
         }
     };
 
-    exports.listTree = function (filespec) {
+    function listTree(filespec, recursive) {
         var self = this;
         filespec = Path(filespec || './*.*');
+        
         var basePath = filespec.withoutFilename();
-
-        var guard = function (path) {
-            return filespec.matches(path);
-        };
-
         var stat = fs.statSync(basePath);
         var paths = [];
-        var include = guard(basePath, stat);
         
+        var include = filespec.matches(basePath);
+
         if (include)
             paths.push([basePath]);
         
-        if (include !== null && stat.isDirectory()) {
+        if (recursive && stat.isDirectory()) {
             var children = fs.readdirSync(basePath.toString());
             paths.push.apply(paths, children.map(function (child) {
                 var path = basePath.combine(child + '/*.*');
@@ -45,5 +42,5 @@
         }
         
         return paths;
-    };
+    }
 })();

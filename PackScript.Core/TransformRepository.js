@@ -24,3 +24,4 @@
         return target;
     };
 };
+Pack.transforms = new Pack.TransformRepository();

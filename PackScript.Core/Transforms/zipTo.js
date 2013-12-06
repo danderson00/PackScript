@@ -1,4 +1,4 @@
-﻿pack.transforms.add('zipTo', 'finalise', function (data) {
+﻿Pack.transforms.add('zipTo', 'finalise', function (data) {
     var path = Path(data.output.basePath + data.value).toString();
 
     var files = {};
