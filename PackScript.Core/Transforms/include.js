@@ -1,18 +1,25 @@
 ﻿(function () {
     var utils = Pack.utils;
     var transforms = Pack.transforms;
+
+    transforms.include = {
+        event: 'includeFiles',
+        apply: function(data) {
+            Pack.api.Log.debug('Including ' + formatInclude(data.value, data.output) + ' in ' + data.output.targetPath());
+            data.target.files.include(loadFileList(data.value, data.output));
+        }
+    };
     
-    transforms.add('include', 'includeFiles', function (data) {
-        Log.debug('Including ' + formatInclude(data.value, data.output) + ' in ' + data.output.targetPath());
-        data.target.files.include(loadFileList(data.value, data.output));
-    });
-    
-    transforms.add('exclude', 'excludeFiles', function (data) {
-        Log.debug('Excluding ' + formatInclude(data.value, data.output) + ' from ' + data.output.targetPath());
-        data.target.files.exclude(loadFileList(data.value, data.output));
-    });
+    transforms.exclude = {
+        event: 'excludeFiles',
+        apply: function(data) {
+            Pack.api.Log.debug('Excluding ' + formatInclude(data.value, data.output) + ' from ' + data.output.targetPath());
+            data.target.files.exclude(loadFileList(data.value, data.output));
+        }
+    };
 
     function loadFileList(allValues, output) {
+        var Files = Pack.api.Files;
         var allFiles = new FileList();
         utils.executeSingleOrArray(allValues, includeValue);
         return allFiles;

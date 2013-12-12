@@ -1,2 +1,0 @@
-﻿QUnit.module('Api.Files');
-

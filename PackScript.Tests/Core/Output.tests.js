@@ -3,8 +3,8 @@
 
     test("matches returns true if file list contains file", function() {
         var output = new Pack.Output({ include: '*.*' }, '');
-        Files.files = ['1', '1', '2', '3'];
-        ok(output.matches('2', pack.transforms));
+        Pack.api.Files.files = ['1', '1', '2', '3'];
+        ok(output.matches('2', new Pack.TransformRepository(Pack.transforms)));
     });
 
     test("matchingOutputs returns array of outputs matching file", function() {
@@ -38,10 +38,11 @@
 
     test("executeTransform executes the appropriate transform", function () {
         expect(1);
-        var output = new Pack.Output({ test: 'value' }, '', pack.transforms);
-        pack.transforms.add('test', '', function(value) {
+        var p = new Pack();
+        var output = new Pack.Output({ test: 'value' }, '');
+        p.transforms.add('test', '', function(value) {
             equal(value, 'value');
         });
-        pack.executeTransform('test', output);
+        p.executeTransform('test', output);
     });
 })();

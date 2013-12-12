@@ -1,14 +1,20 @@
-﻿Pack.transforms.add('syncTo', 'finalise', function (data) {
-    var targetFolder = Path(data.output.basePath + data.value + '/');
-    var files = data.target.files.list;
+﻿Pack.transforms.syncTo = {
+    event: 'finalise',
+    apply: function(data) {
+        var Files = Pack.api.Files;
+        var Log = Pack.api.Log;
 
-    _.each(files, function(file) {
-        Files.copyFile(file.path.toString(), targetFolder + file.pathRelativeToInclude);
-    });
+        var targetFolder = Path(data.output.basePath + data.value + '/');
+        var files = data.target.files.list;
 
-    Log.info('Copied ' + files.length + ' files to ' + targetFolder);
+        _.each(files, function(file) {
+            Files.copyFile(file.path.toString(), targetFolder + file.pathRelativeToInclude);
+        });
 
-    // this should be moved to a separate transform. It is consumed by Output.matches
-    data.output.currentPaths = data.target.files && data.target.files.paths();
-});
+        Log.info('Copied ' + files.length + ' files to ' + targetFolder);
+
+        // this should be moved to a separate transform. It is consumed by Output.matches
+        data.output.currentPaths = data.target.files && data.target.files.paths();
+    }
+};
 

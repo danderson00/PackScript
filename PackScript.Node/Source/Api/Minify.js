@@ -1,11 +1,11 @@
-﻿MinifyJavascript = {
+﻿Pack.api.MinifyJavascript = {
     minify: function(source) {
-
+        return source;
     }
 };
 
-MinifyStylesheet = {
+Pack.api.MinifyStylesheet = {
     minify: function(source) {
-
+        return source;
     }
 };

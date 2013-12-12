@@ -11,7 +11,7 @@ Pack.utils.eval = function (source) {
 Pack.utils.logError = function (error, message) {
     var customMessage = message ? message + '\n' : '';
     var errorMessage = error instanceof Error ? error.name + ': ' + error.message : error;
-    Log.error(customMessage + errorMessage);
+    Pack.api.Log.error(customMessage + errorMessage);
 };
 
 Pack.utils.executeSingleOrArray = function (value, func, reverse) {

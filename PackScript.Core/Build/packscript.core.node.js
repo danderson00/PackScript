@@ -6,7 +6,7 @@ Pack.Container = function() {
     this.outputs = [];
     this.templates = {};
     this.loadedConfigs = [];
-    this.transforms = Pack.transforms;
+    this.transforms = new Pack.TransformRepository(Pack.transforms);
     
     this.options = _.extend({
         configurationFileFilter: '*pack.config.js',
@@ -17,9 +17,12 @@ Pack.Container = function() {
     }, options);
 }
 
+Pack.api = {};
+Pack.transforms = {};
+
 Pack.prototype.setOptions = function(options) {
     _.extend(this.options, options);
-    Log.setLevel(this.options.logLevel);
+    Pack.api.Log.setLevel(this.options.logLevel);
 };
 
 Pack.prototype.matchingOutputs = function (paths, refresh) {
@@ -63,8 +66,10 @@ Pack.prototype.addOutput = function (transforms, configPath) {
 
 Pack.prototype.removeOutput = function(output) {
     this.outputs.splice(this.outputs.indexOf(output), 1);
-};Pack.TransformRepository = function () {
+};Pack.TransformRepository = function (transforms) {
     var self = this;
+
+    _.extend(this, transforms);
 
     this.events = ['includeFiles', 'excludeFiles', 'content', 'output', 'finalise'];
     this.defaultTransforms = { excludeDefaults: true, load: true, combine: true, template: true };
@@ -88,8 +93,7 @@ Pack.prototype.removeOutput = function(output) {
         });
         return target;
     };
-};
-Pack.transforms = new Pack.TransformRepository();function Path(path) {
+};function Path(path) {
     path = path ? normalise(path.toString()) : '';
     var filenameIndex = pathWithSlashes(path).lastIndexOf("/") + 1;
     var extensionIndex = path.lastIndexOf(".");
@@ -192,7 +196,7 @@ Pack.utils.eval = function (source) {
 Pack.utils.logError = function (error, message) {
     var customMessage = message ? message + '\n' : '';
     var errorMessage = error instanceof Error ? error.name + ': ' + error.message : error;
-    Log.error(customMessage + errorMessage);
+    Pack.api.Log.error(customMessage + errorMessage);
 };
 
 Pack.utils.executeSingleOrArray = function (value, func, reverse) {
@@ -343,6 +347,7 @@ Pack.Output.prototype.targetPath = function () {
     };
 
     Pack.prototype.scanForConfigs = function (path) {
+        var Files = Pack.api.Files;
         var allConfigs = _.union(
             Files.getFilenames(path + this.options.configurationFileFilter, true),
             Files.getFilenames(path + this.options.packFileFilter, true));
@@ -353,22 +358,22 @@ Pack.Output.prototype.targetPath = function () {
     };
 
     Pack.prototype.loadConfig = function (path, source) {
-        Log.info("Loading config from " + path);
+        Pack.api.Log.info("Loading config from " + path);
         Context.configPath = path;
         Pack.utils.eval(source);
         delete Context.configPath;
     };
 
     Pack.prototype.scanForTemplates = function (path) {
-        Log.info("Loading templates from " + path);
-        var files = Files.getFilenames(path + '*' + this.options.templateFileExtension, true);
+        Pack.api.Log.info("Loading templates from " + path);
+        var files = Pack.api.Files.getFilenames(path + '*' + this.options.templateFileExtension, true);
         for (var index in files)
             this.loadTemplate(files[index]);
     };
 
     Pack.prototype.loadTemplate = function(path) {
-        Log.debug("Loaded template " + templateName(path, this.options.templateFileExtension));
-        var loadedTemplates = Files.getFileContents([path]);
+        Pack.api.Log.debug("Loaded template " + templateName(path, this.options.templateFileExtension));
+        var loadedTemplates = Pack.api.Files.getFileContents([path]);
         this.storeTemplate(path, loadedTemplates[path]);
     };
 
@@ -445,7 +450,7 @@ Pack.prototype.handleFileChange = function (path, oldPath, changeType) {
 Pack.prototype.handleConfigChange = function (path, oldPath, changeType) {
     this.removeConfigOutputs(oldPath);
     if (changeType !== 'delete') {
-        this.loadConfig(path, Files.getFileContents([path])[path]);
+        this.loadConfig(path, Pack.api.Files.getFileContents([path])[path]);
         this.build(this.configOutputs(path));
     }
 };
@@ -472,7 +477,7 @@ Pack.prototype.handleTemplateChange = function (path, oldPath, changeType) {
         renameProperties(options, 'to', 'zipTo');
         return addOutputs(options, 'zipTo');
     };
-    
+
     function addOutputs(options, transformName) {
         var outputs = self.pack.addOutput(options, Context.configPath);
 
@@ -534,30 +539,35 @@ if (typeof exports !== 'undefined') {
 } //else
     // this is necessary for the Windows console version that runs on Noesis.Javascript
     _.extend(this, instance);
-Pack.transforms.add('combine', 'output', function (data) {
-    var target = data.target;
-    var output = data.output;
-        
-    log();
-    target.output = _.pluck(target.files.list, 'content').join('');
-        
-    function log() {
-        Log.debug('(' + filenames() + ') -> ' + (output.transforms && output.transforms.to));
-        if (target.files.list.length === 0)
-            Log.warn('No files to include for ' + (output.transforms && output.transforms.to));
-    }
-        
-    function filenames() {
-        return _.map(target.files.paths(), function (path) {
-            return Path(path).filename();
-        }).join(', ');;
-    }
-});
-
-(function () {
-    Pack.transforms.add('sass', 'output', function (data) {
+Pack.transforms.combine = {
+    event: 'output',
+    apply: function(data) {
         var target = data.target;
         var output = data.output;
+
+        log();
+        target.output = _.pluck(target.files.list, 'content').join('');
+
+        function log() {
+            Pack.api.Log.debug('(' + filenames() + ') -> ' + (output.transforms && output.transforms.to));
+            if (target.files.list.length === 0)
+                Pack.api.Log.warn('No files to include for ' + (output.transforms && output.transforms.to));
+        }
+
+        function filenames() {
+            return _.map(target.files.paths(), function(path) {
+                return Path(path).filename();
+            }).join(', ');
+        }
+    }
+};
+
+Pack.transforms.sass = {
+    event: 'output',
+    apply: function(data) {
+        var target = data.target;
+        var output = data.output;
+        var Log = Pack.api.Log;
 
         if (typeof Sass === 'undefined') {
             Log.warn("SASS compilation requested but no API provided");
@@ -568,16 +578,16 @@ Pack.transforms.add('combine', 'output', function (data) {
         var compiled = Sass.apply(target.output);
         if (compiled)
             target.output = compiled;
-    });
-})();
+    }
+};
 
 (function () {
     var utils = Pack.utils;
     var transforms = Pack.transforms;
     
-    transforms.add('prioritise', 'includeFiles', first);
-    transforms.add('first', 'includeFiles', first);
-    transforms.add('last', 'includeFiles', last);
+    transforms.prioritise = { event: 'includeFiles', func: first };
+    transforms.first = { event: 'includeFiles', func: first };
+    transforms.last = { event: 'includeFiles', func: last };
     
     function first(data) {
         utils.executeSingleOrArray(data.value, data.target.files.prioritise);
@@ -589,29 +599,39 @@ Pack.transforms.add('combine', 'output', function (data) {
         });
     }
 
-    transforms.add('excludeDefaults', 'excludeFiles', function (data) {
-        data.target.files.exclude(data.output.outputPath);
-        if (!data.output.transforms.includeConfigs)
-            data.target.files.exclude(pack.loadedConfigs);
+    transforms.excludeDefaults = {
+        event: 'excludeFiles',
+        apply: function(data) {
+            data.target.files.exclude(data.output.outputPath);
+            if (!data.output.transforms.includeConfigs)
+                data.target.files.exclude(pack.loadedConfigs);
 
-    });
+        }
+    };
 })();
 
 (function () {
     var utils = Pack.utils;
     var transforms = Pack.transforms;
+
+    transforms.include = {
+        event: 'includeFiles',
+        apply: function(data) {
+            Pack.api.Log.debug('Including ' + formatInclude(data.value, data.output) + ' in ' + data.output.targetPath());
+            data.target.files.include(loadFileList(data.value, data.output));
+        }
+    };
     
-    transforms.add('include', 'includeFiles', function (data) {
-        Log.debug('Including ' + formatInclude(data.value, data.output) + ' in ' + data.output.targetPath());
-        data.target.files.include(loadFileList(data.value, data.output));
-    });
-    
-    transforms.add('exclude', 'excludeFiles', function (data) {
-        Log.debug('Excluding ' + formatInclude(data.value, data.output) + ' from ' + data.output.targetPath());
-        data.target.files.exclude(loadFileList(data.value, data.output));
-    });
+    transforms.exclude = {
+        event: 'excludeFiles',
+        apply: function(data) {
+            Pack.api.Log.debug('Excluding ' + formatInclude(data.value, data.output) + ' from ' + data.output.targetPath());
+            data.target.files.exclude(loadFileList(data.value, data.output));
+        }
+    };
 
     function loadFileList(allValues, output) {
+        var Files = Pack.api.Files;
         var allFiles = new FileList();
         utils.executeSingleOrArray(allValues, includeValue);
         return allFiles;
@@ -692,62 +712,71 @@ Pack.transforms.add('combine', 'output', function (data) {
     }
 })();
 
-(function () {
-    Pack.transforms.add('json', 'output', function (data) {
+Pack.transforms.json = {
+    event: 'output',
+    apply: function(data) {
         data.target.output = JSON.stringify(data.value);
-    });
-})();(function () {
-    Pack.transforms.add('load', 'content', function (data) {
+    }
+};Pack.transforms.load = {
+    event: 'content',
+    apply: function(data) {
         var target = data.target;
         var output = data.output;
+        var Files = Pack.api.Files;
+        var Log = Pack.api.Log;
+
         var fileContents = Files.getFileContents(target.files.paths());
-        
+
         target.files.setProperty('content', fileContents);
 
         var fileCount = target.files && _.keys(target.files.list).length;
-        Log.debug(fileCount ? 
+        Log.debug(fileCount ?
             'Loaded content for ' + fileCount + ' files for ' + (output.transforms && output.transforms.to) :
             'No content to load for ' + (output.transforms && output.transforms.to));
-    });
-})();
+    }
+};
 
-(function () {
-    Pack.transforms.add('minify', 'output', function (data) {
+Pack.transforms.minify = {
+    event: 'output',
+    apply: function(data) {
         var output = data.output;
         var target = data.target;
-        
+        var Log = Pack.api.Log;
+        var api = Pack.api;
+
         if (data.value) {
             Log.debug('Minifying ' + output.transforms.to);
             switch (Path(output.transforms.to).extension().toString()) {
             case 'js':
-                minify(typeof MinifyJavascript !== 'undefined' ? MinifyJavascript : null, output, target);
+                minify(api.MinifyJavascript);
                 break;
             case 'htm':
             case 'html':
-                minify(typeof MinifyMarkup !== 'undefined' ? MinifyMarkup : null, output, target);
+                minify(api.MinifyMarkup);
                 break;
             case 'css':
-                minify(typeof MinifyStylesheet !== 'undefined' ? MinifyStylesheet : null, output, target);
+                minify(api.MinifyStylesheet);
                 break;
             default:
                 Log.warn('Minification requested but not supported for ' + output.transforms.to);
             }
         }
-    });
-    
-    function minify(api, output, target) {
-        if (api)
-            target.output = api.minify(target.output);
-        else
-            Log.warn("Minification was requested but no appropriate API was provided for " + output.transforms.to);
-    }
-})();
 
-(function () {
-    Pack.transforms.add('outputTemplate', 'output', function (data) {
+        function minify(api) {
+            if (api)
+                target.output = api.minify(target.output);
+            else
+                Log.warn("Minification was requested but no appropriate API was provided for " + output.transforms.to);
+        }
+    }
+};
+Pack.transforms.outputTemplate = {
+    event: 'output',
+    apply: function(data) {
         var value = data.value;
         var target = data.target;
         var output = data.output;
+        var Log = Pack.api.Log;
 
         Pack.utils.executeSingleOrArray(value, function(templateSettings) {
             normaliseTemplateSettings();
@@ -776,39 +805,47 @@ Pack.transforms.add('combine', 'output', function (data) {
                     templateSettings = { name: templateSettings };
             }
         });
-    });
-})();
+    }
+};
 
-Pack.transforms.add('syncTo', 'finalise', function (data) {
-    var targetFolder = Path(data.output.basePath + data.value + '/');
-    var files = data.target.files.list;
+Pack.transforms.syncTo = {
+    event: 'finalise',
+    apply: function(data) {
+        var Files = Pack.api.Files;
+        var Log = Pack.api.Log;
 
-    _.each(files, function(file) {
-        Files.copyFile(file.path.toString(), targetFolder + file.pathRelativeToInclude);
-    });
+        var targetFolder = Path(data.output.basePath + data.value + '/');
+        var files = data.target.files.list;
 
-    Log.info('Copied ' + files.length + ' files to ' + targetFolder);
+        _.each(files, function(file) {
+            Files.copyFile(file.path.toString(), targetFolder + file.pathRelativeToInclude);
+        });
 
-    // this should be moved to a separate transform. It is consumed by Output.matches
-    data.output.currentPaths = data.target.files && data.target.files.paths();
-});
+        Log.info('Copied ' + files.length + ' files to ' + targetFolder);
 
-(function () {
-    Pack.transforms.add('template', 'content', function (data) {
+        // this should be moved to a separate transform. It is consumed by Output.matches
+        data.output.currentPaths = data.target.files && data.target.files.paths();
+    }
+};
+
+Pack.transforms.template = {
+    event: 'content',
+    apply: function(data) {
         var value = data.value;
         var output = data.output;
         var target = data.target;
-        
+        var Log = Pack.api.Log;
+
         _.each(target.files.list, applyTemplates);
 
         function applyTemplates(file) {
             var templateConfiguration = file.template || value;
             if (_.isFunction(templateConfiguration))
                 templateConfiguration = templateConfiguration(data.output, data.target);
-            
+
             Pack.utils.executeSingleOrArray(templateConfiguration, function(templateSettings) {
                 normaliseTemplateSettings();
-                
+
                 var template = pack.templates[templateSettings.name];
                 if (template) {
                     Log.debug('Applying template ' + templateSettings.name + ' to ' + Path(file.path).filename());
@@ -839,20 +876,27 @@ Pack.transforms.add('syncTo', 'finalise', function (data) {
                 }
             });
         }
-    });    
-})();Pack.transforms.add('to', 'finalise', function (data) {
-    var path = Path(data.output.basePath + data.output.transforms.to);
-    Files.writeFile(path.toString(), data.target.output);
-    Log.info('Wrote file ' + path);
+    }
+};Pack.transforms.to = {
+    event: 'finalise',
+    apply: function(data) {
+        var Files = Pack.api.Files;
+        var Log = Pack.api.Log;
+        var path = Path(data.output.basePath + data.output.transforms.to);
+        Files.writeFile(path.toString(), data.target.output);
+        Log.info('Wrote file ' + path);
 
-    // this should be moved to a separate transform - consumed by Output.matches
-    data.output.currentPaths = data.target.files && data.target.files.paths();
-});
+        // this should be moved to a separate transform - consumed by Output.matches
+        data.output.currentPaths = data.target.files && data.target.files.paths();
+    }
+};
 
-(function () {
-    Pack.transforms.add('xdt', 'output', function (data) {
+Pack.transforms.xdt = {
+    event: 'output',
+    apply: function(data) {
         var target = data.target;
         var output = data.output;
+        var Log = Pack.api.Log;
 
         if (typeof Xdt === 'undefined') {
             Log.error("XDT transform requested but no API provided");
@@ -864,23 +908,28 @@ Pack.transforms.add('syncTo', 'finalise', function (data) {
         _.each(data.value, function(template) {
             target.output = Xdt.transform(target.output, pack.templates[template]);
         });
-    });
-})();
+    }
+};
 
-Pack.transforms.add('zipTo', 'finalise', function (data) {
-    var path = Path(data.output.basePath + data.value).toString();
+Pack.transforms.zipTo = {
+    event: 'finalise',
+    apply: function(data) {
+        var path = Path(data.output.basePath + data.value).toString();
+        var Zip = Pack.api.Zip;
+        var Log = Pack.api.Log;
 
-    var files = {};
-    _.each(data.target.files.list, function(file) {
-        files[file.pathRelativeToInclude.toString()] = file.path.toString();
-    });
+        var files = {};
+        _.each(data.target.files.list, function(file) {
+            files[file.pathRelativeToInclude.toString()] = file.path.toString();
+        });
 
-    Zip.archive(path, files);
-    Log.info('Wrote file ' + path);
+        Zip.archive(path, files);
+        Log.info('Wrote file ' + path);
 
-    // this should be moved to a separate transform - consumed by Output.matches
-    data.output.currentPaths = data.target.files && data.target.files.paths();
-});
+        // this should be moved to a separate transform - consumed by Output.matches
+        data.output.currentPaths = data.target.files && data.target.files.paths();
+    }
+};
 
 T = { Panes: {} };
 T = this.T || {};

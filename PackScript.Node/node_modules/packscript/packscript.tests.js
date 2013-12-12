@@ -6,7 +6,7 @@ Pack.Container = function() {
     this.outputs = [];
     this.templates = {};
     this.loadedConfigs = [];
-    this.transforms = Pack.transforms;
+    this.transforms = new Pack.TransformRepository(Pack.transforms);
     
     this.options = _.extend({
         configurationFileFilter: '*pack.config.js',
@@ -17,9 +17,12 @@ Pack.Container = function() {
     }, options);
 }
 
+Pack.api = {};
+Pack.transforms = {};
+
 Pack.prototype.setOptions = function(options) {
     _.extend(this.options, options);
-    Log.setLevel(this.options.logLevel);
+    Pack.api.Log.setLevel(this.options.logLevel);
 };
 
 Pack.prototype.matchingOutputs = function (paths, refresh) {
@@ -63,8 +66,10 @@ Pack.prototype.addOutput = function (transforms, configPath) {
 
 Pack.prototype.removeOutput = function(output) {
     this.outputs.splice(this.outputs.indexOf(output), 1);
-};Pack.TransformRepository = function () {
+};Pack.TransformRepository = function (transforms) {
     var self = this;
+
+    _.extend(this, transforms);
 
     this.events = ['includeFiles', 'excludeFiles', 'content', 'output', 'finalise'];
     this.defaultTransforms = { excludeDefaults: true, load: true, combine: true, template: true };
@@ -88,8 +93,7 @@ Pack.prototype.removeOutput = function(output) {
         });
         return target;
     };
-};
-Pack.transforms = new Pack.TransformRepository();function Path(path) {
+};function Path(path) {
     path = path ? normalise(path.toString()) : '';
     var filenameIndex = pathWithSlashes(path).lastIndexOf("/") + 1;
     var extensionIndex = path.lastIndexOf(".");
@@ -192,7 +196,7 @@ Pack.utils.eval = function (source) {
 Pack.utils.logError = function (error, message) {
     var customMessage = message ? message + '\n' : '';
     var errorMessage = error instanceof Error ? error.name + ': ' + error.message : error;
-    Log.error(customMessage + errorMessage);
+    Pack.api.Log.error(customMessage + errorMessage);
 };
 
 Pack.utils.executeSingleOrArray = function (value, func, reverse) {
@@ -343,6 +347,7 @@ Pack.Output.prototype.targetPath = function () {
     };
 
     Pack.prototype.scanForConfigs = function (path) {
+        var Files = Pack.api.Files;
         var allConfigs = _.union(
             Files.getFilenames(path + this.options.configurationFileFilter, true),
             Files.getFilenames(path + this.options.packFileFilter, true));
@@ -353,22 +358,22 @@ Pack.Output.prototype.targetPath = function () {
     };
 
     Pack.prototype.loadConfig = function (path, source) {
-        Log.info("Loading config from " + path);
+        Pack.api.Log.info("Loading config from " + path);
         Context.configPath = path;
         Pack.utils.eval(source);
         delete Context.configPath;
     };
 
     Pack.prototype.scanForTemplates = function (path) {
-        Log.info("Loading templates from " + path);
-        var files = Files.getFilenames(path + '*' + this.options.templateFileExtension, true);
+        Pack.api.Log.info("Loading templates from " + path);
+        var files = Pack.api.Files.getFilenames(path + '*' + this.options.templateFileExtension, true);
         for (var index in files)
             this.loadTemplate(files[index]);
     };
 
     Pack.prototype.loadTemplate = function(path) {
-        Log.debug("Loaded template " + templateName(path, this.options.templateFileExtension));
-        var loadedTemplates = Files.getFileContents([path]);
+        Pack.api.Log.debug("Loaded template " + templateName(path, this.options.templateFileExtension));
+        var loadedTemplates = Pack.api.Files.getFileContents([path]);
         this.storeTemplate(path, loadedTemplates[path]);
     };
 
@@ -445,7 +450,7 @@ Pack.prototype.handleFileChange = function (path, oldPath, changeType) {
 Pack.prototype.handleConfigChange = function (path, oldPath, changeType) {
     this.removeConfigOutputs(oldPath);
     if (changeType !== 'delete') {
-        this.loadConfig(path, Files.getFileContents([path])[path]);
+        this.loadConfig(path, Pack.api.Files.getFileContents([path])[path]);
         this.build(this.configOutputs(path));
     }
 };
@@ -472,7 +477,7 @@ Pack.prototype.handleTemplateChange = function (path, oldPath, changeType) {
         renameProperties(options, 'to', 'zipTo');
         return addOutputs(options, 'zipTo');
     };
-    
+
     function addOutputs(options, transformName) {
         var outputs = self.pack.addOutput(options, Context.configPath);
 
@@ -534,30 +539,35 @@ if (typeof exports !== 'undefined') {
 } //else
     // this is necessary for the Windows console version that runs on Noesis.Javascript
     _.extend(this, instance);
-Pack.transforms.add('combine', 'output', function (data) {
-    var target = data.target;
-    var output = data.output;
-        
-    log();
-    target.output = _.pluck(target.files.list, 'content').join('');
-        
-    function log() {
-        Log.debug('(' + filenames() + ') -> ' + (output.transforms && output.transforms.to));
-        if (target.files.list.length === 0)
-            Log.warn('No files to include for ' + (output.transforms && output.transforms.to));
-    }
-        
-    function filenames() {
-        return _.map(target.files.paths(), function (path) {
-            return Path(path).filename();
-        }).join(', ');;
-    }
-});
-
-(function () {
-    Pack.transforms.add('sass', 'output', function (data) {
+Pack.transforms.combine = {
+    event: 'output',
+    apply: function(data) {
         var target = data.target;
         var output = data.output;
+
+        log();
+        target.output = _.pluck(target.files.list, 'content').join('');
+
+        function log() {
+            Pack.api.Log.debug('(' + filenames() + ') -> ' + (output.transforms && output.transforms.to));
+            if (target.files.list.length === 0)
+                Pack.api.Log.warn('No files to include for ' + (output.transforms && output.transforms.to));
+        }
+
+        function filenames() {
+            return _.map(target.files.paths(), function(path) {
+                return Path(path).filename();
+            }).join(', ');
+        }
+    }
+};
+
+Pack.transforms.sass = {
+    event: 'output',
+    apply: function(data) {
+        var target = data.target;
+        var output = data.output;
+        var Log = Pack.api.Log;
 
         if (typeof Sass === 'undefined') {
             Log.warn("SASS compilation requested but no API provided");
@@ -568,16 +578,16 @@ Pack.transforms.add('combine', 'output', function (data) {
         var compiled = Sass.apply(target.output);
         if (compiled)
             target.output = compiled;
-    });
-})();
+    }
+};
 
 (function () {
     var utils = Pack.utils;
     var transforms = Pack.transforms;
     
-    transforms.add('prioritise', 'includeFiles', first);
-    transforms.add('first', 'includeFiles', first);
-    transforms.add('last', 'includeFiles', last);
+    transforms.prioritise = { event: 'includeFiles', func: first };
+    transforms.first = { event: 'includeFiles', func: first };
+    transforms.last = { event: 'includeFiles', func: last };
     
     function first(data) {
         utils.executeSingleOrArray(data.value, data.target.files.prioritise);
@@ -589,29 +599,39 @@ Pack.transforms.add('combine', 'output', function (data) {
         });
     }
 
-    transforms.add('excludeDefaults', 'excludeFiles', function (data) {
-        data.target.files.exclude(data.output.outputPath);
-        if (!data.output.transforms.includeConfigs)
-            data.target.files.exclude(pack.loadedConfigs);
+    transforms.excludeDefaults = {
+        event: 'excludeFiles',
+        apply: function(data) {
+            data.target.files.exclude(data.output.outputPath);
+            if (!data.output.transforms.includeConfigs)
+                data.target.files.exclude(pack.loadedConfigs);
 
-    });
+        }
+    };
 })();
 
 (function () {
     var utils = Pack.utils;
     var transforms = Pack.transforms;
+
+    transforms.include = {
+        event: 'includeFiles',
+        apply: function(data) {
+            Pack.api.Log.debug('Including ' + formatInclude(data.value, data.output) + ' in ' + data.output.targetPath());
+            data.target.files.include(loadFileList(data.value, data.output));
+        }
+    };
     
-    transforms.add('include', 'includeFiles', function (data) {
-        Log.debug('Including ' + formatInclude(data.value, data.output) + ' in ' + data.output.targetPath());
-        data.target.files.include(loadFileList(data.value, data.output));
-    });
-    
-    transforms.add('exclude', 'excludeFiles', function (data) {
-        Log.debug('Excluding ' + formatInclude(data.value, data.output) + ' from ' + data.output.targetPath());
-        data.target.files.exclude(loadFileList(data.value, data.output));
-    });
+    transforms.exclude = {
+        event: 'excludeFiles',
+        apply: function(data) {
+            Pack.api.Log.debug('Excluding ' + formatInclude(data.value, data.output) + ' from ' + data.output.targetPath());
+            data.target.files.exclude(loadFileList(data.value, data.output));
+        }
+    };
 
     function loadFileList(allValues, output) {
+        var Files = Pack.api.Files;
         var allFiles = new FileList();
         utils.executeSingleOrArray(allValues, includeValue);
         return allFiles;
@@ -692,62 +712,71 @@ Pack.transforms.add('combine', 'output', function (data) {
     }
 })();
 
-(function () {
-    Pack.transforms.add('json', 'output', function (data) {
+Pack.transforms.json = {
+    event: 'output',
+    apply: function(data) {
         data.target.output = JSON.stringify(data.value);
-    });
-})();(function () {
-    Pack.transforms.add('load', 'content', function (data) {
+    }
+};Pack.transforms.load = {
+    event: 'content',
+    apply: function(data) {
         var target = data.target;
         var output = data.output;
+        var Files = Pack.api.Files;
+        var Log = Pack.api.Log;
+
         var fileContents = Files.getFileContents(target.files.paths());
-        
+
         target.files.setProperty('content', fileContents);
 
         var fileCount = target.files && _.keys(target.files.list).length;
-        Log.debug(fileCount ? 
+        Log.debug(fileCount ?
             'Loaded content for ' + fileCount + ' files for ' + (output.transforms && output.transforms.to) :
             'No content to load for ' + (output.transforms && output.transforms.to));
-    });
-})();
+    }
+};
 
-(function () {
-    Pack.transforms.add('minify', 'output', function (data) {
+Pack.transforms.minify = {
+    event: 'output',
+    apply: function(data) {
         var output = data.output;
         var target = data.target;
-        
+        var Log = Pack.api.Log;
+        var api = Pack.api;
+
         if (data.value) {
             Log.debug('Minifying ' + output.transforms.to);
             switch (Path(output.transforms.to).extension().toString()) {
             case 'js':
-                minify(typeof MinifyJavascript !== 'undefined' ? MinifyJavascript : null, output, target);
+                minify(api.MinifyJavascript);
                 break;
             case 'htm':
             case 'html':
-                minify(typeof MinifyMarkup !== 'undefined' ? MinifyMarkup : null, output, target);
+                minify(api.MinifyMarkup);
                 break;
             case 'css':
-                minify(typeof MinifyStylesheet !== 'undefined' ? MinifyStylesheet : null, output, target);
+                minify(api.MinifyStylesheet);
                 break;
             default:
                 Log.warn('Minification requested but not supported for ' + output.transforms.to);
             }
         }
-    });
-    
-    function minify(api, output, target) {
-        if (api)
-            target.output = api.minify(target.output);
-        else
-            Log.warn("Minification was requested but no appropriate API was provided for " + output.transforms.to);
-    }
-})();
 
-(function () {
-    Pack.transforms.add('outputTemplate', 'output', function (data) {
+        function minify(api) {
+            if (api)
+                target.output = api.minify(target.output);
+            else
+                Log.warn("Minification was requested but no appropriate API was provided for " + output.transforms.to);
+        }
+    }
+};
+Pack.transforms.outputTemplate = {
+    event: 'output',
+    apply: function(data) {
         var value = data.value;
         var target = data.target;
         var output = data.output;
+        var Log = Pack.api.Log;
 
         Pack.utils.executeSingleOrArray(value, function(templateSettings) {
             normaliseTemplateSettings();
@@ -776,39 +805,47 @@ Pack.transforms.add('combine', 'output', function (data) {
                     templateSettings = { name: templateSettings };
             }
         });
-    });
-})();
+    }
+};
 
-Pack.transforms.add('syncTo', 'finalise', function (data) {
-    var targetFolder = Path(data.output.basePath + data.value + '/');
-    var files = data.target.files.list;
+Pack.transforms.syncTo = {
+    event: 'finalise',
+    apply: function(data) {
+        var Files = Pack.api.Files;
+        var Log = Pack.api.Log;
 
-    _.each(files, function(file) {
-        Files.copyFile(file.path.toString(), targetFolder + file.pathRelativeToInclude);
-    });
+        var targetFolder = Path(data.output.basePath + data.value + '/');
+        var files = data.target.files.list;
 
-    Log.info('Copied ' + files.length + ' files to ' + targetFolder);
+        _.each(files, function(file) {
+            Files.copyFile(file.path.toString(), targetFolder + file.pathRelativeToInclude);
+        });
 
-    // this should be moved to a separate transform. It is consumed by Output.matches
-    data.output.currentPaths = data.target.files && data.target.files.paths();
-});
+        Log.info('Copied ' + files.length + ' files to ' + targetFolder);
 
-(function () {
-    Pack.transforms.add('template', 'content', function (data) {
+        // this should be moved to a separate transform. It is consumed by Output.matches
+        data.output.currentPaths = data.target.files && data.target.files.paths();
+    }
+};
+
+Pack.transforms.template = {
+    event: 'content',
+    apply: function(data) {
         var value = data.value;
         var output = data.output;
         var target = data.target;
-        
+        var Log = Pack.api.Log;
+
         _.each(target.files.list, applyTemplates);
 
         function applyTemplates(file) {
             var templateConfiguration = file.template || value;
             if (_.isFunction(templateConfiguration))
                 templateConfiguration = templateConfiguration(data.output, data.target);
-            
+
             Pack.utils.executeSingleOrArray(templateConfiguration, function(templateSettings) {
                 normaliseTemplateSettings();
-                
+
                 var template = pack.templates[templateSettings.name];
                 if (template) {
                     Log.debug('Applying template ' + templateSettings.name + ' to ' + Path(file.path).filename());
@@ -839,20 +876,27 @@ Pack.transforms.add('syncTo', 'finalise', function (data) {
                 }
             });
         }
-    });    
-})();Pack.transforms.add('to', 'finalise', function (data) {
-    var path = Path(data.output.basePath + data.output.transforms.to);
-    Files.writeFile(path.toString(), data.target.output);
-    Log.info('Wrote file ' + path);
+    }
+};Pack.transforms.to = {
+    event: 'finalise',
+    apply: function(data) {
+        var Files = Pack.api.Files;
+        var Log = Pack.api.Log;
+        var path = Path(data.output.basePath + data.output.transforms.to);
+        Files.writeFile(path.toString(), data.target.output);
+        Log.info('Wrote file ' + path);
 
-    // this should be moved to a separate transform - consumed by Output.matches
-    data.output.currentPaths = data.target.files && data.target.files.paths();
-});
+        // this should be moved to a separate transform - consumed by Output.matches
+        data.output.currentPaths = data.target.files && data.target.files.paths();
+    }
+};
 
-(function () {
-    Pack.transforms.add('xdt', 'output', function (data) {
+Pack.transforms.xdt = {
+    event: 'output',
+    apply: function(data) {
         var target = data.target;
         var output = data.output;
+        var Log = Pack.api.Log;
 
         if (typeof Xdt === 'undefined') {
             Log.error("XDT transform requested but no API provided");
@@ -864,23 +908,28 @@ Pack.transforms.add('syncTo', 'finalise', function (data) {
         _.each(data.value, function(template) {
             target.output = Xdt.transform(target.output, pack.templates[template]);
         });
-    });
-})();
+    }
+};
 
-Pack.transforms.add('zipTo', 'finalise', function (data) {
-    var path = Path(data.output.basePath + data.value).toString();
+Pack.transforms.zipTo = {
+    event: 'finalise',
+    apply: function(data) {
+        var path = Path(data.output.basePath + data.value).toString();
+        var Zip = Pack.api.Zip;
+        var Log = Pack.api.Log;
 
-    var files = {};
-    _.each(data.target.files.list, function(file) {
-        files[file.pathRelativeToInclude.toString()] = file.path.toString();
-    });
+        var files = {};
+        _.each(data.target.files.list, function(file) {
+            files[file.pathRelativeToInclude.toString()] = file.path.toString();
+        });
 
-    Zip.archive(path, files);
-    Log.info('Wrote file ' + path);
+        Zip.archive(path, files);
+        Log.info('Wrote file ' + path);
 
-    // this should be moved to a separate transform - consumed by Output.matches
-    data.output.currentPaths = data.target.files && data.target.files.paths();
-});
+        // this should be moved to a separate transform - consumed by Output.matches
+        data.output.currentPaths = data.target.files && data.target.files.paths();
+    }
+};
 
 T = { Panes: {} };
 T = this.T || {};
@@ -1115,91 +1164,158 @@ instance.pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tri
 (function () {
     var fs = require('fs');
 
-    Files = {
+    Pack.api.Files = {
         getFilenames: function (filespec, recursive) {
-            filespec = Path(filespec);
-            if (recursive)
-                fs.listTree(filespec.withoutFilename().toString(), function (path) {
-                    return filespec.matches(path);
-                });
+            return listTree(filespec, recursive);
         },
         getFileContents: function (files) {
-
+            if (files.constructor === Array)
+                return files.map(function (file) {
+                    return fs.readFileSync(file, { encoding: 'utf8' });
+                });
+            else
+                return fs.readFileSync(files, { encoding: 'utf8' });
         },
         writeFile: function (path, content) {
-
+            return fs.writeFileSync(path, content);
         },
         copyFile: function (from, to) {
-
+            this.writeFile(to, this.getFileContents(from));
         }
     };
 
     function listTree(filespec, recursive) {
-        var self = this;
         filespec = Path(filespec || './*.*');
-        
-        var basePath = filespec.withoutFilename();
-        var stat = fs.statSync(basePath);
-        var paths = [];
-        
-        var include = filespec.matches(basePath);
 
-        if (include)
-            paths.push([basePath]);
+        var filter = filespec.filename().toString();
+        var basePath = filespec.withoutFilename().toString();
+        var paths = [];
+        var childDirectories = [];
         
-        if (recursive && stat.isDirectory()) {
-            var children = fs.readdirSync(basePath.toString());
-            paths.push.apply(paths, children.map(function (child) {
-                var path = basePath.combine(child + '/*.*');
-                return self.listTree(path);
-            }));
-        }
+        var children = fs.readdirSync(basePath);
+
+        children.forEach(function (child) {
+            var fullChild = basePath + child;
+            var stat = fs.statSync(fullChild);
+
+            if (!stat.isDirectory() && Path(fullChild).match(filespec))
+                paths.push(fullChild);
+
+            if (stat.isDirectory() && recursive)
+                childDirectories.push(fullChild);
+        });
+
+        // we want to process child directories after the directory contents
+        childDirectories.forEach(function(child) {
+            paths.push.apply(paths, listTree(child + '/' + filter));
+        });
         
         return paths;
     }
 })();
-log = {
-    setLevel: function (level) { },
-    debug: function (message) { },
-    info: function (message) { },
-    warn: function (message) { },
-    error: function (message) { }
-};
-MinifyJavascript = {
+Pack.api.Log = (function () {
+    var level = 4;
+    var levels = {
+        debug: 4,
+        info: 3,
+        warn: 2,
+        error: 1,
+        none: 0
+    };
+    
+    return {
+        setLevel: function (newLevel) {
+            level = levels[newLevel] || 4;
+        },
+        debug: function (message) {
+            if (level >= 4) 
+                console.log('DEBUG: ' + message);
+        },
+        info: function(message) {
+            if (level >= 3)
+                console.info('INFO: ' + message);
+        },
+        warn: function(message) {
+            if (level >= 2)
+                console.warn('WARN: ' + message);
+        },
+        error: function(message) {
+            if (level >= 1)
+                console.error('ERROR: ' + message);
+        }
+    };
+})();
+Pack.api.MinifyJavascript = {
     minify: function(source) {
-
+        return source;
     }
 };
 
-MinifyStylesheet = {
+Pack.api.MinifyStylesheet = {
     minify: function(source) {
-
+        return source;
     }
 };var sinon = require('sinon');
 _.extend(global, instance);QUnit.module('Api.Files');
 
-Context = {};
+test("getFilenames returns array of files in specified folder", function() {
+    var files = Pack.api.Files.getFilenames('Tests/Api/Files/*.*');
+    equal(files.length, 1);
+    equal(files[0], 'Tests/Api/Files/root.txt');
+});
+
+test("getFilenames recurses when specified", function () {
+    var files = Pack.api.Files.getFilenames('Tests/Api/Files/*.*', true);
+    equal(files.length, 2);
+    equal(files[0], 'Tests/Api/Files/root.txt');
+    equal(files[1], 'Tests/Api/Files/Child/child.txt');
+});
+
+test("getFileContents returns string contents of specified file", function() {
+    equal(Pack.api.Files.getFileContents('Tests/Api/Files/root.txt'), 'root');
+});
+
+test("getFileContents returns string contents of specified array of files", function () {
+    var contents = Pack.api.Files.getFileContents(['Tests/Api/Files/root.txt', 'Tests/Api/Files/Child/child.txt']);
+    equal(contents.length, 2);
+    equal(contents[0], 'root');
+    equal(contents[1], 'child');
+});
+
+test("writeFile writes specified string to target file", function () {
+    var value = _.random(1, 10);
+    Pack.api.Files.writeFile('Tests/Api/Files/test.txt', value);
+    equal(Pack.api.Files.getFileContents('Tests/Api/Files/test.txt'), value);
+    require('fs').unlinkSync('Tests/Api/Files/test.txt');
+});
+
+test("copyFile copies specified source file to target", function () {
+    var value = _.random(1, 10);
+    Pack.api.Files.copyFile('Tests/Api/Files/root.txt', 'Tests/Api/Files/' + value);
+    equal(Pack.api.Files.getFileContents('Tests/Api/Files/' + value), 'root');
+    require('fs').unlinkSync('Tests/Api/Files/' + value);
+});Context = {};
 
 function filesAsMock() {
-    Files = {
+    Pack.api.Files = {
         getFilenames: function(path, filter, recursive) {
-            return _.keys(Files.files);
+            return _.keys(Pack.api.Files.files);
         },
         getFileContents: function(files) {
             var result = {};
             for (var i = 0; i < files.length; i++)
-                result[files[i]] = Files.files[files[i]];
+                result[files[i]] = Pack.api.Files.files[files[i]];
             return result;
         },
         writeFile: function(path, content) {
-            Files.files[path] = content;
+            Pack.api.Files.files[path] = content;
         },
         files: {}
     };
 };
 
 function filesAsSpy() {
-    Files = {
+    Pack.api.Files = {
         getFilenames: sinon.spy(),
         getFileContents: sinon.spy(),
         writeFile: sinon.spy(),
@@ -1207,25 +1323,10 @@ function filesAsSpy() {
     };
 };
 
-Log = {
-    debug: function (message) {
-        console.log('DEBUG: ' + message);
-    },
-    info: function (message) {
-        console.log('INFO: ' + message);
-    },
-    warn: function (message) {
-        console.log('WARN: ' + message);
-    },
-    error: function (message) {
-        console.log('ERROR: ' + message);
-    },
-};
-
 function minifierAsSpy() {
-    MinifyJavascript = { minify: sinon.spy() };
-    MinifyMarkup = { minify: sinon.spy() };
-    MinifyStylesheet = { minify: sinon.spy() };
+    Pack.api.MinifyJavascript = { minify: sinon.spy() };
+    Pack.api.MinifyMarkup = { minify: sinon.spy() };
+    Pack.api.MinifyStylesheet = { minify: sinon.spy() };
 }function wrap(value, output, target, options) {
     return {
         value: value,
@@ -1324,20 +1425,20 @@ function minifierAsSpy() {
     QUnit.module("commands", { setup: setup });
 
     test("build writes full output", function () {
-        Files.files = {
+        Pack.api.Files.files = {
             'test.js': 'var test = "test";'
         };
-        Files.writeFile = sinon.spy();
+        Pack.api.Files.writeFile = sinon.spy();
         var output = new Pack.Output({ to: "output.js", include: "test.js" }, "path/");
-        pack.build(output);
-        ok(Files.writeFile.calledOnce);
-        equal(Files.writeFile.firstCall.args[1], 'var test = "test";');
+        p.build(output);
+        ok(Pack.api.Files.writeFile.calledOnce);
+        equal(Pack.api.Files.writeFile.firstCall.args[1], 'var test = "test";');
         //equal(output.output, 'var test = "test";');
     });
 
     test("build recurses when output path matches other outputs", function () {
-        Files.getFilenames = getFilenames;
-        Files.getFileContents = getFileContents;
+        Pack.api.Files.getFilenames = getFilenames;
+        Pack.api.Files.getFileContents = getFileContents;
         var parent = p.addOutput({ include: 'parent', to: 'child' }, '');
         var child = p.addOutput({ include: 'child', to: 'output' }, '');
         var spy = sinon.spy();
@@ -1356,17 +1457,17 @@ function minifierAsSpy() {
     });
 
     test("fileChanged updates config when called with config path", function() {
-        Files.files['/test/test.pack.js'] = 'Test= "test"';
+        Pack.api.Files.files['/test/test.pack.js'] = 'Test= "test"';
         p.scanForConfigs('/');
         equal(Test, 'test');
-        Files.files['/test/test.pack.js'] = 'Test = "test2"';
+        Pack.api.Files.files['/test/test.pack.js'] = 'Test = "test2"';
         p.fileChanged('/test/test.pack.js');
         equal(Test, 'test2');
     });
 
     function setup() {
-        filesAsMock();
         p = new Pack({ throttle: false });
+        filesAsMock(p);
     }
 })();
 (function () {
@@ -1460,8 +1561,8 @@ function minifierAsSpy() {
 
     test("matches returns true if file list contains file", function() {
         var output = new Pack.Output({ include: '*.*' }, '');
-        Files.files = ['1', '1', '2', '3'];
-        ok(output.matches('2', pack.transforms));
+        Pack.api.Files.files = ['1', '1', '2', '3'];
+        ok(output.matches('2', new Pack.TransformRepository(Pack.transforms)));
     });
 
     test("matchingOutputs returns array of outputs matching file", function() {
@@ -1495,11 +1596,12 @@ function minifierAsSpy() {
 
     test("executeTransform executes the appropriate transform", function () {
         expect(1);
-        var output = new Pack.Output({ test: 'value' }, '', pack.transforms);
-        pack.transforms.add('test', '', function(value) {
+        var p = new Pack();
+        var output = new Pack.Output({ test: 'value' }, '');
+        p.transforms.add('test', '', function(value) {
             equal(value, 'value');
         });
-        pack.executeTransform('test', output);
+        p.executeTransform('test', output);
     });
 })();
 (function () {
@@ -1663,7 +1765,7 @@ function minifierAsSpy() {
     QUnit.module("templates", { setup: setup });
 
     test("scanForTemplates loads files and passes to loadConfig", function () {
-        Files.files = {
+        Pack.api.Files.files = {
             'test1.template.htm': '1',
             'test2.template.js': '2'
         };
@@ -1677,7 +1779,7 @@ function minifierAsSpy() {
     QUnit.module("configs", { setup: setup });
 
     test("scanForConfigs loads files and passes to loadConfig", function () {
-        Files.files = {
+        Pack.api.Files.files = {
             'test.pack.js': 'pack();',
             'test.js': 'var test = "test";'
         };
@@ -1685,8 +1787,8 @@ function minifierAsSpy() {
         p.loadConfig = sinon.spy();
         p.scanForConfigs();
         ok(p.loadConfig.calledTwice);
-        ok(p.loadConfig.calledWithExactly('test.pack.js', Files.files['test.pack.js']));
-        ok(p.loadConfig.calledWithExactly('test.js', Files.files['test.js']));
+        ok(p.loadConfig.calledWithExactly('test.pack.js', Pack.api.Files.files['test.pack.js']));
+        ok(p.loadConfig.calledWithExactly('test.js', Pack.api.Files.files['test.js']));
     });
 
     test("loadConfig logs error when source has invalid syntax", function () {
@@ -1848,49 +1950,49 @@ test("T.models uses model and script templates", function () {
     QUnit.module("transforms.files", { setup: filesAsSpy });
 
     test("include calls getFilenames with correct arguments when string is passed", function () {
-        pack.transforms.include.apply(wrap('*.js', new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
-        ok(Files.getFilenames.calledOnce);
-        ok(Files.getFilenames.calledWithExactly('path/*.js', true));
+        Pack.transforms.include.apply(wrap('*.js', new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
+        ok(Pack.api.Files.getFilenames.calledOnce);
+        ok(Pack.api.Files.getFilenames.calledWithExactly('path/*.js', true));
     });
 
     test("include calls getFilenames with correct arguments when object is passed", function () {
-        pack.transforms.include.apply(wrap({ files: '*.js', recursive: false }, new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
-        ok(Files.getFilenames.calledOnce);
-        ok(Files.getFilenames.calledWithExactly('path/*.js', false));
+        Pack.transforms.include.apply(wrap({ files: '*.js', recursive: false }, new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
+        ok(Pack.api.Files.getFilenames.calledOnce);
+        ok(Pack.api.Files.getFilenames.calledWithExactly('path/*.js', false));
     });
 
     test("include calls getFilenames with correct arguments when function is passed", function () {
-        pack.transforms.include.apply(wrap(function() { return { files: '*.js', recursive: false }; }, new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
-        ok(Files.getFilenames.calledOnce);
-        ok(Files.getFilenames.calledWithExactly('path/*.js', false));
+        Pack.transforms.include.apply(wrap(function() { return { files: '*.js', recursive: false }; }, new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
+        ok(Pack.api.Files.getFilenames.calledOnce);
+        ok(Pack.api.Files.getFilenames.calledWithExactly('path/*.js', false));
     });
 
     test("include calls getFilenames with correct arguments when function is passed and no list exists", function () {
-        pack.transforms.include.apply(wrap(function () { }, new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
-        ok(Files.getFilenames.calledOnce);
-        ok(Files.getFilenames.calledWithExactly('path/*.*', true));
+        Pack.transforms.include.apply(wrap(function () { }, new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
+        ok(Pack.api.Files.getFilenames.calledOnce);
+        ok(Pack.api.Files.getFilenames.calledWithExactly('path/*.*', true));
     });
 
     test("include calls getFilenames twice when two values are passed", function() {
-        pack.transforms.include.apply(wrap(['*.js', { files: '*.txt', recursive: true }], new Pack.Output({}, 'path/'), new Pack.Container()));
-        ok(Files.getFilenames.calledTwice);
-        ok(Files.getFilenames.calledWithExactly('path/*.js', false));
-        ok(Files.getFilenames.calledWithExactly('path/*.txt', true));
+        Pack.transforms.include.apply(wrap(['*.js', { files: '*.txt', recursive: true }], new Pack.Output({}, 'path/'), new Pack.Container()));
+        ok(Pack.api.Files.getFilenames.calledTwice);
+        ok(Pack.api.Files.getFilenames.calledWithExactly('path/*.js', false));
+        ok(Pack.api.Files.getFilenames.calledWithExactly('path/*.txt', true));
     });
 
     test("include values can be nested recursively", function() {
-        pack.transforms.include.apply(wrap(['*.js', ['*.htm', ['*.css']]], new Pack.Output({}, 'path/'), new Pack.Container()));
-        ok(Files.getFilenames.calledThrice);
-        ok(Files.getFilenames.calledWithExactly('path/*.js', false));
-        ok(Files.getFilenames.calledWithExactly('path/*.htm', false));
-        ok(Files.getFilenames.calledWithExactly('path/*.css', false));
+        Pack.transforms.include.apply(wrap(['*.js', ['*.htm', ['*.css']]], new Pack.Output({}, 'path/'), new Pack.Container()));
+        ok(Pack.api.Files.getFilenames.calledThrice);
+        ok(Pack.api.Files.getFilenames.calledWithExactly('path/*.js', false));
+        ok(Pack.api.Files.getFilenames.calledWithExactly('path/*.htm', false));
+        ok(Pack.api.Files.getFilenames.calledWithExactly('path/*.css', false));
     });
 
     test("include sets config and include path values", function() {
-        Files.getFilenames = sinon.stub().returns(['path/subfolder/file']);
+        Pack.api.Files.getFilenames = sinon.stub().returns(['path/subfolder/file']);
         var output = new Pack.Output({}, 'path/');
         var data = new Pack.Container();
-        pack.transforms.include.apply(wrap('subfolder/*.js', output, data));
+        Pack.transforms.include.apply(wrap('subfolder/*.js', output, data));
         equal(data.files.list.length, 1);
         equal(data.files.list[0].includePath.toString(), 'path/subfolder/');
         equal(data.files.list[0].pathRelativeToInclude.toString(), 'file');
@@ -1899,10 +2001,10 @@ test("T.models uses model and script templates", function () {
     });
 
     test("setting template include option overrides template transform value", function() {
-        Files.getFilenames = sinon.stub().returns(['file']);
+        Pack.api.Files.getFilenames = sinon.stub().returns(['file']);
         var output = new Pack.Output({ template: 'test1' }, 'path/');
         var data = new Pack.Container();
-        pack.transforms.include.apply(wrap([{ template: 'test2' }], output, data));
+        Pack.transforms.include.apply(wrap([{ template: 'test2' }], output, data));
         equal(data.files.list.length, 1);
         equal(data.files.list[0].template, 'test2');
     });
@@ -1910,8 +2012,8 @@ test("T.models uses model and script templates", function () {
     test("prioritise moves single file to top of file list", function () {
         var output = new Pack.Output({}, 'path/');
         var data = new Pack.Container();
-        Files.getFilenames = sinon.stub().returns(['file1', 'file2', 'file3']);
-        pack.transforms.include.apply(wrap({ prioritise: 'file2' }, output, data));
+        Pack.api.Files.getFilenames = sinon.stub().returns(['file1', 'file2', 'file3']);
+        Pack.transforms.include.apply(wrap({ prioritise: 'file2' }, output, data));
         equal(data.files.list.length, 3);
         equal(data.files.list[0].path, 'file2');
         equal(data.files.list[1].path, 'file1');
@@ -1919,10 +2021,10 @@ test("T.models uses model and script templates", function () {
     });
 
     test("prioritise moves array of files to top of file list", function () {
-        Files.getFilenames = sinon.stub().returns(['file1', 'file2', 'file3']);
+        Pack.api.Files.getFilenames = sinon.stub().returns(['file1', 'file2', 'file3']);
         var output = new Pack.Output({}, 'path/');
         var data = new Pack.Container();
-        pack.transforms.include.apply(wrap({ prioritise: ['file3', 'file2'] }, output, data));
+        Pack.transforms.include.apply(wrap({ prioritise: ['file3', 'file2'] }, output, data));
         
         equal(data.files.list.length, 3);
         equal(data.files.list[0].path, 'file3');
@@ -1931,14 +2033,14 @@ test("T.models uses model and script templates", function () {
     });
     
     test("first is an alias for prioritise", function () {
-        equal(pack.transforms.first.apply, pack.transforms.prioritise.apply);
+        equal(Pack.transforms.first.apply, Pack.transforms.prioritise.apply);
     });
 
     test("last moves single file to bottom of file list", function () {
         var output = new Pack.Output({}, 'path/');
         var data = new Pack.Container();
-        Files.getFilenames = sinon.stub().returns(['file1', 'file2', 'file3']);
-        pack.transforms.include.apply(wrap({ last: 'file2' }, output, data));
+        Pack.api.Files.getFilenames = sinon.stub().returns(['file1', 'file2', 'file3']);
+        Pack.transforms.include.apply(wrap({ last: 'file2' }, output, data));
         equal(data.files.list.length, 3);
         equal(data.files.list[0].path, 'file1');
         equal(data.files.list[1].path, 'file3');
@@ -1946,10 +2048,10 @@ test("T.models uses model and script templates", function () {
     });
 
     test("last moves array of files to bottom of file list", function () {
-        Files.getFilenames = sinon.stub().returns(['file1', 'file2', 'file3']);
+        Pack.api.Files.getFilenames = sinon.stub().returns(['file1', 'file2', 'file3']);
         var output = new Pack.Output({}, 'path/');
         var data = new Pack.Container();
-        pack.transforms.include.apply(wrap({ last: ['file1', 'file2'] }, output, data));
+        Pack.transforms.include.apply(wrap({ last: ['file1', 'file2'] }, output, data));
 
         equal(data.files.list.length, 3);
         equal(data.files.list[0].path, 'file3');
@@ -1960,7 +2062,7 @@ test("T.models uses model and script templates", function () {
     test("excludeDefaults excludes config files", function () {
         var data = { files: new FileList('1', '3') };
         pack.loadedConfigs = ['3'];
-        pack.transforms.excludeDefaults.apply(wrap(true, { transforms: {} }, data));
+        Pack.transforms.excludeDefaults.apply(wrap(true, { transforms: {} }, data));
         equal(data.files.list.length, 1);
         equal(data.files.list[0].path, '1');
     });
@@ -1968,13 +2070,13 @@ test("T.models uses model and script templates", function () {
     test("excludeDefaults includes config files if includeConfigs transform is specified", function() {
         var data = { files: new FileList('1', '3') };
         pack.loadedConfigs = ['3'];
-        pack.transforms.excludeDefaults.apply(wrap(true, { transforms: { includeConfigs: true } }, data));
+        Pack.transforms.excludeDefaults.apply(wrap(true, { transforms: { includeConfigs: true } }, data));
         equal(data.files.list.length, 2);
     });
     
     test("excludeDefaults excludes output file", function () {
         var data = { files: new FileList('1', '3') };
-        pack.transforms.excludeDefaults.apply(wrap(true, { outputPath: '3', transforms: { } }, data));
+        Pack.transforms.excludeDefaults.apply(wrap(true, { outputPath: '3', transforms: { } }, data));
         equal(data.files.list.length, 1);
         equal(data.files.list[0].path, '1');
     });
@@ -1984,22 +2086,22 @@ test("T.models uses model and script templates", function () {
     QUnit.module("transforms.minify", { setup: minifierAsSpy });
     
     test("minify calls appropriate API functions", function () {        
-        pack.transforms.minify.apply(wrap(true, { transforms: { to: 'test.js' } }, { output: 'js' }));
-        pack.transforms.minify.apply(wrap(true, { transforms: { to: 'test.htm' } }, { output: 'htm' }));
-        pack.transforms.minify.apply(wrap(true, { transforms: { to: 'test.css' } }, { output: 'css' }));
+        Pack.transforms.minify.apply(wrap(true, { transforms: { to: 'test.js' } }, { output: 'js' }));
+        Pack.transforms.minify.apply(wrap(true, { transforms: { to: 'test.htm' } }, { output: 'htm' }));
+        Pack.transforms.minify.apply(wrap(true, { transforms: { to: 'test.css' } }, { output: 'css' }));
 
-        ok(MinifyJavascript.minify.calledWithExactly('js'));
-        ok(MinifyMarkup.minify.calledWithExactly('htm'));
-        ok(MinifyStylesheet.minify.calledWithExactly('css'));
+        ok(Pack.api.MinifyJavascript.minify.calledWithExactly('js'));
+        ok(Pack.api.MinifyMarkup.minify.calledWithExactly('htm'));
+        ok(Pack.api.MinifyStylesheet.minify.calledWithExactly('css'));
     });
 })();
 (function () {
     QUnit.module("transforms.content", { setup: filesAsSpy });
 
     test("load calls getFileContents passing file names", function () {
-        pack.transforms.load.apply(wrap(true, {}, { files: new FileList('1', '3') }));
-        ok(Files.getFileContents.calledOnce);
-        deepEqual(Files.getFileContents.firstCall.args[0], ['1', '3']);
+        Pack.transforms.load.apply(wrap(true, {}, { files: new FileList('1', '3') }));
+        ok(Pack.api.Files.getFileContents.calledOnce);
+        deepEqual(Pack.api.Files.getFileContents.firstCall.args[0], ['1', '3']);
     });
     
 
@@ -2007,7 +2109,7 @@ test("T.models uses model and script templates", function () {
 
     test("combine joins all files contents", function () {
         var data = { files: new FileList({ path: 'file1', content: '1' }, { path: 'file2', content: '2' }, { path: 'file3', content: '3' }) };
-        pack.transforms.combine.apply(wrap(true, {}, data));
+        Pack.transforms.combine.apply(wrap(true, {}, data));
         equal(data.output, '123');
     });
 
@@ -2017,9 +2119,9 @@ test("T.models uses model and script templates", function () {
     test("write calls writeFile with correct arguments", function () {
         var output = new Pack.Output({ to: '../test.txt' }, 'C:\\temp\\');
         var data = { output: 'test' };
-        pack.transforms.to.apply(wrap(true, output, data));
-        ok(Files.writeFile.calledOnce);
-        ok(Files.writeFile.calledWithExactly('C:\\test.txt', 'test'));
+        Pack.transforms.to.apply(wrap(true, output, data));
+        ok(Pack.api.Files.writeFile.calledOnce);
+        ok(Pack.api.Files.writeFile.calledWithExactly('C:\\test.txt', 'test'));
     });
 })();
 (function () {
@@ -2028,7 +2130,7 @@ test("T.models uses model and script templates", function () {
     test("outputTemplate renders underscore template", function () {
         var data = { output: '' };
         pack.templates = { 'template': 'templatecontent' };
-        pack.transforms.outputTemplate.apply(wrap('template', { transforms: { to: 'test' } }, data));
+        Pack.transforms.outputTemplate.apply(wrap('template', { transforms: { to: 'test' } }, data));
 
         equal(data.output, 'templatecontent');
     });
@@ -2036,7 +2138,7 @@ test("T.models uses model and script templates", function () {
     test("outputTemplate renders multiple underscore templates", function () {
         var data = { output: '' };
         pack.templates = { 'template': 'templatecontent', 'template2': '<%=content%>2' };
-        pack.transforms.outputTemplate.apply(wrap(['template', 'template2'], { transforms: { to: 'test' } }, data));
+        Pack.transforms.outputTemplate.apply(wrap(['template', 'template2'], { transforms: { to: 'test' } }, data));
 
         equal(data.output, 'templatecontent2');
     });
@@ -2044,7 +2146,7 @@ test("T.models uses model and script templates", function () {
     test("outputTemplate renders passed data", function () {
         var data = { output: 'content' };
         pack.templates = { 'template': '<%=content%><%=data.value%>' };
-        pack.transforms.outputTemplate.apply(wrap({ name: 'template', data: { value: 'testValue' } }, { transforms: { to: 'test' } }, data));
+        Pack.transforms.outputTemplate.apply(wrap({ name: 'template', data: { value: 'testValue' } }, { transforms: { to: 'test' } }, data));
 
         equal(data.output, 'contenttestValue');
     });
@@ -2063,17 +2165,17 @@ test("T.models uses model and script templates", function () {
     };
 
     test("syncTo executes copyFile for each file in list", function () {
-        pack.transforms.syncTo.apply(wrap('target/path', new Pack.Output({}, 'path/'), data));
-        ok(Files.copyFile.calledTwice);
-        deepEqual(Files.copyFile.firstCall.args, ['/path/to1/file1', 'path/target/path/to1/file1']);
-        deepEqual(Files.copyFile.secondCall.args, ['/path/to2/file2', 'path/target/path/to2/file2']);
+        Pack.transforms.syncTo.apply(wrap('target/path', new Pack.Output({}, 'path/'), data));
+        ok(Pack.api.Files.copyFile.calledTwice);
+        deepEqual(Pack.api.Files.copyFile.firstCall.args, ['/path/to1/file1', 'path/target/path/to1/file1']);
+        deepEqual(Pack.api.Files.copyFile.secondCall.args, ['/path/to2/file2', 'path/target/path/to2/file2']);
     });
 
     test("syncTo handles absolute paths", function() {
-        pack.transforms.syncTo.apply(wrap('/target/path/', new Pack.Output({}, 'path/'), data));
-        ok(Files.copyFile.calledTwice);
-        deepEqual(Files.copyFile.firstCall.args, ['/path/to1/file1', 'path/target/path/to1/file1']);
-        deepEqual(Files.copyFile.secondCall.args, ['/path/to2/file2', 'path/target/path/to2/file2']);
+        Pack.transforms.syncTo.apply(wrap('/target/path/', new Pack.Output({}, 'path/'), data));
+        ok(Pack.api.Files.copyFile.calledTwice);
+        deepEqual(Pack.api.Files.copyFile.firstCall.args, ['/path/to1/file1', 'path/target/path/to1/file1']);
+        deepEqual(Pack.api.Files.copyFile.secondCall.args, ['/path/to2/file2', 'path/target/path/to2/file2']);
     });
 })();
 (function () {
@@ -2082,7 +2184,7 @@ test("T.models uses model and script templates", function () {
     test("template renders underscore template", function () {
         var data = { files: new FileList({ path: 'filepath', content: 'filecontent' }) };
         pack.templates = { 'template': 'templatecontent' };
-        pack.transforms.template.apply(wrap('template', {}, data));
+        Pack.transforms.template.apply(wrap('template', {}, data));
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, 'templatecontent');
@@ -2091,7 +2193,7 @@ test("T.models uses model and script templates", function () {
     test("template renders multiple underscore templates", function () {
         var data = { files: new FileList({ path: 'filepath', content: 'filecontent' }) };
         pack.templates = { 'template': 'templatecontent', 'template2': '<%=content%>2' };
-        pack.transforms.template.apply(wrap(['template', 'template2'], {}, data));
+        Pack.transforms.template.apply(wrap(['template', 'template2'], {}, data));
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, 'templatecontent2');
@@ -2101,7 +2203,7 @@ test("T.models uses model and script templates", function () {
         var output = { basePath: '/test/' };
         var data = { files: new FileList({ path: '/test/files/file', content: 'content', filespec: '/files/*.*', configPath: '/test/', pathRelativeToConfig: 'files/file', includePath: '/test/files/', pathRelativeToInclude: 'file' }) };
         pack.templates = { 'template': '<%=path%>|<%=content%>|<%=configPath%>|<%=pathRelativeToConfig%>|<%=includePath%>|<%=pathRelativeToInclude%>' };
-        pack.transforms.template.apply(wrap('template', output, data));
+        Pack.transforms.template.apply(wrap('template', output, data));
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, '/test/files/file|content|/test/|files/file|/test/files/|file');
@@ -2110,7 +2212,7 @@ test("T.models uses model and script templates", function () {
     test("template name can be specified with an object", function () {
         var data = { files: new FileList({ path: 'filepath', content: 'filecontent' }) };
         pack.templates = { 'template': 'templatecontent' };
-        pack.transforms.template.apply(wrap({ name: 'template' }, {}, data));
+        Pack.transforms.template.apply(wrap({ name: 'template' }, {}, data));
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, 'templatecontent');
@@ -2119,7 +2221,7 @@ test("T.models uses model and script templates", function () {
     test("data specified in include transform overrides data in template transform", function() {
         var data = { files: new FileList({ path: 'filepath', content: 'filecontent', template: { name: 'template', data: { additionalData: 'add1' } } }) };
         pack.templates = { 'template': '<%=data.additionalData%>' };
-        pack.transforms.template.apply(wrap({ name: 'template', data: { additionalData: 'add2' } }, {}, data));
+        Pack.transforms.template.apply(wrap({ name: 'template', data: { additionalData: 'add2' } }, {}, data));
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, 'add1');
@@ -2128,7 +2230,7 @@ test("T.models uses model and script templates", function () {
     test("Path objects can be used in templates", function () {
         var data = { files: new FileList({ path: 'path/file.txt', content: 'filecontent' }) };
         pack.templates = { 'template': '<%=path.withoutFilename()%>' };
-        pack.transforms.template.apply(wrap('template', {}, data));
+        Pack.transforms.template.apply(wrap('template', {}, data));
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, 'path/');
@@ -2139,7 +2241,7 @@ test("T.models uses model and script templates", function () {
         var output = {};
         var data = { files: new FileList({ path: 'filepath', content: 'filecontent' }) };
         pack.templates = { 'template': 'templatecontent' };
-        pack.transforms.template.apply(wrap(function(currentOutput, target) {
+        Pack.transforms.template.apply(wrap(function(currentOutput, target) {
             equal(currentOutput, output);
             equal(target, data);
             return 'template';

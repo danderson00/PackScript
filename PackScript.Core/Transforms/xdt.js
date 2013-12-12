@@ -1,7 +1,9 @@
-﻿(function () {
-    Pack.transforms.add('xdt', 'output', function (data) {
+﻿Pack.transforms.xdt = {
+    event: 'output',
+    apply: function(data) {
         var target = data.target;
         var output = data.output;
+        var Log = Pack.api.Log;
 
         if (typeof Xdt === 'undefined') {
             Log.error("XDT transform requested but no API provided");
@@ -13,6 +15,6 @@
         _.each(data.value, function(template) {
             target.output = Xdt.transform(target.output, pack.templates[template]);
         });
-    });
-})();
+    }
+};
 

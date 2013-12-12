@@ -90,8 +90,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Include="build.pack.js" />
-    <EmbeddedResource Include="Build\packscript.core.js" />
-    <Content Include="Build\packscript.core.node.js" />
     <Content Include="changeHandlers.js" />
     <Content Include="exports.js" />
     <Content Include="setup.node.js" />

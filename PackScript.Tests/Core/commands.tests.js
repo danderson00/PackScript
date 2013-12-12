@@ -4,20 +4,20 @@
     QUnit.module("commands", { setup: setup });
 
     test("build writes full output", function () {
-        Files.files = {
+        Pack.api.Files.files = {
             'test.js': 'var test = "test";'
         };
-        Files.writeFile = sinon.spy();
+        Pack.api.Files.writeFile = sinon.spy();
         var output = new Pack.Output({ to: "output.js", include: "test.js" }, "path/");
-        pack.build(output);
-        ok(Files.writeFile.calledOnce);
-        equal(Files.writeFile.firstCall.args[1], 'var test = "test";');
+        p.build(output);
+        ok(Pack.api.Files.writeFile.calledOnce);
+        equal(Pack.api.Files.writeFile.firstCall.args[1], 'var test = "test";');
         //equal(output.output, 'var test = "test";');
     });
 
     test("build recurses when output path matches other outputs", function () {
-        Files.getFilenames = getFilenames;
-        Files.getFileContents = getFileContents;
+        Pack.api.Files.getFilenames = getFilenames;
+        Pack.api.Files.getFileContents = getFileContents;
         var parent = p.addOutput({ include: 'parent', to: 'child' }, '');
         var child = p.addOutput({ include: 'child', to: 'output' }, '');
         var spy = sinon.spy();
@@ -36,16 +36,16 @@
     });
 
     test("fileChanged updates config when called with config path", function() {
-        Files.files['/test/test.pack.js'] = 'Test= "test"';
+        Pack.api.Files.files['/test/test.pack.js'] = 'Test= "test"';
         p.scanForConfigs('/');
         equal(Test, 'test');
-        Files.files['/test/test.pack.js'] = 'Test = "test2"';
+        Pack.api.Files.files['/test/test.pack.js'] = 'Test = "test2"';
         p.fileChanged('/test/test.pack.js');
         equal(Test, 'test2');
     });
 
     function setup() {
-        filesAsMock();
         p = new Pack({ throttle: false });
+        filesAsMock(p);
     }
 })();

@@ -4,7 +4,7 @@
     QUnit.module("templates", { setup: setup });
 
     test("scanForTemplates loads files and passes to loadConfig", function () {
-        Files.files = {
+        Pack.api.Files.files = {
             'test1.template.htm': '1',
             'test2.template.js': '2'
         };
@@ -18,7 +18,7 @@
     QUnit.module("configs", { setup: setup });
 
     test("scanForConfigs loads files and passes to loadConfig", function () {
-        Files.files = {
+        Pack.api.Files.files = {
             'test.pack.js': 'pack();',
             'test.js': 'var test = "test";'
         };
@@ -26,8 +26,8 @@
         p.loadConfig = sinon.spy();
         p.scanForConfigs();
         ok(p.loadConfig.calledTwice);
-        ok(p.loadConfig.calledWithExactly('test.pack.js', Files.files['test.pack.js']));
-        ok(p.loadConfig.calledWithExactly('test.js', Files.files['test.js']));
+        ok(p.loadConfig.calledWithExactly('test.pack.js', Pack.api.Files.files['test.pack.js']));
+        ok(p.loadConfig.calledWithExactly('test.js', Pack.api.Files.files['test.js']));
     });
 
     test("loadConfig logs error when source has invalid syntax", function () {

@@ -1,25 +1,25 @@
 ﻿Context = {};
 
 function filesAsMock() {
-    Files = {
+    Pack.api.Files = {
         getFilenames: function(path, filter, recursive) {
-            return _.keys(Files.files);
+            return _.keys(Pack.api.Files.files);
         },
         getFileContents: function(files) {
             var result = {};
             for (var i = 0; i < files.length; i++)
-                result[files[i]] = Files.files[files[i]];
+                result[files[i]] = Pack.api.Files.files[files[i]];
             return result;
         },
         writeFile: function(path, content) {
-            Files.files[path] = content;
+            Pack.api.Files.files[path] = content;
         },
         files: {}
     };
 };
 
 function filesAsSpy() {
-    Files = {
+    Pack.api.Files = {
         getFilenames: sinon.spy(),
         getFileContents: sinon.spy(),
         writeFile: sinon.spy(),
@@ -27,23 +27,8 @@ function filesAsSpy() {
     };
 };
 
-Log = {
-    debug: function (message) {
-        console.log('DEBUG: ' + message);
-    },
-    info: function (message) {
-        console.log('INFO: ' + message);
-    },
-    warn: function (message) {
-        console.log('WARN: ' + message);
-    },
-    error: function (message) {
-        console.log('ERROR: ' + message);
-    },
-};
-
 function minifierAsSpy() {
-    MinifyJavascript = { minify: sinon.spy() };
-    MinifyMarkup = { minify: sinon.spy() };
-    MinifyStylesheet = { minify: sinon.spy() };
+    Pack.api.MinifyJavascript = { minify: sinon.spy() };
+    Pack.api.MinifyMarkup = { minify: sinon.spy() };
+    Pack.api.MinifyStylesheet = { minify: sinon.spy() };
 }

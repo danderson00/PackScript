@@ -16,7 +16,7 @@ Pack.prototype.handleFileChange = function (path, oldPath, changeType) {
 Pack.prototype.handleConfigChange = function (path, oldPath, changeType) {
     this.removeConfigOutputs(oldPath);
     if (changeType !== 'delete') {
-        this.loadConfig(path, Files.getFileContents([path])[path]);
+        this.loadConfig(path, Pack.api.Files.getFileContents([path])[path]);
         this.build(this.configOutputs(path));
     }
 };

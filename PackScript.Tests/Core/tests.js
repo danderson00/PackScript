@@ -1,25 +1,25 @@
 Context = {};
 
 function filesAsMock() {
-    Files = {
+    Pack.api.Files = {
         getFilenames: function(path, filter, recursive) {
-            return _.keys(Files.files);
+            return _.keys(Pack.api.Files.files);
         },
         getFileContents: function(files) {
             var result = {};
             for (var i = 0; i < files.length; i++)
-                result[files[i]] = Files.files[files[i]];
+                result[files[i]] = Pack.api.Files.files[files[i]];
             return result;
         },
         writeFile: function(path, content) {
-            Files.files[path] = content;
+            Pack.api.Files.files[path] = content;
         },
         files: {}
     };
 };
 
 function filesAsSpy() {
-    Files = {
+    Pack.api.Files = {
         getFilenames: sinon.spy(),
         getFileContents: sinon.spy(),
         writeFile: sinon.spy(),
@@ -27,25 +27,10 @@ function filesAsSpy() {
     };
 };
 
-Log = {
-    debug: function (message) {
-        console.log('DEBUG: ' + message);
-    },
-    info: function (message) {
-        console.log('INFO: ' + message);
-    },
-    warn: function (message) {
-        console.log('WARN: ' + message);
-    },
-    error: function (message) {
-        console.log('ERROR: ' + message);
-    },
-};
-
 function minifierAsSpy() {
-    MinifyJavascript = { minify: sinon.spy() };
-    MinifyMarkup = { minify: sinon.spy() };
-    MinifyStylesheet = { minify: sinon.spy() };
+    Pack.api.MinifyJavascript = { minify: sinon.spy() };
+    Pack.api.MinifyMarkup = { minify: sinon.spy() };
+    Pack.api.MinifyStylesheet = { minify: sinon.spy() };
 }function wrap(value, output, target, options) {
     return {
         value: value,
@@ -144,20 +129,20 @@ function minifierAsSpy() {
     QUnit.module("commands", { setup: setup });
 
     test("build writes full output", function () {
-        Files.files = {
+        Pack.api.Files.files = {
             'test.js': 'var test = "test";'
         };
-        Files.writeFile = sinon.spy();
+        Pack.api.Files.writeFile = sinon.spy();
         var output = new Pack.Output({ to: "output.js", include: "test.js" }, "path/");
-        pack.build(output);
-        ok(Files.writeFile.calledOnce);
-        equal(Files.writeFile.firstCall.args[1], 'var test = "test";');
+        p.build(output);
+        ok(Pack.api.Files.writeFile.calledOnce);
+        equal(Pack.api.Files.writeFile.firstCall.args[1], 'var test = "test";');
         //equal(output.output, 'var test = "test";');
     });
 
     test("build recurses when output path matches other outputs", function () {
-        Files.getFilenames = getFilenames;
-        Files.getFileContents = getFileContents;
+        Pack.api.Files.getFilenames = getFilenames;
+        Pack.api.Files.getFileContents = getFileContents;
         var parent = p.addOutput({ include: 'parent', to: 'child' }, '');
         var child = p.addOutput({ include: 'child', to: 'output' }, '');
         var spy = sinon.spy();
@@ -176,17 +161,17 @@ function minifierAsSpy() {
     });
 
     test("fileChanged updates config when called with config path", function() {
-        Files.files['/test/test.pack.js'] = 'Test= "test"';
+        Pack.api.Files.files['/test/test.pack.js'] = 'Test= "test"';
         p.scanForConfigs('/');
         equal(Test, 'test');
-        Files.files['/test/test.pack.js'] = 'Test = "test2"';
+        Pack.api.Files.files['/test/test.pack.js'] = 'Test = "test2"';
         p.fileChanged('/test/test.pack.js');
         equal(Test, 'test2');
     });
 
     function setup() {
-        filesAsMock();
         p = new Pack({ throttle: false });
+        filesAsMock(p);
     }
 })();
 (function () {
@@ -280,8 +265,8 @@ function minifierAsSpy() {
 
     test("matches returns true if file list contains file", function() {
         var output = new Pack.Output({ include: '*.*' }, '');
-        Files.files = ['1', '1', '2', '3'];
-        ok(output.matches('2', pack.transforms));
+        Pack.api.Files.files = ['1', '1', '2', '3'];
+        ok(output.matches('2', new Pack.TransformRepository(Pack.transforms)));
     });
 
     test("matchingOutputs returns array of outputs matching file", function() {
@@ -315,11 +300,12 @@ function minifierAsSpy() {
 
     test("executeTransform executes the appropriate transform", function () {
         expect(1);
-        var output = new Pack.Output({ test: 'value' }, '', pack.transforms);
-        pack.transforms.add('test', '', function(value) {
+        var p = new Pack();
+        var output = new Pack.Output({ test: 'value' }, '');
+        p.transforms.add('test', '', function(value) {
             equal(value, 'value');
         });
-        pack.executeTransform('test', output);
+        p.executeTransform('test', output);
     });
 })();
 (function () {
@@ -483,7 +469,7 @@ function minifierAsSpy() {
     QUnit.module("templates", { setup: setup });
 
     test("scanForTemplates loads files and passes to loadConfig", function () {
-        Files.files = {
+        Pack.api.Files.files = {
             'test1.template.htm': '1',
             'test2.template.js': '2'
         };
@@ -497,7 +483,7 @@ function minifierAsSpy() {
     QUnit.module("configs", { setup: setup });
 
     test("scanForConfigs loads files and passes to loadConfig", function () {
-        Files.files = {
+        Pack.api.Files.files = {
             'test.pack.js': 'pack();',
             'test.js': 'var test = "test";'
         };
@@ -505,8 +491,8 @@ function minifierAsSpy() {
         p.loadConfig = sinon.spy();
         p.scanForConfigs();
         ok(p.loadConfig.calledTwice);
-        ok(p.loadConfig.calledWithExactly('test.pack.js', Files.files['test.pack.js']));
-        ok(p.loadConfig.calledWithExactly('test.js', Files.files['test.js']));
+        ok(p.loadConfig.calledWithExactly('test.pack.js', Pack.api.Files.files['test.pack.js']));
+        ok(p.loadConfig.calledWithExactly('test.js', Pack.api.Files.files['test.js']));
     });
 
     test("loadConfig logs error when source has invalid syntax", function () {
@@ -668,49 +654,49 @@ test("T.models uses model and script templates", function () {
     QUnit.module("transforms.files", { setup: filesAsSpy });
 
     test("include calls getFilenames with correct arguments when string is passed", function () {
-        pack.transforms.include.apply(wrap('*.js', new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
-        ok(Files.getFilenames.calledOnce);
-        ok(Files.getFilenames.calledWithExactly('path/*.js', true));
+        Pack.transforms.include.apply(wrap('*.js', new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
+        ok(Pack.api.Files.getFilenames.calledOnce);
+        ok(Pack.api.Files.getFilenames.calledWithExactly('path/*.js', true));
     });
 
     test("include calls getFilenames with correct arguments when object is passed", function () {
-        pack.transforms.include.apply(wrap({ files: '*.js', recursive: false }, new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
-        ok(Files.getFilenames.calledOnce);
-        ok(Files.getFilenames.calledWithExactly('path/*.js', false));
+        Pack.transforms.include.apply(wrap({ files: '*.js', recursive: false }, new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
+        ok(Pack.api.Files.getFilenames.calledOnce);
+        ok(Pack.api.Files.getFilenames.calledWithExactly('path/*.js', false));
     });
 
     test("include calls getFilenames with correct arguments when function is passed", function () {
-        pack.transforms.include.apply(wrap(function() { return { files: '*.js', recursive: false }; }, new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
-        ok(Files.getFilenames.calledOnce);
-        ok(Files.getFilenames.calledWithExactly('path/*.js', false));
+        Pack.transforms.include.apply(wrap(function() { return { files: '*.js', recursive: false }; }, new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
+        ok(Pack.api.Files.getFilenames.calledOnce);
+        ok(Pack.api.Files.getFilenames.calledWithExactly('path/*.js', false));
     });
 
     test("include calls getFilenames with correct arguments when function is passed and no list exists", function () {
-        pack.transforms.include.apply(wrap(function () { }, new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
-        ok(Files.getFilenames.calledOnce);
-        ok(Files.getFilenames.calledWithExactly('path/*.*', true));
+        Pack.transforms.include.apply(wrap(function () { }, new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
+        ok(Pack.api.Files.getFilenames.calledOnce);
+        ok(Pack.api.Files.getFilenames.calledWithExactly('path/*.*', true));
     });
 
     test("include calls getFilenames twice when two values are passed", function() {
-        pack.transforms.include.apply(wrap(['*.js', { files: '*.txt', recursive: true }], new Pack.Output({}, 'path/'), new Pack.Container()));
-        ok(Files.getFilenames.calledTwice);
-        ok(Files.getFilenames.calledWithExactly('path/*.js', false));
-        ok(Files.getFilenames.calledWithExactly('path/*.txt', true));
+        Pack.transforms.include.apply(wrap(['*.js', { files: '*.txt', recursive: true }], new Pack.Output({}, 'path/'), new Pack.Container()));
+        ok(Pack.api.Files.getFilenames.calledTwice);
+        ok(Pack.api.Files.getFilenames.calledWithExactly('path/*.js', false));
+        ok(Pack.api.Files.getFilenames.calledWithExactly('path/*.txt', true));
     });
 
     test("include values can be nested recursively", function() {
-        pack.transforms.include.apply(wrap(['*.js', ['*.htm', ['*.css']]], new Pack.Output({}, 'path/'), new Pack.Container()));
-        ok(Files.getFilenames.calledThrice);
-        ok(Files.getFilenames.calledWithExactly('path/*.js', false));
-        ok(Files.getFilenames.calledWithExactly('path/*.htm', false));
-        ok(Files.getFilenames.calledWithExactly('path/*.css', false));
+        Pack.transforms.include.apply(wrap(['*.js', ['*.htm', ['*.css']]], new Pack.Output({}, 'path/'), new Pack.Container()));
+        ok(Pack.api.Files.getFilenames.calledThrice);
+        ok(Pack.api.Files.getFilenames.calledWithExactly('path/*.js', false));
+        ok(Pack.api.Files.getFilenames.calledWithExactly('path/*.htm', false));
+        ok(Pack.api.Files.getFilenames.calledWithExactly('path/*.css', false));
     });
 
     test("include sets config and include path values", function() {
-        Files.getFilenames = sinon.stub().returns(['path/subfolder/file']);
+        Pack.api.Files.getFilenames = sinon.stub().returns(['path/subfolder/file']);
         var output = new Pack.Output({}, 'path/');
         var data = new Pack.Container();
-        pack.transforms.include.apply(wrap('subfolder/*.js', output, data));
+        Pack.transforms.include.apply(wrap('subfolder/*.js', output, data));
         equal(data.files.list.length, 1);
         equal(data.files.list[0].includePath.toString(), 'path/subfolder/');
         equal(data.files.list[0].pathRelativeToInclude.toString(), 'file');
@@ -719,10 +705,10 @@ test("T.models uses model and script templates", function () {
     });
 
     test("setting template include option overrides template transform value", function() {
-        Files.getFilenames = sinon.stub().returns(['file']);
+        Pack.api.Files.getFilenames = sinon.stub().returns(['file']);
         var output = new Pack.Output({ template: 'test1' }, 'path/');
         var data = new Pack.Container();
-        pack.transforms.include.apply(wrap([{ template: 'test2' }], output, data));
+        Pack.transforms.include.apply(wrap([{ template: 'test2' }], output, data));
         equal(data.files.list.length, 1);
         equal(data.files.list[0].template, 'test2');
     });
@@ -730,8 +716,8 @@ test("T.models uses model and script templates", function () {
     test("prioritise moves single file to top of file list", function () {
         var output = new Pack.Output({}, 'path/');
         var data = new Pack.Container();
-        Files.getFilenames = sinon.stub().returns(['file1', 'file2', 'file3']);
-        pack.transforms.include.apply(wrap({ prioritise: 'file2' }, output, data));
+        Pack.api.Files.getFilenames = sinon.stub().returns(['file1', 'file2', 'file3']);
+        Pack.transforms.include.apply(wrap({ prioritise: 'file2' }, output, data));
         equal(data.files.list.length, 3);
         equal(data.files.list[0].path, 'file2');
         equal(data.files.list[1].path, 'file1');
@@ -739,10 +725,10 @@ test("T.models uses model and script templates", function () {
     });
 
     test("prioritise moves array of files to top of file list", function () {
-        Files.getFilenames = sinon.stub().returns(['file1', 'file2', 'file3']);
+        Pack.api.Files.getFilenames = sinon.stub().returns(['file1', 'file2', 'file3']);
         var output = new Pack.Output({}, 'path/');
         var data = new Pack.Container();
-        pack.transforms.include.apply(wrap({ prioritise: ['file3', 'file2'] }, output, data));
+        Pack.transforms.include.apply(wrap({ prioritise: ['file3', 'file2'] }, output, data));
         
         equal(data.files.list.length, 3);
         equal(data.files.list[0].path, 'file3');
@@ -751,14 +737,14 @@ test("T.models uses model and script templates", function () {
     });
     
     test("first is an alias for prioritise", function () {
-        equal(pack.transforms.first.apply, pack.transforms.prioritise.apply);
+        equal(Pack.transforms.first.apply, Pack.transforms.prioritise.apply);
     });
 
     test("last moves single file to bottom of file list", function () {
         var output = new Pack.Output({}, 'path/');
         var data = new Pack.Container();
-        Files.getFilenames = sinon.stub().returns(['file1', 'file2', 'file3']);
-        pack.transforms.include.apply(wrap({ last: 'file2' }, output, data));
+        Pack.api.Files.getFilenames = sinon.stub().returns(['file1', 'file2', 'file3']);
+        Pack.transforms.include.apply(wrap({ last: 'file2' }, output, data));
         equal(data.files.list.length, 3);
         equal(data.files.list[0].path, 'file1');
         equal(data.files.list[1].path, 'file3');
@@ -766,10 +752,10 @@ test("T.models uses model and script templates", function () {
     });
 
     test("last moves array of files to bottom of file list", function () {
-        Files.getFilenames = sinon.stub().returns(['file1', 'file2', 'file3']);
+        Pack.api.Files.getFilenames = sinon.stub().returns(['file1', 'file2', 'file3']);
         var output = new Pack.Output({}, 'path/');
         var data = new Pack.Container();
-        pack.transforms.include.apply(wrap({ last: ['file1', 'file2'] }, output, data));
+        Pack.transforms.include.apply(wrap({ last: ['file1', 'file2'] }, output, data));
 
         equal(data.files.list.length, 3);
         equal(data.files.list[0].path, 'file3');
@@ -780,7 +766,7 @@ test("T.models uses model and script templates", function () {
     test("excludeDefaults excludes config files", function () {
         var data = { files: new FileList('1', '3') };
         pack.loadedConfigs = ['3'];
-        pack.transforms.excludeDefaults.apply(wrap(true, { transforms: {} }, data));
+        Pack.transforms.excludeDefaults.apply(wrap(true, { transforms: {} }, data));
         equal(data.files.list.length, 1);
         equal(data.files.list[0].path, '1');
     });
@@ -788,13 +774,13 @@ test("T.models uses model and script templates", function () {
     test("excludeDefaults includes config files if includeConfigs transform is specified", function() {
         var data = { files: new FileList('1', '3') };
         pack.loadedConfigs = ['3'];
-        pack.transforms.excludeDefaults.apply(wrap(true, { transforms: { includeConfigs: true } }, data));
+        Pack.transforms.excludeDefaults.apply(wrap(true, { transforms: { includeConfigs: true } }, data));
         equal(data.files.list.length, 2);
     });
     
     test("excludeDefaults excludes output file", function () {
         var data = { files: new FileList('1', '3') };
-        pack.transforms.excludeDefaults.apply(wrap(true, { outputPath: '3', transforms: { } }, data));
+        Pack.transforms.excludeDefaults.apply(wrap(true, { outputPath: '3', transforms: { } }, data));
         equal(data.files.list.length, 1);
         equal(data.files.list[0].path, '1');
     });
@@ -804,22 +790,22 @@ test("T.models uses model and script templates", function () {
     QUnit.module("transforms.minify", { setup: minifierAsSpy });
     
     test("minify calls appropriate API functions", function () {        
-        pack.transforms.minify.apply(wrap(true, { transforms: { to: 'test.js' } }, { output: 'js' }));
-        pack.transforms.minify.apply(wrap(true, { transforms: { to: 'test.htm' } }, { output: 'htm' }));
-        pack.transforms.minify.apply(wrap(true, { transforms: { to: 'test.css' } }, { output: 'css' }));
+        Pack.transforms.minify.apply(wrap(true, { transforms: { to: 'test.js' } }, { output: 'js' }));
+        Pack.transforms.minify.apply(wrap(true, { transforms: { to: 'test.htm' } }, { output: 'htm' }));
+        Pack.transforms.minify.apply(wrap(true, { transforms: { to: 'test.css' } }, { output: 'css' }));
 
-        ok(MinifyJavascript.minify.calledWithExactly('js'));
-        ok(MinifyMarkup.minify.calledWithExactly('htm'));
-        ok(MinifyStylesheet.minify.calledWithExactly('css'));
+        ok(Pack.api.MinifyJavascript.minify.calledWithExactly('js'));
+        ok(Pack.api.MinifyMarkup.minify.calledWithExactly('htm'));
+        ok(Pack.api.MinifyStylesheet.minify.calledWithExactly('css'));
     });
 })();
 (function () {
     QUnit.module("transforms.content", { setup: filesAsSpy });
 
     test("load calls getFileContents passing file names", function () {
-        pack.transforms.load.apply(wrap(true, {}, { files: new FileList('1', '3') }));
-        ok(Files.getFileContents.calledOnce);
-        deepEqual(Files.getFileContents.firstCall.args[0], ['1', '3']);
+        Pack.transforms.load.apply(wrap(true, {}, { files: new FileList('1', '3') }));
+        ok(Pack.api.Files.getFileContents.calledOnce);
+        deepEqual(Pack.api.Files.getFileContents.firstCall.args[0], ['1', '3']);
     });
     
 
@@ -827,7 +813,7 @@ test("T.models uses model and script templates", function () {
 
     test("combine joins all files contents", function () {
         var data = { files: new FileList({ path: 'file1', content: '1' }, { path: 'file2', content: '2' }, { path: 'file3', content: '3' }) };
-        pack.transforms.combine.apply(wrap(true, {}, data));
+        Pack.transforms.combine.apply(wrap(true, {}, data));
         equal(data.output, '123');
     });
 
@@ -837,9 +823,9 @@ test("T.models uses model and script templates", function () {
     test("write calls writeFile with correct arguments", function () {
         var output = new Pack.Output({ to: '../test.txt' }, 'C:\\temp\\');
         var data = { output: 'test' };
-        pack.transforms.to.apply(wrap(true, output, data));
-        ok(Files.writeFile.calledOnce);
-        ok(Files.writeFile.calledWithExactly('C:\\test.txt', 'test'));
+        Pack.transforms.to.apply(wrap(true, output, data));
+        ok(Pack.api.Files.writeFile.calledOnce);
+        ok(Pack.api.Files.writeFile.calledWithExactly('C:\\test.txt', 'test'));
     });
 })();
 (function () {
@@ -848,7 +834,7 @@ test("T.models uses model and script templates", function () {
     test("outputTemplate renders underscore template", function () {
         var data = { output: '' };
         pack.templates = { 'template': 'templatecontent' };
-        pack.transforms.outputTemplate.apply(wrap('template', { transforms: { to: 'test' } }, data));
+        Pack.transforms.outputTemplate.apply(wrap('template', { transforms: { to: 'test' } }, data));
 
         equal(data.output, 'templatecontent');
     });
@@ -856,7 +842,7 @@ test("T.models uses model and script templates", function () {
     test("outputTemplate renders multiple underscore templates", function () {
         var data = { output: '' };
         pack.templates = { 'template': 'templatecontent', 'template2': '<%=content%>2' };
-        pack.transforms.outputTemplate.apply(wrap(['template', 'template2'], { transforms: { to: 'test' } }, data));
+        Pack.transforms.outputTemplate.apply(wrap(['template', 'template2'], { transforms: { to: 'test' } }, data));
 
         equal(data.output, 'templatecontent2');
     });
@@ -864,7 +850,7 @@ test("T.models uses model and script templates", function () {
     test("outputTemplate renders passed data", function () {
         var data = { output: 'content' };
         pack.templates = { 'template': '<%=content%><%=data.value%>' };
-        pack.transforms.outputTemplate.apply(wrap({ name: 'template', data: { value: 'testValue' } }, { transforms: { to: 'test' } }, data));
+        Pack.transforms.outputTemplate.apply(wrap({ name: 'template', data: { value: 'testValue' } }, { transforms: { to: 'test' } }, data));
 
         equal(data.output, 'contenttestValue');
     });
@@ -883,17 +869,17 @@ test("T.models uses model and script templates", function () {
     };
 
     test("syncTo executes copyFile for each file in list", function () {
-        pack.transforms.syncTo.apply(wrap('target/path', new Pack.Output({}, 'path/'), data));
-        ok(Files.copyFile.calledTwice);
-        deepEqual(Files.copyFile.firstCall.args, ['/path/to1/file1', 'path/target/path/to1/file1']);
-        deepEqual(Files.copyFile.secondCall.args, ['/path/to2/file2', 'path/target/path/to2/file2']);
+        Pack.transforms.syncTo.apply(wrap('target/path', new Pack.Output({}, 'path/'), data));
+        ok(Pack.api.Files.copyFile.calledTwice);
+        deepEqual(Pack.api.Files.copyFile.firstCall.args, ['/path/to1/file1', 'path/target/path/to1/file1']);
+        deepEqual(Pack.api.Files.copyFile.secondCall.args, ['/path/to2/file2', 'path/target/path/to2/file2']);
     });
 
     test("syncTo handles absolute paths", function() {
-        pack.transforms.syncTo.apply(wrap('/target/path/', new Pack.Output({}, 'path/'), data));
-        ok(Files.copyFile.calledTwice);
-        deepEqual(Files.copyFile.firstCall.args, ['/path/to1/file1', 'path/target/path/to1/file1']);
-        deepEqual(Files.copyFile.secondCall.args, ['/path/to2/file2', 'path/target/path/to2/file2']);
+        Pack.transforms.syncTo.apply(wrap('/target/path/', new Pack.Output({}, 'path/'), data));
+        ok(Pack.api.Files.copyFile.calledTwice);
+        deepEqual(Pack.api.Files.copyFile.firstCall.args, ['/path/to1/file1', 'path/target/path/to1/file1']);
+        deepEqual(Pack.api.Files.copyFile.secondCall.args, ['/path/to2/file2', 'path/target/path/to2/file2']);
     });
 })();
 (function () {
@@ -902,7 +888,7 @@ test("T.models uses model and script templates", function () {
     test("template renders underscore template", function () {
         var data = { files: new FileList({ path: 'filepath', content: 'filecontent' }) };
         pack.templates = { 'template': 'templatecontent' };
-        pack.transforms.template.apply(wrap('template', {}, data));
+        Pack.transforms.template.apply(wrap('template', {}, data));
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, 'templatecontent');
@@ -911,7 +897,7 @@ test("T.models uses model and script templates", function () {
     test("template renders multiple underscore templates", function () {
         var data = { files: new FileList({ path: 'filepath', content: 'filecontent' }) };
         pack.templates = { 'template': 'templatecontent', 'template2': '<%=content%>2' };
-        pack.transforms.template.apply(wrap(['template', 'template2'], {}, data));
+        Pack.transforms.template.apply(wrap(['template', 'template2'], {}, data));
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, 'templatecontent2');
@@ -921,7 +907,7 @@ test("T.models uses model and script templates", function () {
         var output = { basePath: '/test/' };
         var data = { files: new FileList({ path: '/test/files/file', content: 'content', filespec: '/files/*.*', configPath: '/test/', pathRelativeToConfig: 'files/file', includePath: '/test/files/', pathRelativeToInclude: 'file' }) };
         pack.templates = { 'template': '<%=path%>|<%=content%>|<%=configPath%>|<%=pathRelativeToConfig%>|<%=includePath%>|<%=pathRelativeToInclude%>' };
-        pack.transforms.template.apply(wrap('template', output, data));
+        Pack.transforms.template.apply(wrap('template', output, data));
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, '/test/files/file|content|/test/|files/file|/test/files/|file');
@@ -930,7 +916,7 @@ test("T.models uses model and script templates", function () {
     test("template name can be specified with an object", function () {
         var data = { files: new FileList({ path: 'filepath', content: 'filecontent' }) };
         pack.templates = { 'template': 'templatecontent' };
-        pack.transforms.template.apply(wrap({ name: 'template' }, {}, data));
+        Pack.transforms.template.apply(wrap({ name: 'template' }, {}, data));
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, 'templatecontent');
@@ -939,7 +925,7 @@ test("T.models uses model and script templates", function () {
     test("data specified in include transform overrides data in template transform", function() {
         var data = { files: new FileList({ path: 'filepath', content: 'filecontent', template: { name: 'template', data: { additionalData: 'add1' } } }) };
         pack.templates = { 'template': '<%=data.additionalData%>' };
-        pack.transforms.template.apply(wrap({ name: 'template', data: { additionalData: 'add2' } }, {}, data));
+        Pack.transforms.template.apply(wrap({ name: 'template', data: { additionalData: 'add2' } }, {}, data));
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, 'add1');
@@ -948,7 +934,7 @@ test("T.models uses model and script templates", function () {
     test("Path objects can be used in templates", function () {
         var data = { files: new FileList({ path: 'path/file.txt', content: 'filecontent' }) };
         pack.templates = { 'template': '<%=path.withoutFilename()%>' };
-        pack.transforms.template.apply(wrap('template', {}, data));
+        Pack.transforms.template.apply(wrap('template', {}, data));
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, 'path/');
@@ -959,7 +945,7 @@ test("T.models uses model and script templates", function () {
         var output = {};
         var data = { files: new FileList({ path: 'filepath', content: 'filecontent' }) };
         pack.templates = { 'template': 'templatecontent' };
-        pack.transforms.template.apply(wrap(function(currentOutput, target) {
+        Pack.transforms.template.apply(wrap(function(currentOutput, target) {
             equal(currentOutput, output);
             equal(target, data);
             return 'template';

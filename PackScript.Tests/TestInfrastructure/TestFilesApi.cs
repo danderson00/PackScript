@@ -30,7 +30,7 @@ namespace PackScript.Tests.TestInfrastructure
             return writeFileCalls.Any(x => x.FirstArg.EndsWith("/" + file) || x.FirstArg.EndsWith("\\" + file));
         }
 
-        #region Overrides
+
 
         public override string[] getFilenames(string filespec, bool recursive = false)
         {
@@ -53,7 +53,5 @@ namespace PackScript.Tests.TestInfrastructure
         {
             copyFileCalls.Add(Call.Create(from, to));
         }
-
-        #endregion
     }
 }

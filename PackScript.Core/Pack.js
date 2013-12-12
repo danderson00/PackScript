@@ -2,7 +2,7 @@
     this.outputs = [];
     this.templates = {};
     this.loadedConfigs = [];
-    this.transforms = Pack.transforms;
+    this.transforms = new Pack.TransformRepository(Pack.transforms);
     
     this.options = _.extend({
         configurationFileFilter: '*pack.config.js',
@@ -13,9 +13,12 @@
     }, options);
 }
 
+Pack.api = {};
+Pack.transforms = {};
+
 Pack.prototype.setOptions = function(options) {
     _.extend(this.options, options);
-    Log.setLevel(this.options.logLevel);
+    Pack.api.Log.setLevel(this.options.logLevel);
 };
 
 Pack.prototype.matchingOutputs = function (paths, refresh) {

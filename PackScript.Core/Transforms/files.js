@@ -2,9 +2,9 @@
     var utils = Pack.utils;
     var transforms = Pack.transforms;
     
-    transforms.add('prioritise', 'includeFiles', first);
-    transforms.add('first', 'includeFiles', first);
-    transforms.add('last', 'includeFiles', last);
+    transforms.prioritise = { event: 'includeFiles', func: first };
+    transforms.first = { event: 'includeFiles', func: first };
+    transforms.last = { event: 'includeFiles', func: last };
     
     function first(data) {
         utils.executeSingleOrArray(data.value, data.target.files.prioritise);
@@ -16,11 +16,14 @@
         });
     }
 
-    transforms.add('excludeDefaults', 'excludeFiles', function (data) {
-        data.target.files.exclude(data.output.outputPath);
-        if (!data.output.transforms.includeConfigs)
-            data.target.files.exclude(pack.loadedConfigs);
+    transforms.excludeDefaults = {
+        event: 'excludeFiles',
+        apply: function(data) {
+            data.target.files.exclude(data.output.outputPath);
+            if (!data.output.transforms.includeConfigs)
+                data.target.files.exclude(pack.loadedConfigs);
 
-    });
+        }
+    };
 })();
 

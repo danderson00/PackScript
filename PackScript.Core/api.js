@@ -17,7 +17,7 @@
         renameProperties(options, 'to', 'zipTo');
         return addOutputs(options, 'zipTo');
     };
-    
+
     function addOutputs(options, transformName) {
         var outputs = self.pack.addOutput(options, Context.configPath);
 

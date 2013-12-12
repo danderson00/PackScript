@@ -5,8 +5,10 @@
 
 pack([
     'Build/packscript.js',
-    { files: 'Tests/*.js', first: 'setup.js' },
+    { files: 'Tests/*.js' },
+    { files: 'Tests/Api/*.js' },
+    { files: 'Tests/Integration/*.js' },
     '../PackScript.Tests/Core/tests.js'
 ]).to('Build/packscript.tests.js');
 
-sync('Build/*.*').to('node_modules/packscript');
+sync('Build/*.*').to('node_modules/packscript');   

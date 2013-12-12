@@ -1,5 +1,7 @@
-﻿Pack.TransformRepository = function () {
+﻿Pack.TransformRepository = function (transforms) {
     var self = this;
+
+    _.extend(this, transforms);
 
     this.events = ['includeFiles', 'excludeFiles', 'content', 'output', 'finalise'];
     this.defaultTransforms = { excludeDefaults: true, load: true, combine: true, template: true };
@@ -24,4 +26,3 @@
         return target;
     };
 };
-Pack.transforms = new Pack.TransformRepository();

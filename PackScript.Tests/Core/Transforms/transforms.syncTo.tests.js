@@ -12,16 +12,16 @@
     };
 
     test("syncTo executes copyFile for each file in list", function () {
-        pack.transforms.syncTo.apply(wrap('target/path', new Pack.Output({}, 'path/'), data));
-        ok(Files.copyFile.calledTwice);
-        deepEqual(Files.copyFile.firstCall.args, ['/path/to1/file1', 'path/target/path/to1/file1']);
-        deepEqual(Files.copyFile.secondCall.args, ['/path/to2/file2', 'path/target/path/to2/file2']);
+        Pack.transforms.syncTo.apply(wrap('target/path', new Pack.Output({}, 'path/'), data));
+        ok(Pack.api.Files.copyFile.calledTwice);
+        deepEqual(Pack.api.Files.copyFile.firstCall.args, ['/path/to1/file1', 'path/target/path/to1/file1']);
+        deepEqual(Pack.api.Files.copyFile.secondCall.args, ['/path/to2/file2', 'path/target/path/to2/file2']);
     });
 
     test("syncTo handles absolute paths", function() {
-        pack.transforms.syncTo.apply(wrap('/target/path/', new Pack.Output({}, 'path/'), data));
-        ok(Files.copyFile.calledTwice);
-        deepEqual(Files.copyFile.firstCall.args, ['/path/to1/file1', 'path/target/path/to1/file1']);
-        deepEqual(Files.copyFile.secondCall.args, ['/path/to2/file2', 'path/target/path/to2/file2']);
+        Pack.transforms.syncTo.apply(wrap('/target/path/', new Pack.Output({}, 'path/'), data));
+        ok(Pack.api.Files.copyFile.calledTwice);
+        deepEqual(Pack.api.Files.copyFile.firstCall.args, ['/path/to1/file1', 'path/target/path/to1/file1']);
+        deepEqual(Pack.api.Files.copyFile.secondCall.args, ['/path/to2/file2', 'path/target/path/to2/file2']);
     });
 })();

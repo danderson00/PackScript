@@ -1,8 +1,10 @@
-﻿(function () {
-    Pack.transforms.add('outputTemplate', 'output', function (data) {
+﻿Pack.transforms.outputTemplate = {
+    event: 'output',
+    apply: function(data) {
         var value = data.value;
         var target = data.target;
         var output = data.output;
+        var Log = Pack.api.Log;
 
         Pack.utils.executeSingleOrArray(value, function(templateSettings) {
             normaliseTemplateSettings();
@@ -31,6 +33,6 @@
                     templateSettings = { name: templateSettings };
             }
         });
-    });
-})();
+    }
+};
 

@@ -44,12 +44,66 @@
     <Content Include="Source\Api\Minify.js" />
     <Content Include="pack.js" />
     <Content Include="tests.js" />
-    <Content Include="Tests\Files.tests.js" />
-    <Content Include="Tests\Files\Child\child.txt" />
-    <Content Include="Tests\Files\root.txt" />
+    <Content Include="Tests\Api\Files\Child\child.txt" />
+    <Content Include="Tests\Api\Files\root.txt" />
+    <Content Include="Tests\Api\Files.tests.js" />
+    <Content Include="Tests\Infrastructure\Files.js" />
+    <Content Include="Tests\Integration\Combine\pack.js" />
+    <Content Include="Tests\Integration\Combine\root.js" />
+    <Content Include="Tests\Integration\Combine\root.txt" />
+    <Content Include="Tests\Integration\Combine\Subfolder\pack.js" />
+    <Content Include="Tests\Integration\Combine\Subfolder\subfolder.js" />
+    <Content Include="Tests\Integration\Combine\Subfolder\subfolder.txt" />
+    <Content Include="Tests\Integration\ConfigLoad\named.pack.js" />
+    <Content Include="Tests\Integration\ConfigLoad\pack.js" />
+    <Content Include="Tests\Integration\ConfigLoad\Subfolder\pack.config.js" />
+    <Content Include="Tests\Integration\ConfigLoad\Subfolder\pack.js" />
+    <Content Include="Tests\Integration\Embedded\pack.js" />
+    <Content Include="Tests\Integration\Embedded\stylesheet1.css" />
+    <Content Include="Tests\Integration\Embedded\stylesheet2.css" />
+    <Content Include="Tests\Integration\Embedded\template1.htm" />
+    <Content Include="Tests\Integration\Embedded\template2.htm" />
+    <Content Include="Tests\Integration\ExcludeConfigAndTarget\output.js" />
+    <Content Include="Tests\Integration\ExcludeConfigAndTarget\pack.js" />
+    <Content Include="Tests\Integration\ExcludeConfigAndTarget\root.js" />
+    <Content Include="Tests\Integration\ExcludedDirectories\excluded\content.txt" />
+    <Content Include="Tests\Integration\ExcludedDirectories\excluded\pack.js" />
+    <Content Include="Tests\Integration\FileChange\input.js" />
+    <Content Include="Tests\Integration\FileChange\input.template.js" />
+    <Content Include="Tests\Integration\FileChange\pack.js" />
+    <Content Include="Tests\Integration\Json\pack.js" />
+    <Content Include="Tests\Integration\Minify\pack.js" />
+    <Content Include="Tests\Integration\Minify\root.css" />
+    <Content Include="Tests\Integration\Minify\root.htm" />
+    <Content Include="Tests\Integration\Minify\root.js" />
+    <Content Include="Tests\Integration\OutputTemplate\code.js" />
+    <Content Include="Tests\Integration\OutputTemplate\license.template.js" />
+    <Content Include="Tests\Integration\OutputTemplate\pack.js" />
+    <Content Include="Tests\Integration\Recursive\1.js" />
+    <Content Include="Tests\Integration\Recursive\2.js" />
+    <Content Include="Tests\Integration\Recursive\3.js" />
+    <Content Include="Tests\Integration\Recursive\4.js" />
+    <Content Include="Tests\Integration\Recursive\pack.js" />
+    <Content Include="Tests\Integration\Recursive\Subfolder\pack.js" />
+    <Content Include="Tests\Integration\Sass\pack.js" />
+    <Content Include="Tests\Integration\Sync\Child\test.js" />
+    <Content Include="Tests\Integration\Sync\pack.js" />
+    <Content Include="Tests\Integration\Sync\test.js" />
+    <Content Include="Tests\Integration\Template\pack.js" />
+    <Content Include="Tests\Integration\Template\root.txt" />
+    <Content Include="Tests\Integration\Template\Subfolder\subfolder.txt" />
+    <Content Include="Tests\Integration\Template\Subfolder\Subfolder2\subfolder2.js" />
+    <Content Include="Tests\Integration\Template\Templates\builtinData.template.htm" />
+    <Content Include="Tests\Integration\Template\Templates\passedData.template.htm" />
+    <Content Include="Tests\Integration\Template\Templates\template1.template.htm" />
+    <Content Include="Tests\Integration\Template\Templates\template2.template.js" />
+    <Content Include="Tests\Integration\Template\Templates\template3.template.htm" />
+    <Content Include="Tests\Integration\Xdt\pack.js" />
+    <Content Include="Tests\Integration\Zip\Child\test.js" />
+    <Content Include="Tests\Integration\Zip\pack.js" />
+    <Content Include="Tests\Integration\Zip\test.js" />
     <Content Include="Tests\setup.js" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
     <None Include="Build\package.json" />
     <None Include="node_modules\.bin\qunit" />
@@ -57,6 +111,14 @@
     <None Include="node_modules\underscore\LICENSE" />
     <None Include="node_modules\underscore\package.json" />
     <None Include="node_modules\underscore\README.md" />
+    <None Include="Tests\Integration\Recursive\output" />
+    <None Include="Tests\Integration\Recursive\Subfolder\output" />
+    <None Include="Tests\Integration\Sass\test.scss" />
+    <None Include="Tests\Integration\Xdt\web.config" />
+    <None Include="Tests\Integration\Xdt\web.transform.template.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Tests\Integration\TestOutput\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

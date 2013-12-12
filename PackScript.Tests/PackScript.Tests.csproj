@@ -54,9 +54,8 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.Web.Xdt.1.0.0-alpha\lib\net40\Microsoft.Web.XmlTransform.dll</HintPath>
     </Reference>
-    <Reference Include="Noesis.Javascript, Version=0.0.0.0, Culture=neutral, processorArchitecture=x86">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Dependencies\Noesis.Javascript\Noesis.Javascript.dll</HintPath>
+    <Reference Include="Noesis.Javascript">
+      <HintPath>..\Dependencies\Noesis.Javascript.dll</HintPath>
     </Reference>
     <Reference Include="Noesis.Javascript.Dynamic">
       <HintPath>..\Dependencies\Noesis.Javascript.Dynamic.dll</HintPath>
@@ -267,6 +266,9 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="Integration\TestOutput\" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

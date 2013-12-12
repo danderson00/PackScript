@@ -1,45 +1,51 @@
 ﻿(function () {
     var fs = require('fs');
 
-    Files = {
+    Pack.api.Files = {
         getFilenames: function (filespec, recursive) {
-            filespec = Path(filespec);
-            if (recursive)
-                fs.listTree(filespec.withoutFilename().toString(), function (path) {
-                    return filespec.matches(path);
-                });
+            return listTree(filespec, recursive);
         },
         getFileContents: function (files) {
-
+            if (files.constructor === Array)
+                return files.map(function (file) {
+                    return fs.readFileSync(file, { encoding: 'utf8' });
+                });
+            else
+                return fs.readFileSync(files, { encoding: 'utf8' });
         },
         writeFile: function (path, content) {
-
+            return fs.writeFileSync(path, content);
         },
         copyFile: function (from, to) {
-
+            this.writeFile(to, this.getFileContents(from));
         }
     };
 
     function listTree(filespec, recursive) {
-        var self = this;
         filespec = Path(filespec || './*.*');
-        
-        var basePath = filespec.withoutFilename();
-        var stat = fs.statSync(basePath);
-        var paths = [];
-        
-        var include = filespec.matches(basePath);
 
-        if (include)
-            paths.push([basePath]);
+        var filter = filespec.filename().toString();
+        var basePath = filespec.withoutFilename().toString();
+        var paths = [];
+        var childDirectories = [];
         
-        if (recursive && stat.isDirectory()) {
-            var children = fs.readdirSync(basePath.toString());
-            paths.push.apply(paths, children.map(function (child) {
-                var path = basePath.combine(child + '/*.*');
-                return self.listTree(path);
-            }));
-        }
+        var children = fs.readdirSync(basePath);
+
+        children.forEach(function (child) {
+            var fullChild = basePath + child;
+            var stat = fs.statSync(fullChild);
+
+            if (!stat.isDirectory() && Path(fullChild).match(filespec))
+                paths.push(fullChild);
+
+            if (stat.isDirectory() && recursive)
+                childDirectories.push(fullChild);
+        });
+
+        // we want to process child directories after the directory contents
+        childDirectories.forEach(function(child) {
+            paths.push.apply(paths, listTree(child + '/' + filter));
+        });
         
         return paths;
     }
