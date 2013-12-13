@@ -1160,7 +1160,7 @@ Pack.Container = function() {
     this.output = '';
 };function Pack(options) {
     this.outputs = [];
-    this.templates = {};
+    this.templates = _.extend({}, Pack.templates);
     this.loadedConfigs = [];
     this.transforms = new Pack.TransformRepository(Pack.transforms);
     
@@ -1174,11 +1174,13 @@ Pack.Container = function() {
 }
 
 Pack.api = {};
+Pack.templates = {};
 Pack.transforms = {};
 
 Pack.prototype.setOptions = function(options) {
     _.extend(this.options, options);
     Pack.api.Log.setLevel(this.options.logLevel);
+    return this;
 };
 
 Pack.prototype.matchingOutputs = function (paths, refresh) {
@@ -1500,6 +1502,7 @@ Pack.Output.prototype.targetPath = function () {
     Pack.prototype.scanForResources = function (path) {
         this.scanForConfigs(path);
         this.scanForTemplates(path);
+        return this;
     };
 
     Pack.prototype.scanForConfigs = function (path) {
@@ -1511,6 +1514,7 @@ Pack.Output.prototype.targetPath = function () {
         var configs = Files.getFileContents(this.loadedConfigs);
         for (var configPath in configs)
             this.loadConfig(configPath, configs[configPath]);
+        return this;
     };
 
     Pack.prototype.loadConfig = function (path, source) {
@@ -1518,6 +1522,7 @@ Pack.Output.prototype.targetPath = function () {
         Context.configPath = path;
         Pack.utils.eval(source);
         delete Context.configPath;
+        return this;
     };
 
     Pack.prototype.scanForTemplates = function (path) {
@@ -1525,16 +1530,19 @@ Pack.Output.prototype.targetPath = function () {
         var files = Pack.api.Files.getFilenames(path + '*' + this.options.templateFileExtension, true);
         for (var index in files)
             this.loadTemplate(files[index]);
+        return this;
     };
 
     Pack.prototype.loadTemplate = function(path) {
         Pack.api.Log.debug("Loaded template " + templateName(path, this.options.templateFileExtension));
         var loadedTemplates = Pack.api.Files.getFileContents([path]);
         this.storeTemplate(path, loadedTemplates[path]);
+        return this;
     };
 
     Pack.prototype.storeTemplate = function(path, template) {
         this.templates[templateName(path, this.options.templateFileExtension)] = template;
+        return this;
     };
 
     function templateName(path, fileExtension) {
@@ -1546,6 +1554,7 @@ Pack.Output.prototype.targetPath = function () {
 (function() {
     Pack.prototype.all = function() {
         this.build(this.outputs);
+        return this;
     };
 
     Pack.prototype.build = function (outputs) {
@@ -1566,6 +1575,7 @@ Pack.Output.prototype.targetPath = function () {
                 this.buildTimeout = undefined;
             }, timeout);
         }
+        return this;
     };
 
     Pack.prototype.buildSync = function (outputs) {
@@ -1577,6 +1587,7 @@ Pack.Output.prototype.targetPath = function () {
         var matchingOutputs = this.matchingOutputs(outputPaths);
         if (matchingOutputs.length > 0)
             this.build(matchingOutputs);
+        return this;
 
         function buildOutput(output) {
             return output.build(self.transforms);
@@ -1741,9 +1752,9 @@ Pack.transforms.sass = {
     var utils = Pack.utils;
     var transforms = Pack.transforms;
     
-    transforms.prioritise = { event: 'includeFiles', func: first };
-    transforms.first = { event: 'includeFiles', func: first };
-    transforms.last = { event: 'includeFiles', func: last };
+    transforms.prioritise = { event: 'includeFiles', apply: first };
+    transforms.first = { event: 'includeFiles', apply: first };
+    transforms.last = { event: 'includeFiles', apply: last };
     
     function first(data) {
         utils.executeSingleOrArray(data.value, data.target.files.prioritise);
@@ -1946,7 +1957,8 @@ Pack.transforms.outputTemplate = {
                     configPath: Path(output.configPath),
                     data: value.data || {},
                     output: output,
-                    target: target
+                    target: target,
+                    api: Pack.api
                 };
 
                 try {
@@ -2014,7 +2026,8 @@ Pack.transforms.template = {
                         pathRelativeToInclude: file.pathRelativeToInclude,
                         data: templateSettings.data || {},
                         output: output,
-                        target: target
+                        target: target,
+                        api: Pack.api
                     };
 
                     try {
@@ -2308,12 +2321,12 @@ function normaliseOptions(pathOrOptions, debug) {
     if (debug === true)
         pathOrOptions.debug = true;
     return pathOrOptions;
-}instance.pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Pack.embedTemplate.template.js', 'instance.pack.storeTemplate(\'<%=path.toString().replace(/\\\\/g, "/")%>\', \'<%=T.embedString(content)%>\');\n');
-instance.pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/T.document.template.js', '<%= data.documentation(content) %>');
-instance.pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/T.mockjax.outer.template.js', '<%= content %>\n<%= data.mockGaps() %>');
-instance.pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/T.mockjax.template.js', '$.mockjax({\n    url: \'<%= pathRelativeToConfig %>\',\n    responseText: \'<%= T.embedString(content) %>\',\n    responseTime: 0\n});\n<% data.registerUrl(pathRelativeToConfig) %>');
-instance.pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Model.template.js', '<%=T.modelScriptEnvironment(pathRelativeToInclude, data.prefix)%>\n<%=content%>\n');
-instance.pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Script.debug.template.js', 'window.eval("<%= T.prepareForEval(content) + T.sourceUrlTag(pathRelativeToConfig, data.domain, data.protocol) %>");\n');
-instance.pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Script.template.js', '// <%= pathRelativeToConfig %>\n<%= content %>\n');
-instance.pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Style.template.js', '//<% if(!target.includesStylesheetHelper) { %>\nwindow.__appendStyle = function (content) {\n    var element = document.getElementById(\'__tribeStyles\');\n    if (!element) {\n        element = document.createElement(\'style\');\n        element.className = \'__tribe\';\n        element.id = \'__tribeStyles\';\n        document.getElementsByTagName(\'head\')[0].appendChild(element);\n    }\n\n    if(element.styleSheet)\n        element.styleSheet.cssText += content;\n    else\n        element.appendChild(document.createTextNode(content));\n};//<% target.includesStylesheetHelper = true; } %>\nwindow.__appendStyle(\'<%= MinifyStylesheet.minify(content).replace(/\\\'/g, "\\\\\'") %>\');');
-instance.pack.storeTemplate('C:/Projects/PackScript/PackScript.Core/Embedded/Tribe/T.Template.template.js', '//<% if(!target.includesTemplateHelper) { %>\nwindow.__appendTemplate = function (content, id) {\n    var element = document.createElement(\'script\');\n    element.className = \'__tribe\';\n    element.setAttribute(\'type\', \'text/template\');\n    element.id = id;\n    element.text = content;\n    document.getElementsByTagName(\'head\')[0].appendChild(element);\n};//<% target.includesTemplateHelper = true; } %>\nwindow.__appendTemplate(\'<%=T.embedString(content)%>\', \'<%=T.templateIdentifier(pathRelativeToInclude, data.prefix)%>\');');
+}Pack.templates['Pack.embedTemplate'] = 'Pack.templates[\'<%=path.filename().toString().replace(".template.js", "")%>\'] = \'<%=T.embedString(content)%>\';\n';
+Pack.templates['T.document'] = '<%= data.documentation(content) %>';
+Pack.templates['T.mockjax.outer'] = '<%= content %>\n<%= data.mockGaps() %>';
+Pack.templates['T.mockjax'] = '$.mockjax({\n    url: \'<%= pathRelativeToConfig %>\',\n    responseText: \'<%= T.embedString(content) %>\',\n    responseTime: 0\n});\n<% data.registerUrl(pathRelativeToConfig) %>';
+Pack.templates['T.Model'] = '<%=T.modelScriptEnvironment(pathRelativeToInclude, data.prefix)%>\n<%=content%>\n';
+Pack.templates['T.Script.debug'] = 'window.eval("<%= T.prepareForEval(content) + T.sourceUrlTag(pathRelativeToConfig, data.domain, data.protocol) %>");\n';
+Pack.templates['T.Script'] = '// <%= pathRelativeToConfig %>\n<%= content %>\n';
+Pack.templates['T.Style'] = '//<% if(!target.includesStylesheetHelper) { %>\nwindow.__appendStyle = function (content) {\n    var element = document.getElementById(\'__tribeStyles\');\n    if (!element) {\n        element = document.createElement(\'style\');\n        element.className = \'__tribe\';\n        element.id = \'__tribeStyles\';\n        document.getElementsByTagName(\'head\')[0].appendChild(element);\n    }\n\n    if(element.styleSheet)\n        element.styleSheet.cssText += content;\n    else\n        element.appendChild(document.createTextNode(content));\n};//<% target.includesStylesheetHelper = true; } %>\nwindow.__appendStyle(\'<%= api.MinifyStylesheet.minify(content).replace(/\\\'/g, "\\\\\'") %>\');';
+Pack.templates['T.Template'] = '//<% if(!target.includesTemplateHelper) { %>\nwindow.__appendTemplate = function (content, id) {\n    var element = document.createElement(\'script\');\n    element.className = \'__tribe\';\n    element.setAttribute(\'type\', \'text/template\');\n    element.id = id;\n    element.text = content;\n    document.getElementsByTagName(\'head\')[0].appendChild(element);\n};//<% target.includesTemplateHelper = true; } %>\nwindow.__appendTemplate(\'<%=T.embedString(content)%>\', \'<%=T.templateIdentifier(pathRelativeToInclude, data.prefix)%>\');';

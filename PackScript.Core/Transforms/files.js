@@ -2,9 +2,9 @@
     var utils = Pack.utils;
     var transforms = Pack.transforms;
     
-    transforms.prioritise = { event: 'includeFiles', func: first };
-    transforms.first = { event: 'includeFiles', func: first };
-    transforms.last = { event: 'includeFiles', func: last };
+    transforms.prioritise = { event: 'includeFiles', apply: first };
+    transforms.first = { event: 'includeFiles', apply: first };
+    transforms.last = { event: 'includeFiles', apply: last };
     
     function first(data) {
         utils.executeSingleOrArray(data.value, data.target.files.prioritise);

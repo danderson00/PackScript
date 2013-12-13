@@ -28,7 +28,8 @@
                         pathRelativeToInclude: file.pathRelativeToInclude,
                         data: templateSettings.data || {},
                         output: output,
-                        target: target
+                        target: target,
+                        api: Pack.api
                     };
 
                     try {

@@ -7,11 +7,12 @@
         },
         getFileContents: function (files) {
             if (files.constructor === Array)
-                return files.map(function (file) {
-                    return fs.readFileSync(file, { encoding: 'utf8' });
-                });
+                return files.reduce(function (result, file) {
+                    result[file] = readFile(file);
+                    return result;
+                }, {});
             else
-                return fs.readFileSync(files, { encoding: 'utf8' });
+                return readFile(files);
         },
         writeFile: function (path, content) {
             return fs.writeFileSync(path, content);
@@ -20,6 +21,13 @@
             this.writeFile(to, this.getFileContents(from));
         }
     };
+    
+    function readFile(path) {
+        var content = fs.readFileSync(path, 'utf8');
+        if (content.charCodeAt(0) == 65279)
+            return content.substring(1);
+        return content;
+    }
 
     function listTree(filespec, recursive) {
         filespec = Path(filespec || './*.*');

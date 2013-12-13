@@ -13,4 +13,4 @@ window.__appendStyle = function (content) {
     else
         element.appendChild(document.createTextNode(content));
 };//<% target.includesStylesheetHelper = true; } %>
-window.__appendStyle('<%= MinifyStylesheet.minify(content).replace(/\'/g, "\\'") %>');
+window.__appendStyle('<%= api.MinifyStylesheet.minify(content).replace(/\'/g, "\\'") %>');

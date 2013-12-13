@@ -77,10 +77,6 @@
       <Project>{b50399e1-9776-4951-9c8c-4af96a6b2d62}</Project>
       <Name>PackScript.Api.AjaxMin</Name>
     </ProjectReference>
-    <ProjectReference Include="..\PackScript.Api\PackScript.Api.csproj">
-      <Project>{d8d13dac-c70b-4c7f-80da-2e52d52a2ca8}</Project>
-      <Name>PackScript.Api</Name>
-    </ProjectReference>
     <ProjectReference Include="..\PackScript.Host\PackScript.Host.csproj">
       <Project>{4b434c73-21a2-4191-80f2-98c11a629690}</Project>
       <Name>PackScript.Host</Name>

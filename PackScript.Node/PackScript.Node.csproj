@@ -47,7 +47,7 @@
     <Content Include="Tests\Api\Files\Child\child.txt" />
     <Content Include="Tests\Api\Files\root.txt" />
     <Content Include="Tests\Api\Files.tests.js" />
-    <Content Include="Tests\Infrastructure\Files.js" />
+    <Content Include="Tests\Integration\Combine.tests.js" />
     <Content Include="Tests\Integration\Combine\pack.js" />
     <Content Include="Tests\Integration\Combine\root.js" />
     <Content Include="Tests\Integration\Combine\root.txt" />

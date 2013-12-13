@@ -1,1 +1,1 @@
-﻿instance.pack.storeTemplate('<%=path.toString().replace(/\\/g, "/")%>', '<%=T.embedString(content)%>');
+﻿Pack.templates['<%=path.filename().toString().replace(".template.js", "")%>'] = '<%=T.embedString(content)%>';

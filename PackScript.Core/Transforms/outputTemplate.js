@@ -18,7 +18,8 @@
                     configPath: Path(output.configPath),
                     data: value.data || {},
                     output: output,
-                    target: target
+                    target: target,
+                    api: Pack.api
                 };
 
                 try {

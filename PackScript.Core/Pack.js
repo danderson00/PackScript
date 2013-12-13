@@ -1,6 +1,6 @@
 ﻿function Pack(options) {
     this.outputs = [];
-    this.templates = {};
+    this.templates = _.extend({}, Pack.templates);
     this.loadedConfigs = [];
     this.transforms = new Pack.TransformRepository(Pack.transforms);
     
@@ -14,11 +14,13 @@
 }
 
 Pack.api = {};
+Pack.templates = {};
 Pack.transforms = {};
 
 Pack.prototype.setOptions = function(options) {
     _.extend(this.options, options);
     Pack.api.Log.setLevel(this.options.logLevel);
+    return this;
 };
 
 Pack.prototype.matchingOutputs = function (paths, refresh) {

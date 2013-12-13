@@ -1,6 +1,7 @@
 ﻿(function() {
     Pack.prototype.all = function() {
         this.build(this.outputs);
+        return this;
     };
 
     Pack.prototype.build = function (outputs) {
@@ -21,6 +22,7 @@
                 this.buildTimeout = undefined;
             }, timeout);
         }
+        return this;
     };
 
     Pack.prototype.buildSync = function (outputs) {
@@ -32,6 +34,7 @@
         var matchingOutputs = this.matchingOutputs(outputPaths);
         if (matchingOutputs.length > 0)
             this.build(matchingOutputs);
+        return this;
 
         function buildOutput(output) {
             return output.build(self.transforms);

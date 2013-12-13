@@ -17,11 +17,10 @@ test("getFileContents returns string contents of specified file", function() {
     equal(Pack.api.Files.getFileContents('Tests/Api/Files/root.txt'), 'root');
 });
 
-test("getFileContents returns string contents of specified array of files", function () {
+test("getFileContents returns hash of path to string contents for specified array of files", function () {
     var contents = Pack.api.Files.getFileContents(['Tests/Api/Files/root.txt', 'Tests/Api/Files/Child/child.txt']);
-    equal(contents.length, 2);
-    equal(contents[0], 'root');
-    equal(contents[1], 'child');
+    equal(contents['Tests/Api/Files/root.txt'], 'root');
+    equal(contents['Tests/Api/Files/Child/child.txt'], 'child');
 });
 
 test("writeFile writes specified string to target file", function () {

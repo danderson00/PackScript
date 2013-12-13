@@ -50,10 +50,6 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PackScript.Api\PackScript.Api.csproj">
-      <Project>{d8d13dac-c70b-4c7f-80da-2e52d52a2ca8}</Project>
-      <Name>PackScript.Api</Name>
-    </ProjectReference>
     <ProjectReference Include="..\PackScript.Core\PackScript.Core.csproj">
       <Project>{1f79b176-1d08-4db8-bc58-20566c9c8fbb}</Project>
       <Name>PackScript.Core</Name>
