@@ -1,15 +1,15 @@
 ﻿zip({
-    to: 'Simple.zip',
+    to: '../TestOutput/Simple.zip',
     include: '*.js'
 });
 
 zip({
-    to: 'Child.zip',
+    to: '../TestOutput/Child.zip',
     include: 'Child/*.js'
 });
 
 zip({
-    to: 'Recursive.zip',
+    to: '../TestOutput/Recursive.zip',
     include: '*.js',
     recursive: true
 });

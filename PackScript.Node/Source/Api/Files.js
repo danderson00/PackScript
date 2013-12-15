@@ -3,7 +3,7 @@
 
     Pack.api.Files = {
         getFilenames: function (filespec, recursive) {
-            return listTree(filespec, recursive);
+            return Pack.utils.listTree(filespec, recursive);
         },
         getFileContents: function (files) {
             if (files.constructor === Array)
@@ -15,46 +15,26 @@
                 return readFile(files);
         },
         writeFile: function (path, content) {
-            return fs.writeFileSync(path, content);
+            try {
+                return fs.writeFileSync(path, content);
+            } catch(ex) {
+                Pack.api.Log.error('Error writing to ' + path, ex);
+            }
         },
         copyFile: function (from, to) {
             this.writeFile(to, this.getFileContents(from));
-        }
+        },
+        excludedDirectories: ['csx', 'bin', 'obj']
     };
-    
+
     function readFile(path) {
-        var content = fs.readFileSync(path, 'utf8');
-        if (content.charCodeAt(0) == 65279)
-            return content.substring(1);
-        return content;
-    }
-
-    function listTree(filespec, recursive) {
-        filespec = Path(filespec || './*.*');
-
-        var filter = filespec.filename().toString();
-        var basePath = filespec.withoutFilename().toString();
-        var paths = [];
-        var childDirectories = [];
-        
-        var children = fs.readdirSync(basePath);
-
-        children.forEach(function (child) {
-            var fullChild = basePath + child;
-            var stat = fs.statSync(fullChild);
-
-            if (!stat.isDirectory() && Path(fullChild).match(filespec))
-                paths.push(fullChild);
-
-            if (stat.isDirectory() && recursive)
-                childDirectories.push(fullChild);
-        });
-
-        // we want to process child directories after the directory contents
-        childDirectories.forEach(function(child) {
-            paths.push.apply(paths, listTree(child + '/' + filter));
-        });
-        
-        return paths;
+        try {
+            var content = fs.readFileSync(path, 'utf8');
+            if (content.charCodeAt(0) == 65279)
+                return content.substring(1);
+            return content;
+        } catch (ex) {
+            Pack.api.Log.error('Error reading from ' + path, ex);
+        }
     }
 })();

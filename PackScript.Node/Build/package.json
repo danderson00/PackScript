@@ -1,9 +1,11 @@
 {
     "name": "packscript",
     "version": "0.2.0",
-    "description": "Simple server for reporting the results of qunit tests run against node.js applications.",
+    "description": "Powerful resource build system for combining, minifying and transforming your resources.",
     "dependencies": {
-        "underscore": "~1.5.2"
+        "underscore": "~1.5.2",
+		"uglify-js": "~2.4.7",
+		"node-zip": "~1.0.1"
     },
     "main": "packscript.js",
     "homepage": "http://github.com/danderson00/packscript",

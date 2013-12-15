@@ -24,9 +24,9 @@
             if (level >= 2)
                 console.warn('WARN: ' + message);
         },
-        error: function(message) {
+        error: function(message, error) {
             if (level >= 1)
-                console.error('ERROR: ' + message);
+                console.error('ERROR: ' + message, error);
         }
     };
 })();

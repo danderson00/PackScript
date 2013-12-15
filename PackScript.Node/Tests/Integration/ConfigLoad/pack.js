@@ -1,1 +1,1 @@
-﻿Test.AddValue('root folder loaded');
+﻿pack.test.push('root folder loaded');

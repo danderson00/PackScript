@@ -129,24 +129,6 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PackScript.Api.AjaxMin\PackScript.Api.AjaxMin.csproj">
-      <Project>{B50399E1-9776-4951-9C8C-4AF96A6B2D62}</Project>
-      <Name>PackScript.Api.AjaxMin</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PackScript.Api\PackScript.Api.csproj">
-      <Project>{D8D13DAC-C70B-4C7F-80DA-2E52D52A2CA8}</Project>
-      <Name>PackScript.Api</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PackScript.Console\PackScript.Console.csproj">
-      <Project>{f00d522a-b6bf-4d3d-9a28-abce46cf6f07}</Project>
-      <Name>PackScript.Console</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\PackScript.Host\PackScript.Host.csproj">
-      <Project>{4b434c73-21a2-4191-80f2-98c11a629690}</Project>
-      <Name>PackScript.Host</Name>
-    </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
     <Content Include="Api\Files\FileSystem\Subfolder\subfolder.js" />
     <Content Include="Api\Files\FileSystem\test.js" />
     <Content Include="Api\Files\FileSystem\Subfolder\subfolder.pack.js" />

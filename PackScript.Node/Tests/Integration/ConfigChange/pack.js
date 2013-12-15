@@ -1,0 +1,1 @@
+﻿pack({ to: '../TestOutput/configChange', include: '*.js' })

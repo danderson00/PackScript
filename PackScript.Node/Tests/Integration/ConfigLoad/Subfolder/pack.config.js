@@ -1,1 +1,2 @@
-﻿Test.AddValue('subfolder config loaded');
+﻿pack.test = [];
+pack.test.push('subfolder config loaded');

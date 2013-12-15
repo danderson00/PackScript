@@ -1,1 +1,1 @@
-﻿Test.AddValue('named config loaded');
+﻿pack.test.push('named config loaded');

@@ -1,1 +1,1 @@
-﻿Test.AddValue('subfolder loaded');
+﻿pack.test.push('subfolder loaded');

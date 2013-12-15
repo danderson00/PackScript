@@ -1174,12 +1174,50 @@ Pack.templates['T.Script.debug'] = 'window.eval("<%= T.prepareForEval(content) +
 Pack.templates['T.Script'] = '// <%= pathRelativeToConfig %>\n<%= content %>\n';
 Pack.templates['T.Style'] = '//<% if(!target.includesStylesheetHelper) { %>\nwindow.__appendStyle = function (content) {\n    var element = document.getElementById(\'__tribeStyles\');\n    if (!element) {\n        element = document.createElement(\'style\');\n        element.className = \'__tribe\';\n        element.id = \'__tribeStyles\';\n        document.getElementsByTagName(\'head\')[0].appendChild(element);\n    }\n\n    if(element.styleSheet)\n        element.styleSheet.cssText += content;\n    else\n        element.appendChild(document.createTextNode(content));\n};//<% target.includesStylesheetHelper = true; } %>\nwindow.__appendStyle(\'<%= api.MinifyStylesheet.minify(content).replace(/\\\'/g, "\\\\\'") %>\');';
 Pack.templates['T.Template'] = '//<% if(!target.includesTemplateHelper) { %>\nwindow.__appendTemplate = function (content, id) {\n    var element = document.createElement(\'script\');\n    element.className = \'__tribe\';\n    element.setAttribute(\'type\', \'text/template\');\n    element.id = id;\n    element.text = content;\n    document.getElementsByTagName(\'head\')[0].appendChild(element);\n};//<% target.includesTemplateHelper = true; } %>\nwindow.__appendTemplate(\'<%=T.embedString(content)%>\', \'<%=T.templateIdentifier(pathRelativeToInclude, data.prefix)%>\');';
+Pack.utils.listTree = function(filespec, recursive) {
+    var fs = require('fs');
+
+    filespec = Path(filespec || './*.*');
+
+    var filter = filespec.filename().toString();
+    var basePath = filespec.withoutFilename().toString();
+    var paths = [];
+    var childDirectories = [];
+
+    try {
+        var children = fs.readdirSync(basePath);
+
+        children.forEach(function(child) {
+            var fullChild = basePath + child;
+
+            try {
+                var stat = fs.statSync(fullChild);
+                if (!stat.isDirectory() && Path(fullChild).match(filespec))
+                    paths.push(fullChild);
+
+                if (stat.isDirectory() && recursive && Pack.api.Files.excludedDirectories.indexOf(child) === -1)
+                    childDirectories.push(fullChild);
+            } catch(ex) {
+                Pack.api.Log.error('Error getting file information for ' + fullChild, ex);
+            }
+        });
+    } catch(ex) {
+        Pack.api.Log.error('Error getting directory contents from ' + basePath, ex);
+    }
+
+    // we want to process child directories after the directory contents
+    childDirectories.forEach(function(child) {
+        paths.push.apply(paths, Pack.utils.listTree(child + '/' + filter));
+    });
+
+    return paths;
+};
 (function () {
     var fs = require('fs');
 
     Pack.api.Files = {
         getFilenames: function (filespec, recursive) {
-            return listTree(filespec, recursive);
+            return Pack.utils.listTree(filespec, recursive);
         },
         getFileContents: function (files) {
             if (files.constructor === Array)
@@ -1191,47 +1229,27 @@ Pack.templates['T.Template'] = '//<% if(!target.includesTemplateHelper) { %>\nwi
                 return readFile(files);
         },
         writeFile: function (path, content) {
-            return fs.writeFileSync(path, content);
+            try {
+                return fs.writeFileSync(path, content);
+            } catch(ex) {
+                Pack.api.Log.error('Error writing to ' + path, ex);
+            }
         },
         copyFile: function (from, to) {
             this.writeFile(to, this.getFileContents(from));
-        }
+        },
+        excludedDirectories: ['csx', 'bin', 'obj']
     };
-    
+
     function readFile(path) {
-        var content = fs.readFileSync(path, 'utf8');
-        if (content.charCodeAt(0) == 65279)
-            return content.substring(1);
-        return content;
-    }
-
-    function listTree(filespec, recursive) {
-        filespec = Path(filespec || './*.*');
-
-        var filter = filespec.filename().toString();
-        var basePath = filespec.withoutFilename().toString();
-        var paths = [];
-        var childDirectories = [];
-        
-        var children = fs.readdirSync(basePath);
-
-        children.forEach(function (child) {
-            var fullChild = basePath + child;
-            var stat = fs.statSync(fullChild);
-
-            if (!stat.isDirectory() && Path(fullChild).match(filespec))
-                paths.push(fullChild);
-
-            if (stat.isDirectory() && recursive)
-                childDirectories.push(fullChild);
-        });
-
-        // we want to process child directories after the directory contents
-        childDirectories.forEach(function(child) {
-            paths.push.apply(paths, listTree(child + '/' + filter));
-        });
-        
-        return paths;
+        try {
+            var content = fs.readFileSync(path, 'utf8');
+            if (content.charCodeAt(0) == 65279)
+                return content.substring(1);
+            return content;
+        } catch (ex) {
+            Pack.api.Log.error('Error reading from ' + path, ex);
+        }
     }
 })();
 Pack.api.Log = (function () {
@@ -1260,23 +1278,62 @@ Pack.api.Log = (function () {
             if (level >= 2)
                 console.warn('WARN: ' + message);
         },
-        error: function(message) {
+        error: function(message, error) {
             if (level >= 1)
-                console.error('ERROR: ' + message);
+                console.error('ERROR: ' + message, error);
         }
     };
 })();
 Pack.api.MinifyJavascript = {
-    minify: function(source) {
-        return source;
+    minify: function (source) {
+        var uglify = require('uglify-js');
+        
+        var ast = uglify.parse(source);
+        ast.figure_out_scope();
+
+        ast.compute_char_frequency();
+        ast.mangle_names();
+        
+        var compressor = uglify.Compressor();
+        ast = ast.transform(compressor);
+        
+        return ast.print_to_string();
     }
 };
 
 Pack.api.MinifyStylesheet = {
-    minify: function(source) {
-        return source;
+    minify: function (source) {
+        var options = {
+            maxLineLen: 0,
+            expandVars: false,
+            uglyComments: true
+        };
+        var uglifycss = require('uglifycss');
+        return uglifycss.processString(source, options);
     }
-};function integrationTest(path, tests) {
+};(function() {
+    require('node-zip');
+    var fs = require('fs');
+
+    Pack.api.Zip = {
+        archive: function(to, files) {
+            var zip = new JSZip();
+            
+            for (var file in files)
+                if (files.hasOwnProperty(file))
+                    zip.file(file, Pack.api.Files.getFileContents(files[file]));
+            
+            fs.writeFileSync(to, zip.generate({ base64: false, compression: 'DEFLATE' }), 'binary');
+        }
+    };
+})();function integrationTest(path, name, tests) {
+    if (arguments[1].constructor === Function) {
+        tests = arguments[1];
+        name = path;
+    }
+
+    var api = new Pack.Api({ throttle: false, excludedDirectories: 'excluded' });
+
     QUnit.module('Integration.' + path, {
         setup: function() {
             Pack.api.Files = {
@@ -1287,22 +1344,33 @@ Pack.api.MinifyStylesheet = {
                     return originalApi.getFileContents(files);
                 },
                 writeFile: sinon.spy(),
-                copyFile: sinon.spy()
+                copyFile: sinon.spy(),
+                excludedDirectories: 'excluded'
             };
-            pack = new Pack.Api({ throttle: false }).pack;
+            sinon.spy(Pack.api.Files, 'getFilenames');
+            sinon.spy(Pack.api.Files, 'getFileContents');
+
+            sync = api.sync;
+            pack = api.pack;
+            zip = api.zip;
             pack.scanForResources('Tests/Integration/' + path + '/').all();
         }
     });
 
+    test(name, function() {
+        tests(outputAssertions, api);
+    });
+
     function outputAssertions(file) {
         return {
-            equals: function(value) {
+            equals: function (value) {
                 equal(output(file), value, file);
             },
-            contains: function(value) {
-                ok(output(file).indexOf(value) !== -1, file + ' contains "' + value + '"');
+            contains: function (value, message) {
+                var fileOutput = output(file);
+                ok(fileOutput.indexOf(value) !== -1, fileOutput + ' contains "' + value + '" (' + message + ')');
             },
-            containsOnce: function(value) {
+            containsOnce: function (value) {
                 var fileOutput = output(file);
                 var firstIndex = fileOutput.indexOf(value);
                 ok(firstIndex !== -1 && fileOutput.indexOf(value, firstIndex + value.length) === -1,
@@ -1311,9 +1379,9 @@ Pack.api.MinifyStylesheet = {
         };
     }
 
-    test(path, function() {
-        tests(outputAssertions);
-    });
+    outputAssertions.zip = function (file) {
+        return readZip(file).files;
+    };
 
     function output(file) {
         var Files = Pack.api.Files;
@@ -1323,6 +1391,12 @@ Pack.api.MinifyStylesheet = {
             if (path.indexOf('/' + file, path.length - file.length - 1) !== -1)
                 return call.args[1];
         }
+    }
+    
+    function readZip(file) {
+        var data = require('fs').readFileSync('Tests/Integration/TestOutput/' + file, 'binary');
+        return new require('node-zip')(data, { base64: false, checkCRC32: true });
+        
     }
 }
 
@@ -1379,20 +1453,194 @@ test("copyFile copies specified source file to target", function () {
     output('alternate').equals('root.jsroot.txt');
     output('alternateArray').equals('root.jssubfolder.js');
 });
+(function() {
+
+    integrationTest('ConfigChange', 'Modify config file triggers build', function(output, api) {
+        equal(Pack.api.Files.writeFile.callCount, 1);
+        triggerChange('modify');
+        equal(Pack.api.Files.writeFile.callCount, 2);
+    });
+
+    integrationTest('ConfigChange', 'Add config file triggers build', function(output, api) {
+        triggerChange('add');
+        equal(Pack.api.Files.writeFile.callCount, 2);
+    });
+
+    integrationTest('ConfigChange', 'Delete config file removes old config', function(output, api) {
+        triggerChange('delete');
+        equal(pack.outputs.length, 0);
+    });
+
+    integrationTest('ConfigChange', 'Delete config file does not trigger build', function(output, api) {
+        equal(Pack.api.Files.writeFile.callCount, 1);
+        triggerChange('delete');
+        equal(Pack.api.Files.writeFile.callCount, 1);
+    });
+
+    integrationTest('ConfigChange', 'Rename config file removes old config', function(output, api) {
+        equal(pack.outputs.length, 1);
+        pack.fileChanged(fullPath('renamed.pack.js'), fullPath('pack.js'), 'rename');
+        equal(pack.outputs.length, 0);
+    });
+
+    integrationTest('ConfigChange', 'Rename config file triggers build', function(output, api) {
+        equal(Pack.api.Files.writeFile.callCount, 1);
+        triggerChange('rename');
+        equal(Pack.api.Files.writeFile.callCount, 2);
+    });
+
+    function triggerChange(type) {
+        pack.fileChanged(fullPath('pack.js'), fullPath('pack.js'), type);
+    }
+
+    function fullPath(path) {
+        return 'Tests/Integration/ConfigChange/' + path;
+    }
+})();
+integrationTest('ConfigLoad', 'scanForConfigs passes correct arguments to getFilenames', function(output, api) {
+    equal(Pack.api.Files.getFilenames.firstCall.args[0], "Tests/Integration/ConfigLoad/*pack.config.js");
+    equal(Pack.api.Files.getFilenames.secondCall.args[0], "Tests/Integration/ConfigLoad/*pack.js");
+});
+
+integrationTest('ConfigLoad', 'Config files are loaded in expected order', function(output, api) {
+    deepEqual(pack.test, ["subfolder config loaded", "named config loaded", "root folder loaded", "subfolder loaded"]);
+});
 integrationTest('Embedded', function(output) {
     output('styles').containsOnce("__appendStyle = function");
     output('templates').containsOnce("__appendTemplate = function");
 });
-/*
-            api.Output("styles").Should().ContainOnce("__appendStyle = function");
-        }
+integrationTest('ExcludeConfigAndTarget', function (output) {
+    output("output.js").equals("root.js");    
+});
+integrationTest('ExcludedDirectories', function(output) {
+    output('excluded').equals(undefined);
+});
+(function() {
 
-        [Test]
-        public void Template_render_helpers_are_only_included_once()
-        {
-            api.Output("templates").Should().ContainOnce("__appendTemplate = function");
+    integrationTest('FileChange', 'Modify excluded file does not trigger build', function(output, api) {
+        pack.fileChanged(fullPath("input.txt"), fullPath("input.txt"), "modify");
+        equal(Pack.api.Files.writeFile.callCount, 1);
+    });
 
-*/Context = {};
+    integrationTest('FileChange', 'Modify included file triggers build', function(output, api) {
+        pack.fileChanged(fullPath("input.js"), fullPath("input.js"), "modify");
+        equal(Pack.api.Files.writeFile.callCount, 2);
+    });
+
+    integrationTest('FileChange', 'Add excluded file does not trigger build', function(output, api) {
+        pack.fileChanged(fullPath("input.txt"), fullPath("input.txt"), "add");
+        equal(Pack.api.Files.writeFile.callCount, 1);
+    });
+
+    integrationTest('FileChange', 'Add included file triggers build', function(output, api) {
+        pack.fileChanged(fullPath("input.js"), fullPath("input.js"), "add");
+        equal(Pack.api.Files.writeFile.callCount, 2);
+    });
+
+    integrationTest('FileChange', 'Add template rereads template', function(output, api) {
+        pack.fileChanged(fullPath("input.template.js"), fullPath("input.template.js"), "add");
+        equal(Pack.api.Files.getFileContents.lastCall.args[0], fullPath("input.template.js"));
+    });
+
+    integrationTest('FileChange', 'Delete excluded file does not trigger build', function(output, api) {
+        pack.fileChanged(fullPath("input.txt"), fullPath("input.txt"), "delete");
+        equal(Pack.api.Files.writeFile.callCount, 1);
+    });
+
+    integrationTest('FileChange', 'Delete included file triggers build', function(output, api) {
+        pack.fileChanged(fullPath("input.js"), fullPath("input.js"), "delete");
+        equal(Pack.api.Files.writeFile.callCount, 2);
+    });
+
+    integrationTest('FileChange', 'Rename excluded file does not trigger build', function(output, api) {
+        pack.fileChanged(fullPath("input2.txt"), fullPath("input.txt"), "rename");
+        equal(Pack.api.Files.writeFile.callCount, 1);
+    });
+
+    integrationTest('FileChange', 'Rename included file triggers build', function(output, api) {
+        pack.fileChanged(fullPath("input2.js"), fullPath("input.js"), "rename");
+        equal(Pack.api.Files.writeFile.callCount, 2);
+    });
+
+
+    function fullPath(file) {
+        return 'Tests/Integration/FileChange/' + file;
+    }
+})();
+integrationTest('Json', function(output) {
+    output('json').equals('{"string":"test","number":2.2,"bool":true}');
+});
+integrationTest('Minify', function(output) {
+    output('javascript.js').equals('function name(n){var r=n;return r}');
+    //output('markup.htm').equals('<html>\r\n    <body></body>\r\n</html>');
+    output('stylesheet.css').equals('.class{display:none}');
+});
+integrationTest('OutputTemplate', function(output) {
+    output('outputTemplate').equals("// license\r\nfunction");
+});
+integrationTest('Recursive', function(output) {
+    equal(Pack.api.Files.writeFile.callCount, 6);
+    output("final").equals("1.js2.js");
+    output("subfolder").equals("3.js4.js");
+
+    pack.fileChanged("Tests/Integration/Recursive/1.js", "Tests/Integration/Recursive/1.js", "modify");
+    equal(Pack.api.Files.writeFile.callCount, 8);
+
+    pack.fileChanged("Tests/Integration/Recursive/3.js", "Tests/Integration/Recursive/3.js", "modify");
+    equal(Pack.api.Files.writeFile.callCount, 10);
+});
+integrationTest('Sync', function (output) {
+    var copyFile = Pack.api.Files.copyFile;
+    equal(copyFile.firstCall.args[0], 'Tests/Integration/Sync/test.js');
+    equal(copyFile.firstCall.args[0], fullPath('Sync/test.js'), 'simple');
+    equal(copyFile.firstCall.args[1], fullPath('TestOutput/Sync/Simple/test.js'), 'simple');
+
+    equal(copyFile.secondCall.args[0], fullPath('Sync/Child/test.js'), 'child');
+    equal(copyFile.secondCall.args[1], fullPath('TestOutput/Sync/Child/test.js'), 'child');
+
+    equal(copyFile.thirdCall.args[0], fullPath('Sync/test.js'), 'recursive');
+    equal(copyFile.thirdCall.args[1], fullPath('TestOutput/Sync/Recursive/test.js'), 'recursive');
+    equal(copyFile.getCall(3).args[0], fullPath('Sync/Child/test.js'), 'recursive');
+    equal(copyFile.getCall(3).args[1], fullPath('TestOutput/Sync/Recursive/Child/test.js'), 'recursive');
+
+    equal(copyFile.getCall(4).args[0], fullPath('Sync/test.js'), 'alternate');
+    equal(copyFile.getCall(4).args[1], fullPath('TestOutput/Sync/Alternate/test.js'), 'alternate');
+
+    function fullPath(path) {
+        return 'Tests/Integration/' + path;
+    }
+});
+integrationTest('Template', function (output) {    
+    output('builtinData').contains('Tests/Integration/Template/root.txt\r\n', 'path');
+    output('builtinData').contains('root\r\n', 'content');
+    output('builtinData').contains('Tests/Integration/Template/\r\n', 'configPath');
+    output('builtinData').contains('root.txt\r\n', 'pathRelativeToConfig');
+
+    output('builtinData').contains('Tests/Integration/Template/Subfolder/subfolder.txt\r\n', 'path');
+    output('builtinData').contains('subfolder\r\n', 'content');
+    output('builtinData').contains('Tests/Integration/Template/\r\n', 'configPath');
+    output('builtinData').contains('Subfolder/subfolder.txt\r\n', 'pathRelativeToConfig');
+    
+    output('passedData').equals('test2');
+    
+    output('separateTemplates').contains('root1');
+    output('separateTemplates').contains('subfolder2');
+    
+    output('pathRelativeToInclude').contains('subfolder.txt\r\n');
+    output('pathRelativeToInclude').contains('Subfolder2/subfolder2.js\r\n');
+});
+integrationTest('Zip', function (output) {
+    var zip = output.zip('Simple.zip');
+    equal(zip['test.js'].data, 'root');
+
+    zip = output.zip('Child.zip');
+    equal(zip['test.js'].data, 'child');
+    
+    zip = output.zip('Recursive.zip');
+    equal(zip['test.js'].data, 'root');
+    equal(zip['Child/test.js'].data, 'child');
+});
+Context = {};
 
 function filesAsMock() {
     Pack.api.Files = {

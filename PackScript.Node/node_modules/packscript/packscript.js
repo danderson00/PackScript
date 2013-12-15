@@ -1174,12 +1174,50 @@ Pack.templates['T.Script.debug'] = 'window.eval("<%= T.prepareForEval(content) +
 Pack.templates['T.Script'] = '// <%= pathRelativeToConfig %>\n<%= content %>\n';
 Pack.templates['T.Style'] = '//<% if(!target.includesStylesheetHelper) { %>\nwindow.__appendStyle = function (content) {\n    var element = document.getElementById(\'__tribeStyles\');\n    if (!element) {\n        element = document.createElement(\'style\');\n        element.className = \'__tribe\';\n        element.id = \'__tribeStyles\';\n        document.getElementsByTagName(\'head\')[0].appendChild(element);\n    }\n\n    if(element.styleSheet)\n        element.styleSheet.cssText += content;\n    else\n        element.appendChild(document.createTextNode(content));\n};//<% target.includesStylesheetHelper = true; } %>\nwindow.__appendStyle(\'<%= api.MinifyStylesheet.minify(content).replace(/\\\'/g, "\\\\\'") %>\');';
 Pack.templates['T.Template'] = '//<% if(!target.includesTemplateHelper) { %>\nwindow.__appendTemplate = function (content, id) {\n    var element = document.createElement(\'script\');\n    element.className = \'__tribe\';\n    element.setAttribute(\'type\', \'text/template\');\n    element.id = id;\n    element.text = content;\n    document.getElementsByTagName(\'head\')[0].appendChild(element);\n};//<% target.includesTemplateHelper = true; } %>\nwindow.__appendTemplate(\'<%=T.embedString(content)%>\', \'<%=T.templateIdentifier(pathRelativeToInclude, data.prefix)%>\');';
+Pack.utils.listTree = function(filespec, recursive) {
+    var fs = require('fs');
+
+    filespec = Path(filespec || './*.*');
+
+    var filter = filespec.filename().toString();
+    var basePath = filespec.withoutFilename().toString();
+    var paths = [];
+    var childDirectories = [];
+
+    try {
+        var children = fs.readdirSync(basePath);
+
+        children.forEach(function(child) {
+            var fullChild = basePath + child;
+
+            try {
+                var stat = fs.statSync(fullChild);
+                if (!stat.isDirectory() && Path(fullChild).match(filespec))
+                    paths.push(fullChild);
+
+                if (stat.isDirectory() && recursive && Pack.api.Files.excludedDirectories.indexOf(child) === -1)
+                    childDirectories.push(fullChild);
+            } catch(ex) {
+                Pack.api.Log.error('Error getting file information for ' + fullChild, ex);
+            }
+        });
+    } catch(ex) {
+        Pack.api.Log.error('Error getting directory contents from ' + basePath, ex);
+    }
+
+    // we want to process child directories after the directory contents
+    childDirectories.forEach(function(child) {
+        paths.push.apply(paths, Pack.utils.listTree(child + '/' + filter));
+    });
+
+    return paths;
+};
 (function () {
     var fs = require('fs');
 
     Pack.api.Files = {
         getFilenames: function (filespec, recursive) {
-            return listTree(filespec, recursive);
+            return Pack.utils.listTree(filespec, recursive);
         },
         getFileContents: function (files) {
             if (files.constructor === Array)
@@ -1191,47 +1229,27 @@ Pack.templates['T.Template'] = '//<% if(!target.includesTemplateHelper) { %>\nwi
                 return readFile(files);
         },
         writeFile: function (path, content) {
-            return fs.writeFileSync(path, content);
+            try {
+                return fs.writeFileSync(path, content);
+            } catch(ex) {
+                Pack.api.Log.error('Error writing to ' + path, ex);
+            }
         },
         copyFile: function (from, to) {
             this.writeFile(to, this.getFileContents(from));
-        }
+        },
+        excludedDirectories: ['csx', 'bin', 'obj']
     };
-    
+
     function readFile(path) {
-        var content = fs.readFileSync(path, 'utf8');
-        if (content.charCodeAt(0) == 65279)
-            return content.substring(1);
-        return content;
-    }
-
-    function listTree(filespec, recursive) {
-        filespec = Path(filespec || './*.*');
-
-        var filter = filespec.filename().toString();
-        var basePath = filespec.withoutFilename().toString();
-        var paths = [];
-        var childDirectories = [];
-        
-        var children = fs.readdirSync(basePath);
-
-        children.forEach(function (child) {
-            var fullChild = basePath + child;
-            var stat = fs.statSync(fullChild);
-
-            if (!stat.isDirectory() && Path(fullChild).match(filespec))
-                paths.push(fullChild);
-
-            if (stat.isDirectory() && recursive)
-                childDirectories.push(fullChild);
-        });
-
-        // we want to process child directories after the directory contents
-        childDirectories.forEach(function(child) {
-            paths.push.apply(paths, listTree(child + '/' + filter));
-        });
-        
-        return paths;
+        try {
+            var content = fs.readFileSync(path, 'utf8');
+            if (content.charCodeAt(0) == 65279)
+                return content.substring(1);
+            return content;
+        } catch (ex) {
+            Pack.api.Log.error('Error reading from ' + path, ex);
+        }
     }
 })();
 Pack.api.Log = (function () {
@@ -1260,20 +1278,52 @@ Pack.api.Log = (function () {
             if (level >= 2)
                 console.warn('WARN: ' + message);
         },
-        error: function(message) {
+        error: function(message, error) {
             if (level >= 1)
-                console.error('ERROR: ' + message);
+                console.error('ERROR: ' + message, error);
         }
     };
 })();
 Pack.api.MinifyJavascript = {
-    minify: function(source) {
-        return source;
+    minify: function (source) {
+        var uglify = require('uglify-js');
+        
+        var ast = uglify.parse(source);
+        ast.figure_out_scope();
+
+        ast.compute_char_frequency();
+        ast.mangle_names();
+        
+        var compressor = uglify.Compressor();
+        ast = ast.transform(compressor);
+        
+        return ast.print_to_string();
     }
 };
 
 Pack.api.MinifyStylesheet = {
-    minify: function(source) {
-        return source;
+    minify: function (source) {
+        var options = {
+            maxLineLen: 0,
+            expandVars: false,
+            uglyComments: true
+        };
+        var uglifycss = require('uglifycss');
+        return uglifycss.processString(source, options);
     }
-};
+};(function() {
+    require('node-zip');
+    var fs = require('fs');
+
+    Pack.api.Zip = {
+        archive: function(to, files) {
+            var zip = new JSZip();
+            
+            for (var file in files)
+                if (files.hasOwnProperty(file))
+                    zip.file(file, Pack.api.Files.getFileContents(files[file]));
+            
+            fs.writeFileSync(to, zip.generate({ base64: false, compression: 'DEFLATE' }), 'binary');
+        }
+    };
+})();
