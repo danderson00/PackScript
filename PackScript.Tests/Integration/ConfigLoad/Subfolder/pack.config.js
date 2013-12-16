@@ -1,1 +1,0 @@
-﻿Test.AddValue('subfolder config loaded');

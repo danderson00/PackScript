@@ -1,0 +1,710 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{1F79B176-1D08-4DB8-BC58-20566C9C8FBB}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>PackScript.Core</RootNamespace>
+    <AssemblyName>PackScript.Core</AssemblyName>
+    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>Build\Binary\</OutputPath>
+    <IntermediateOutputPath>Build\Binary\</IntermediateOutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>Build\Binary\</OutputPath>
+    <IntermediateOutputPath>Build\Binary\</IntermediateOutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup>
+    <StartupObject />
+  </PropertyGroup>
+  <ItemGroup>
+    <None Include="Core\Api.js" />
+    <None Include="node_modules\.bin\nodezip" />
+    <None Include="node_modules\.bin\nodezip.cmd" />
+    <None Include="node_modules\.bin\uglifycss" />
+    <None Include="node_modules\.bin\uglifycss.cmd" />
+    <None Include="node_modules\.bin\uglifyjs" />
+    <None Include="node_modules\.bin\uglifyjs.cmd" />
+    <None Include="node_modules\.bin\watchr" />
+    <None Include="node_modules\.bin\watchr.cmd" />
+    <None Include="node_modules\node-zip\.npmignore" />
+    <None Include="node_modules\node-zip\bin\nodezip" />
+    <None Include="node_modules\node-zip\bin\packer" />
+    <None Include="node_modules\node-zip\Makefile" />
+    <None Include="node_modules\node-zip\package.json" />
+    <None Include="node_modules\node-zip\README.md" />
+    <None Include="node_modules\optimist\.travis.yml" />
+    <None Include="node_modules\optimist\LICENSE" />
+    <None Include="node_modules\optimist\node_modules\minimist\.travis.yml" />
+    <None Include="node_modules\optimist\node_modules\minimist\LICENSE" />
+    <None Include="node_modules\optimist\node_modules\minimist\package.json" />
+    <None Include="node_modules\optimist\node_modules\minimist\readme.markdown" />
+    <None Include="node_modules\optimist\node_modules\wordwrap\.npmignore" />
+    <None Include="node_modules\optimist\node_modules\wordwrap\package.json" />
+    <None Include="node_modules\optimist\node_modules\wordwrap\README.markdown" />
+    <None Include="node_modules\optimist\package.json" />
+    <None Include="node_modules\optimist\readme.markdown" />
+    <None Include="node_modules\sinon\GPATH" />
+    <None Include="node_modules\sinon\GRTAGS" />
+    <None Include="node_modules\sinon\GSYMS" />
+    <None Include="node_modules\sinon\GTAGS" />
+    <None Include="node_modules\sinon\LICENSE" />
+    <None Include="node_modules\sinon\node_modules\buster-format\.travis.yml" />
+    <None Include="node_modules\sinon\node_modules\buster-format\AUTHORS" />
+    <None Include="node_modules\sinon\node_modules\buster-format\jsTestDriver.conf" />
+    <None Include="node_modules\sinon\node_modules\buster-format\LICENSE" />
+    <None Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\.travis.yml" />
+    <None Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\AUTHORS" />
+    <None Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\jsTestDriver.conf" />
+    <None Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\LICENSE" />
+    <None Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\package.json" />
+    <None Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\Readme.md" />
+    <None Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\run-tests" />
+    <None Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\buster-util\AUTHORS" />
+    <None Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\buster-util\jstdhtml" />
+    <None Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\buster-util\LICENSE" />
+    <None Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\buster-util\package.json" />
+    <None Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\.npmignore" />
+    <None Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\.travis.yml" />
+    <None Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\AUTHORS" />
+    <None Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\build" />
+    <None Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\jsl.conf" />
+    <None Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\LICENSE" />
+    <None Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\package.json" />
+    <None Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\README.md" />
+    <None Include="node_modules\sinon\node_modules\buster-format\package.json" />
+    <None Include="node_modules\sinon\node_modules\buster-format\Readme.md" />
+    <None Include="node_modules\sinon\node_modules\buster-format\run-tests" />
+    <None Include="node_modules\sinon\package.json" />
+    <None Include="node_modules\sinon\README.md" />
+    <None Include="node_modules\uglify-js\.npmignore" />
+    <None Include="node_modules\uglify-js\.travis.yml" />
+    <None Include="node_modules\uglify-js\bin\uglifyjs" />
+    <None Include="node_modules\uglify-js\LICENSE" />
+    <None Include="node_modules\uglify-js\node_modules\async\component.json" />
+    <None Include="node_modules\uglify-js\node_modules\async\LICENSE" />
+    <None Include="node_modules\uglify-js\node_modules\async\package.json" />
+    <None Include="node_modules\uglify-js\node_modules\async\README.md" />
+    <None Include="node_modules\uglify-js\node_modules\optimist\.travis.yml" />
+    <None Include="node_modules\uglify-js\node_modules\optimist\LICENSE" />
+    <None Include="node_modules\uglify-js\node_modules\optimist\node_modules\wordwrap\.npmignore" />
+    <None Include="node_modules\uglify-js\node_modules\optimist\node_modules\wordwrap\package.json" />
+    <None Include="node_modules\uglify-js\node_modules\optimist\node_modules\wordwrap\README.markdown" />
+    <None Include="node_modules\uglify-js\node_modules\optimist\package.json" />
+    <None Include="node_modules\uglify-js\node_modules\optimist\readme.markdown" />
+    <None Include="node_modules\uglify-js\node_modules\source-map\.npmignore" />
+    <None Include="node_modules\uglify-js\node_modules\source-map\.travis.yml" />
+    <None Include="node_modules\uglify-js\node_modules\source-map\build\prefix-source-map.jsm" />
+    <None Include="node_modules\uglify-js\node_modules\source-map\build\prefix-utils.jsm" />
+    <None Include="node_modules\uglify-js\node_modules\source-map\build\suffix-source-map.jsm" />
+    <None Include="node_modules\uglify-js\node_modules\source-map\build\suffix-utils.jsm" />
+    <None Include="node_modules\uglify-js\node_modules\source-map\CHANGELOG.md" />
+    <None Include="node_modules\uglify-js\node_modules\source-map\LICENSE" />
+    <None Include="node_modules\uglify-js\node_modules\source-map\node_modules\amdefine\LICENSE" />
+    <None Include="node_modules\uglify-js\node_modules\source-map\node_modules\amdefine\package.json" />
+    <None Include="node_modules\uglify-js\node_modules\source-map\node_modules\amdefine\README.md" />
+    <None Include="node_modules\uglify-js\node_modules\source-map\package.json" />
+    <None Include="node_modules\uglify-js\node_modules\source-map\README.md" />
+    <None Include="node_modules\uglify-js\node_modules\uglify-to-browserify\.npmignore" />
+    <None Include="node_modules\uglify-js\node_modules\uglify-to-browserify\.travis.yml" />
+    <None Include="node_modules\uglify-js\node_modules\uglify-to-browserify\LICENSE" />
+    <None Include="node_modules\uglify-js\node_modules\uglify-to-browserify\package.json" />
+    <None Include="node_modules\uglify-js\node_modules\uglify-to-browserify\README.md" />
+    <None Include="node_modules\uglify-js\package.json" />
+    <None Include="node_modules\uglify-js\README.md" />
+    <None Include="node_modules\uglifycss\package.json" />
+    <None Include="node_modules\uglifycss\README.md" />
+    <None Include="node_modules\uglifycss\uglifycss" />
+    <None Include="node_modules\underscore\LICENSE" />
+    <None Include="node_modules\underscore\package.json" />
+    <None Include="node_modules\underscore\README.md" />
+    <None Include="node_modules\watchr\.npmignore" />
+    <None Include="node_modules\watchr\bin\watchr" />
+    <None Include="node_modules\watchr\Cakefile" />
+    <None Include="node_modules\watchr\node_modules\bal-util\.npmignore" />
+    <None Include="node_modules\watchr\node_modules\bal-util\History.md" />
+    <None Include="node_modules\watchr\node_modules\bal-util\LICENSE.md" />
+    <None Include="node_modules\watchr\node_modules\bal-util\node_modules\ambi\.npmignore" />
+    <None Include="node_modules\watchr\node_modules\bal-util\node_modules\ambi\History.md" />
+    <None Include="node_modules\watchr\node_modules\bal-util\node_modules\ambi\LICENSE.md" />
+    <None Include="node_modules\watchr\node_modules\bal-util\node_modules\ambi\package.json" />
+    <None Include="node_modules\watchr\node_modules\bal-util\node_modules\ambi\README.md" />
+    <None Include="node_modules\watchr\node_modules\bal-util\node_modules\extract-opts\.npmignore" />
+    <None Include="node_modules\watchr\node_modules\bal-util\node_modules\extract-opts\LICENSE.md" />
+    <None Include="node_modules\watchr\node_modules\bal-util\node_modules\extract-opts\package.json" />
+    <None Include="node_modules\watchr\node_modules\bal-util\node_modules\extract-opts\README.md" />
+    <None Include="node_modules\watchr\node_modules\bal-util\node_modules\taskgroup\.npmignore" />
+    <None Include="node_modules\watchr\node_modules\bal-util\node_modules\taskgroup\History.md" />
+    <None Include="node_modules\watchr\node_modules\bal-util\node_modules\taskgroup\LICENSE.md" />
+    <None Include="node_modules\watchr\node_modules\bal-util\node_modules\taskgroup\package.json" />
+    <None Include="node_modules\watchr\node_modules\bal-util\node_modules\taskgroup\README.md" />
+    <None Include="node_modules\watchr\node_modules\bal-util\package.json" />
+    <None Include="node_modules\watchr\node_modules\bal-util\README.md" />
+    <None Include="node_modules\watchr\node_modules\eachr\.npmignore" />
+    <None Include="node_modules\watchr\node_modules\eachr\LICENSE.md" />
+    <None Include="node_modules\watchr\node_modules\eachr\package.json" />
+    <None Include="node_modules\watchr\node_modules\eachr\README.md" />
+    <None Include="node_modules\watchr\node_modules\extendr\.npmignore" />
+    <None Include="node_modules\watchr\node_modules\extendr\LICENSE.md" />
+    <None Include="node_modules\watchr\node_modules\extendr\package.json" />
+    <None Include="node_modules\watchr\node_modules\extendr\README.md" />
+    <None Include="node_modules\watchr\node_modules\safefs\.npmignore" />
+    <None Include="node_modules\watchr\node_modules\safefs\History.md" />
+    <None Include="node_modules\watchr\node_modules\safefs\LICENSE.md" />
+    <None Include="node_modules\watchr\node_modules\safefs\node_modules\graceful-fs\.npmignore" />
+    <None Include="node_modules\watchr\node_modules\safefs\node_modules\graceful-fs\LICENSE" />
+    <None Include="node_modules\watchr\node_modules\safefs\node_modules\graceful-fs\package.json" />
+    <None Include="node_modules\watchr\node_modules\safefs\node_modules\graceful-fs\README.md" />
+    <None Include="node_modules\watchr\node_modules\safefs\node_modules\taskgroup\.npmignore" />
+    <None Include="node_modules\watchr\node_modules\safefs\node_modules\taskgroup\History.md" />
+    <None Include="node_modules\watchr\node_modules\safefs\node_modules\taskgroup\LICENSE.md" />
+    <None Include="node_modules\watchr\node_modules\safefs\node_modules\taskgroup\node_modules\ambi\.npmignore" />
+    <None Include="node_modules\watchr\node_modules\safefs\node_modules\taskgroup\node_modules\ambi\History.md" />
+    <None Include="node_modules\watchr\node_modules\safefs\node_modules\taskgroup\node_modules\ambi\LICENSE.md" />
+    <None Include="node_modules\watchr\node_modules\safefs\node_modules\taskgroup\node_modules\ambi\package.json" />
+    <None Include="node_modules\watchr\node_modules\safefs\node_modules\taskgroup\node_modules\ambi\README.md" />
+    <None Include="node_modules\watchr\node_modules\safefs\node_modules\taskgroup\package.json" />
+    <None Include="node_modules\watchr\node_modules\safefs\node_modules\taskgroup\README.md" />
+    <None Include="node_modules\watchr\node_modules\safefs\package.json" />
+    <None Include="node_modules\watchr\node_modules\safefs\README.md" />
+    <None Include="node_modules\watchr\node_modules\taskgroup\.npmignore" />
+    <None Include="node_modules\watchr\node_modules\taskgroup\History.md" />
+    <None Include="node_modules\watchr\node_modules\taskgroup\LICENSE.md" />
+    <None Include="node_modules\watchr\node_modules\taskgroup\node_modules\ambi\.npmignore" />
+    <None Include="node_modules\watchr\node_modules\taskgroup\node_modules\ambi\History.md" />
+    <None Include="node_modules\watchr\node_modules\taskgroup\node_modules\ambi\LICENSE.md" />
+    <None Include="node_modules\watchr\node_modules\taskgroup\node_modules\ambi\package.json" />
+    <None Include="node_modules\watchr\node_modules\taskgroup\node_modules\ambi\README.md" />
+    <None Include="node_modules\watchr\node_modules\taskgroup\package.json" />
+    <None Include="node_modules\watchr\node_modules\taskgroup\README.md" />
+    <None Include="node_modules\watchr\node_modules\typechecker\.npmignore" />
+    <None Include="node_modules\watchr\node_modules\typechecker\History.md" />
+    <None Include="node_modules\watchr\node_modules\typechecker\LICENSE.md" />
+    <None Include="node_modules\watchr\node_modules\typechecker\package.json" />
+    <None Include="node_modules\watchr\node_modules\typechecker\README.md" />
+    <None Include="node_modules\watchr\package.json" />
+    <None Include="node_modules\watchr\README.md" />
+    <None Include="README.md" />
+    <None Include="Tests\Integration\Recursive\output" />
+    <None Include="Tests\Integration\Recursive\Subfolder\output" />
+    <None Include="Core\Transforms\load.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Core\Transforms\include.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Core\Transforms\to.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Core\TransformRepository.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Core\Transforms\minify.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Core\Transforms\combine.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Core\Transforms\template.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Core\commands.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Core\Output.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Core\Path.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Core\resources.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Core\Pack.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Core\utils.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Core\FileList.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include=".gitignore" />
+    <Content Include="Core\changeHandlers.js" />
+    <Content Include="Core\exports.js" />
+    <Content Include="Node\Api\Files.js" />
+    <Content Include="Node\Api\Log.js" />
+    <Content Include="Node\Api\Minify.js" />
+    <Content Include="Node\Api\Zip.js" />
+    <Content Include="Node\utils.js" />
+    <Content Include="Node\Watcher.js" />
+    <Content Include="node_modules\node-zip\lib\nodezip-cli.js" />
+    <Content Include="node_modules\node-zip\lib\nodezip.js" />
+    <Content Include="node_modules\node-zip\test\nodezip_spec.js" />
+    <Content Include="node_modules\node-zip\vendor\jszip\jszip-deflate.js" />
+    <Content Include="node_modules\node-zip\vendor\jszip\jszip-inflate.js" />
+    <Content Include="node_modules\node-zip\vendor\jszip\jszip-load.js" />
+    <Content Include="node_modules\node-zip\vendor\jszip\jszip.js" />
+    <Content Include="node_modules\optimist\example\bool.js" />
+    <Content Include="node_modules\optimist\example\boolean_double.js" />
+    <Content Include="node_modules\optimist\example\boolean_single.js" />
+    <Content Include="node_modules\optimist\example\default_hash.js" />
+    <Content Include="node_modules\optimist\example\default_singles.js" />
+    <Content Include="node_modules\optimist\example\divide.js" />
+    <Content Include="node_modules\optimist\example\line_count.js" />
+    <Content Include="node_modules\optimist\example\line_count_options.js" />
+    <Content Include="node_modules\optimist\example\line_count_wrap.js" />
+    <Content Include="node_modules\optimist\example\nonopt.js" />
+    <Content Include="node_modules\optimist\example\reflect.js" />
+    <Content Include="node_modules\optimist\example\short.js" />
+    <Content Include="node_modules\optimist\example\string.js" />
+    <Content Include="node_modules\optimist\example\usage-options.js" />
+    <Content Include="node_modules\optimist\example\xup.js" />
+    <Content Include="node_modules\optimist\index.js" />
+    <Content Include="node_modules\optimist\node_modules\minimist\example\parse.js" />
+    <Content Include="node_modules\optimist\node_modules\minimist\index.js" />
+    <Content Include="node_modules\optimist\node_modules\minimist\test\dash.js" />
+    <Content Include="node_modules\optimist\node_modules\minimist\test\default_bool.js" />
+    <Content Include="node_modules\optimist\node_modules\minimist\test\dotted.js" />
+    <Content Include="node_modules\optimist\node_modules\minimist\test\long.js" />
+    <Content Include="node_modules\optimist\node_modules\minimist\test\parse.js" />
+    <Content Include="node_modules\optimist\node_modules\minimist\test\parse_modified.js" />
+    <Content Include="node_modules\optimist\node_modules\minimist\test\short.js" />
+    <Content Include="node_modules\optimist\node_modules\minimist\test\whitespace.js" />
+    <Content Include="node_modules\optimist\node_modules\wordwrap\example\center.js" />
+    <Content Include="node_modules\optimist\node_modules\wordwrap\example\meat.js" />
+    <Content Include="node_modules\optimist\node_modules\wordwrap\index.js" />
+    <Content Include="node_modules\optimist\node_modules\wordwrap\test\break.js" />
+    <Content Include="node_modules\optimist\node_modules\wordwrap\test\idleness.txt" />
+    <Content Include="node_modules\optimist\node_modules\wordwrap\test\wrap.js" />
+    <Content Include="node_modules\optimist\test\dash.js" />
+    <Content Include="node_modules\optimist\test\parse.js" />
+    <Content Include="node_modules\optimist\test\parse_modified.js" />
+    <Content Include="node_modules\optimist\test\short.js" />
+    <Content Include="node_modules\optimist\test\usage.js" />
+    <Content Include="node_modules\optimist\test\whitespace.js" />
+    <Content Include="node_modules\optimist\test\_.js" />
+    <Content Include="node_modules\optimist\test\_\argv.js" />
+    <Content Include="node_modules\optimist\test\_\bin.js" />
+    <Content Include="node_modules\sinon\lib\sinon.js" />
+    <Content Include="node_modules\sinon\lib\sinon\assert.js" />
+    <Content Include="node_modules\sinon\lib\sinon\call.js" />
+    <Content Include="node_modules\sinon\lib\sinon\collection.js" />
+    <Content Include="node_modules\sinon\lib\sinon\match.js" />
+    <Content Include="node_modules\sinon\lib\sinon\mock.js" />
+    <Content Include="node_modules\sinon\lib\sinon\sandbox.js" />
+    <Content Include="node_modules\sinon\lib\sinon\spy.js" />
+    <Content Include="node_modules\sinon\lib\sinon\stub.js" />
+    <Content Include="node_modules\sinon\lib\sinon\test.js" />
+    <Content Include="node_modules\sinon\lib\sinon\test_case.js" />
+    <Content Include="node_modules\sinon\lib\sinon\util\event.js" />
+    <Content Include="node_modules\sinon\lib\sinon\util\fake_server.js" />
+    <Content Include="node_modules\sinon\lib\sinon\util\fake_server_with_clock.js" />
+    <Content Include="node_modules\sinon\lib\sinon\util\fake_timers.js" />
+    <Content Include="node_modules\sinon\lib\sinon\util\fake_xml_http_request.js" />
+    <Content Include="node_modules\sinon\lib\sinon\util\timers_ie.js" />
+    <Content Include="node_modules\sinon\lib\sinon\util\xhr_ie.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\lib\buster-format.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\lib\buster-core.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\lib\buster-event-emitter.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\lib\define-version-getter.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\test\buster-core-test.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\test\buster-event-emitter-test.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\buster-util\lib\buster-util.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\buster-util\lib\buster-util\jstestdriver-shim.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\buster-util\lib\buster-util\req-res.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\buster-util\lib\buster-util\runner.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\buster-util\lib\buster-util\test-case.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\Changelog.txt" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\lib\sinon.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\lib\sinon\assert.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\lib\sinon\collection.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\lib\sinon\match.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\lib\sinon\mock.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\lib\sinon\sandbox.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\lib\sinon\spy.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\lib\sinon\stub.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\lib\sinon\test.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\lib\sinon\test_case.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\lib\sinon\util\event.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\lib\sinon\util\fake_server.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\lib\sinon\util\fake_server_with_clock.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\lib\sinon\util\fake_timers.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\lib\sinon\util\fake_xml_http_request.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\lib\sinon\util\timers_ie.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\lib\sinon\util\xhr_ie.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\test\node\run.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\test\resources\xhr_target.txt" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\test\rhino\env.rhino.1.2.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\test\rhino\run.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\test\runner.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\test\sinon-dist.html" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\test\sinon.html" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\test\sinon\assert_test.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\test\sinon\collection_test.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\test\sinon\match_test.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\test\sinon\mock_test.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\test\sinon\sandbox_test.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\test\sinon\spy_test.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\test\sinon\stub_test.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\test\sinon\test_case_test.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\test\sinon\test_test.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\test\sinon\util\event_test.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\test\sinon\util\fake_server_test.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\test\sinon\util\fake_server_with_clock_test.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\test\sinon\util\fake_timers_test.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\test\sinon\util\fake_xml_http_request_test.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\node_modules\buster-core\vendor\sinon\test\sinon_test.js" />
+    <Content Include="node_modules\sinon\node_modules\buster-format\test\buster-format-test.js" />
+    <Content Include="node_modules\sinon\pkg\sinon-1.7.3.js" />
+    <Content Include="node_modules\sinon\pkg\sinon-ie-1.7.3.js" />
+    <Content Include="node_modules\sinon\pkg\sinon-ie.js" />
+    <Content Include="node_modules\sinon\pkg\sinon-server-1.7.3.js" />
+    <Content Include="node_modules\sinon\pkg\sinon-timers-1.7.3.js" />
+    <Content Include="node_modules\sinon\pkg\sinon-timers-ie-1.7.3.js" />
+    <Content Include="node_modules\sinon\pkg\sinon.js" />
+    <Content Include="node_modules\sinon\test\node\run.js" />
+    <Content Include="node_modules\sinon\test\resources\xhr_target.txt" />
+    <Content Include="node_modules\sinon\test\rhino\env.rhino.1.2.js" />
+    <Content Include="node_modules\sinon\test\rhino\run.js" />
+    <Content Include="node_modules\sinon\test\runner.js" />
+    <Content Include="node_modules\sinon\test\sinon-dist.html" />
+    <Content Include="node_modules\sinon\test\sinon.html" />
+    <Content Include="node_modules\sinon\test\sinon\assert_test.js" />
+    <Content Include="node_modules\sinon\test\sinon\call_test.js" />
+    <Content Include="node_modules\sinon\test\sinon\collection_test.js" />
+    <Content Include="node_modules\sinon\test\sinon\match_test.js" />
+    <Content Include="node_modules\sinon\test\sinon\mock_test.js" />
+    <Content Include="node_modules\sinon\test\sinon\sandbox_test.js" />
+    <Content Include="node_modules\sinon\test\sinon\spy_test.js" />
+    <Content Include="node_modules\sinon\test\sinon\stub_test.js" />
+    <Content Include="node_modules\sinon\test\sinon\test_case_test.js" />
+    <Content Include="node_modules\sinon\test\sinon\test_test.js" />
+    <Content Include="node_modules\sinon\test\sinon\util\event_test.js" />
+    <Content Include="node_modules\sinon\test\sinon\util\fake_server_test.js" />
+    <Content Include="node_modules\sinon\test\sinon\util\fake_server_with_clock_test.js" />
+    <Content Include="node_modules\sinon\test\sinon\util\fake_timers_test.js" />
+    <Content Include="node_modules\sinon\test\sinon\util\fake_xml_http_request_test.js" />
+    <Content Include="node_modules\sinon\test\sinon_test.js" />
+    <Content Include="node_modules\uglify-js\lib\ast.js" />
+    <Content Include="node_modules\uglify-js\lib\compress.js" />
+    <Content Include="node_modules\uglify-js\lib\mozilla-ast.js" />
+    <Content Include="node_modules\uglify-js\lib\output.js" />
+    <Content Include="node_modules\uglify-js\lib\parse.js" />
+    <Content Include="node_modules\uglify-js\lib\scope.js" />
+    <Content Include="node_modules\uglify-js\lib\sourcemap.js" />
+    <Content Include="node_modules\uglify-js\lib\transform.js" />
+    <Content Include="node_modules\uglify-js\lib\utils.js" />
+    <Content Include="node_modules\uglify-js\node_modules\async\lib\async.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\example\bool.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\example\boolean_double.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\example\boolean_single.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\example\default_hash.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\example\default_singles.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\example\divide.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\example\line_count.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\example\line_count_options.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\example\line_count_wrap.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\example\nonopt.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\example\reflect.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\example\short.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\example\string.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\example\usage-options.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\example\xup.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\index.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\node_modules\wordwrap\example\center.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\node_modules\wordwrap\example\meat.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\node_modules\wordwrap\index.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\node_modules\wordwrap\test\break.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\node_modules\wordwrap\test\idleness.txt" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\node_modules\wordwrap\test\wrap.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\test\parse.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\test\usage.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\test\_.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\test\_\argv.js" />
+    <Content Include="node_modules\uglify-js\node_modules\optimist\test\_\bin.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\build\assert-shim.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\build\mini-require.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\build\suffix-browser.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\build\test-prefix.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\build\test-suffix.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\lib\source-map.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\lib\source-map\array-set.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\lib\source-map\base64-vlq.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\lib\source-map\base64.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\lib\source-map\binary-search.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\lib\source-map\source-map-consumer.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\lib\source-map\source-map-generator.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\lib\source-map\source-node.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\lib\source-map\util.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\Makefile.dryice.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\node_modules\amdefine\amdefine.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\node_modules\amdefine\intercept.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\test\run-tests.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\test\source-map\test-api.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\test\source-map\test-array-set.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\test\source-map\test-base64-vlq.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\test\source-map\test-base64.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\test\source-map\test-binary-search.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\test\source-map\test-dog-fooding.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\test\source-map\test-source-map-consumer.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\test\source-map\test-source-map-generator.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\test\source-map\test-source-node.js" />
+    <Content Include="node_modules\uglify-js\node_modules\source-map\test\source-map\util.js" />
+    <Content Include="node_modules\uglify-js\node_modules\uglify-to-browserify\index.js" />
+    <Content Include="node_modules\uglify-js\node_modules\uglify-to-browserify\test\index.js" />
+    <Content Include="node_modules\uglify-js\test\compress\arrays.js" />
+    <Content Include="node_modules\uglify-js\test\compress\blocks.js" />
+    <Content Include="node_modules\uglify-js\test\compress\concat-strings.js" />
+    <Content Include="node_modules\uglify-js\test\compress\conditionals.js" />
+    <Content Include="node_modules\uglify-js\test\compress\dead-code.js" />
+    <Content Include="node_modules\uglify-js\test\compress\debugger.js" />
+    <Content Include="node_modules\uglify-js\test\compress\drop-unused.js" />
+    <Content Include="node_modules\uglify-js\test\compress\issue-105.js" />
+    <Content Include="node_modules\uglify-js\test\compress\issue-12.js" />
+    <Content Include="node_modules\uglify-js\test\compress\issue-126.js" />
+    <Content Include="node_modules\uglify-js\test\compress\issue-143.js" />
+    <Content Include="node_modules\uglify-js\test\compress\issue-22.js" />
+    <Content Include="node_modules\uglify-js\test\compress\issue-267.js" />
+    <Content Include="node_modules\uglify-js\test\compress\issue-269.js" />
+    <Content Include="node_modules\uglify-js\test\compress\issue-44.js" />
+    <Content Include="node_modules\uglify-js\test\compress\issue-59.js" />
+    <Content Include="node_modules\uglify-js\test\compress\labels.js" />
+    <Content Include="node_modules\uglify-js\test\compress\loops.js" />
+    <Content Include="node_modules\uglify-js\test\compress\negate-iife.js" />
+    <Content Include="node_modules\uglify-js\test\compress\properties.js" />
+    <Content Include="node_modules\uglify-js\test\compress\sequences.js" />
+    <Content Include="node_modules\uglify-js\test\compress\switch.js" />
+    <Content Include="node_modules\uglify-js\test\compress\typeof.js" />
+    <Content Include="node_modules\uglify-js\test\run-tests.js" />
+    <Content Include="node_modules\uglify-js\tools\node.js" />
+    <Content Include="node_modules\uglifycss\index.js" />
+    <Content Include="node_modules\uglifycss\test.js" />
+    <Content Include="node_modules\uglifycss\tests.yui.js" />
+    <Content Include="node_modules\uglifycss\uglifycss-lib.js" />
+    <Content Include="node_modules\underscore\underscore-min.js" />
+    <Content Include="node_modules\underscore\underscore.js" />
+    <Content Include="node_modules\watchr\node_modules\bal-util\node_modules\ambi\cyclic.js" />
+    <Content Include="node_modules\watchr\node_modules\bal-util\node_modules\ambi\out\lib\ambi.js" />
+    <Content Include="node_modules\watchr\node_modules\bal-util\node_modules\extract-opts\example.js" />
+    <Content Include="node_modules\watchr\node_modules\bal-util\node_modules\extract-opts\out\lib\extract-opts.js" />
+    <Content Include="node_modules\watchr\node_modules\bal-util\node_modules\taskgroup\cyclic.js" />
+    <Content Include="node_modules\watchr\node_modules\bal-util\node_modules\taskgroup\example.js" />
+    <Content Include="node_modules\watchr\node_modules\bal-util\node_modules\taskgroup\out\lib\taskgroup.js" />
+    <Content Include="node_modules\watchr\node_modules\bal-util\out\lib\balutil.js" />
+    <Content Include="node_modules\watchr\node_modules\bal-util\out\lib\compare.js" />
+    <Content Include="node_modules\watchr\node_modules\bal-util\out\lib\events.js" />
+    <Content Include="node_modules\watchr\node_modules\bal-util\out\lib\flow.js" />
+    <Content Include="node_modules\watchr\node_modules\bal-util\out\lib\html.js" />
+    <Content Include="node_modules\watchr\node_modules\bal-util\out\lib\paths.js" />
+    <Content Include="node_modules\watchr\node_modules\eachr\example.js" />
+    <Content Include="node_modules\watchr\node_modules\eachr\out\lib\eachr.js" />
+    <Content Include="node_modules\watchr\node_modules\extendr\out\lib\extendr.js" />
+    <Content Include="node_modules\watchr\node_modules\safefs\cyclic.js" />
+    <Content Include="node_modules\watchr\node_modules\safefs\node_modules\graceful-fs\graceful-fs.js" />
+    <Content Include="node_modules\watchr\node_modules\safefs\node_modules\graceful-fs\polyfills.js" />
+    <Content Include="node_modules\watchr\node_modules\safefs\node_modules\graceful-fs\test\open.js" />
+    <Content Include="node_modules\watchr\node_modules\safefs\node_modules\taskgroup\cyclic.js" />
+    <Content Include="node_modules\watchr\node_modules\safefs\node_modules\taskgroup\example.js" />
+    <Content Include="node_modules\watchr\node_modules\safefs\node_modules\taskgroup\node_modules\ambi\cyclic.js" />
+    <Content Include="node_modules\watchr\node_modules\safefs\node_modules\taskgroup\node_modules\ambi\out\lib\ambi.js" />
+    <Content Include="node_modules\watchr\node_modules\safefs\node_modules\taskgroup\out\lib\taskgroup.js" />
+    <Content Include="node_modules\watchr\node_modules\safefs\out\lib\safefs.js" />
+    <Content Include="node_modules\watchr\node_modules\taskgroup\cyclic.js" />
+    <Content Include="node_modules\watchr\node_modules\taskgroup\example.js" />
+    <Content Include="node_modules\watchr\node_modules\taskgroup\node_modules\ambi\cyclic.js" />
+    <Content Include="node_modules\watchr\node_modules\taskgroup\node_modules\ambi\out\lib\ambi.js" />
+    <Content Include="node_modules\watchr\node_modules\taskgroup\out\lib\taskgroup.js" />
+    <Content Include="node_modules\watchr\node_modules\typechecker\cyclic.js" />
+    <Content Include="node_modules\watchr\node_modules\typechecker\out\lib\typechecker.js" />
+    <Content Include="node_modules\watchr\out\lib\watchr.js" />
+    <Content Include="Node\setup.js" />
+    <Content Include="pack.js" />
+    <Content Include="PackScript.ico" />
+    <Content Include="tests.js" />
+    <Content Include="Tests\Api.tests.js" />
+    <Content Include="Tests\commands.tests.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tests\Embedded\source.js" />
+    <Content Include="Tests\Embedded\T.document.tests.js" />
+    <Content Include="Tests\Embedded\Tribe.tests.js" />
+    <Content Include="Tests\FileList.tests.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tests\Infrastructure\apis.js" />
+    <Content Include="Tests\Infrastructure\helpers.js" />
+    <Content Include="Tests\Integration\Files.tests.js" />
+    <Content Include="Tests\Integration\Files\Child\child.txt" />
+    <Content Include="Tests\Integration\Files\root.txt" />
+    <Content Include="Tests\Infrastructure\integrationTest.js" />
+    <Content Include="Tests\Integration\Combine.tests.js" />
+    <Content Include="Tests\Integration\Combine\pack.js" />
+    <Content Include="Tests\Integration\Combine\root.js" />
+    <Content Include="Tests\Integration\Combine\root.txt" />
+    <Content Include="Tests\Integration\Combine\Subfolder\pack.js" />
+    <Content Include="Tests\Integration\Combine\Subfolder\subfolder.js" />
+    <Content Include="Tests\Integration\Combine\Subfolder\subfolder.txt" />
+    <Content Include="Tests\Integration\ConfigChange.tests.js" />
+    <Content Include="Tests\Integration\ConfigChange\input.js" />
+    <Content Include="Tests\Integration\ConfigChange\pack.js" />
+    <Content Include="Tests\Integration\ConfigLoad.tests.js" />
+    <Content Include="Tests\Integration\ConfigLoad\named.pack.js" />
+    <Content Include="Tests\Integration\ConfigLoad\pack.js" />
+    <Content Include="Tests\Integration\ConfigLoad\Subfolder\pack.config.js" />
+    <Content Include="Tests\Integration\ConfigLoad\Subfolder\pack.js" />
+    <Content Include="Tests\Integration\Embedded.tests.js" />
+    <Content Include="Tests\Integration\Embedded\pack.js" />
+    <Content Include="Tests\Integration\Embedded\stylesheet1.css" />
+    <Content Include="Tests\Integration\Embedded\stylesheet2.css" />
+    <Content Include="Tests\Integration\Embedded\template1.htm" />
+    <Content Include="Tests\Integration\Embedded\template2.htm" />
+    <Content Include="Tests\Integration\ExcludeConfigAndTarget.tests.js" />
+    <Content Include="Tests\Integration\ExcludeConfigAndTarget\output.js" />
+    <Content Include="Tests\Integration\ExcludeConfigAndTarget\pack.js" />
+    <Content Include="Tests\Integration\ExcludeConfigAndTarget\root.js" />
+    <Content Include="Tests\Integration\ExcludedDirectories.tests.js" />
+    <Content Include="Tests\Integration\ExcludedDirectories\excluded\content.txt" />
+    <Content Include="Tests\Integration\ExcludedDirectories\excluded\pack.js" />
+    <Content Include="Tests\Integration\FileChange.tests.js" />
+    <Content Include="Tests\Integration\FileChange\input.js" />
+    <Content Include="Tests\Integration\FileChange\input.template.js" />
+    <Content Include="Tests\Integration\FileChange\pack.js" />
+    <Content Include="Tests\Integration\Json.tests.js" />
+    <Content Include="Tests\Integration\Json\pack.js" />
+    <Content Include="Tests\Integration\Minify.tests.js" />
+    <Content Include="Tests\Integration\Minify\pack.js" />
+    <Content Include="Tests\Integration\Minify\root.css" />
+    <Content Include="Tests\Integration\Minify\root.htm" />
+    <Content Include="Tests\Integration\Minify\root.js" />
+    <Content Include="Tests\Integration\OutputTemplate.tests.js" />
+    <Content Include="Tests\Integration\OutputTemplate\code.js" />
+    <Content Include="Tests\Integration\OutputTemplate\license.template.js" />
+    <Content Include="Tests\Integration\OutputTemplate\pack.js" />
+    <Content Include="Tests\Integration\Recursive.tests.js" />
+    <Content Include="Tests\Integration\Recursive\1.js" />
+    <Content Include="Tests\Integration\Recursive\2.js" />
+    <Content Include="Tests\Integration\Recursive\3.js" />
+    <Content Include="Tests\Integration\Recursive\4.js" />
+    <Content Include="Tests\Integration\Recursive\pack.js" />
+    <Content Include="Tests\Integration\Recursive\Subfolder\pack.js" />
+    <Content Include="Tests\Integration\Sync.tests.js" />
+    <Content Include="Tests\Integration\Sync\Child\test.js" />
+    <Content Include="Tests\Integration\Sync\pack.js" />
+    <Content Include="Tests\Integration\Sync\test.js" />
+    <Content Include="Tests\Integration\Template.tests.js" />
+    <Content Include="Tests\Integration\Template\pack.js" />
+    <Content Include="Tests\Integration\Template\root.txt" />
+    <Content Include="Tests\Integration\Template\Subfolder\subfolder.txt" />
+    <Content Include="Tests\Integration\Template\Subfolder\Subfolder2\subfolder2.js" />
+    <Content Include="Tests\Integration\Template\Templates\builtinData.template.htm" />
+    <Content Include="Tests\Integration\Template\Templates\passedData.template.htm" />
+    <Content Include="Tests\Integration\Template\Templates\template1.template.htm" />
+    <Content Include="Tests\Integration\Template\Templates\template2.template.js" />
+    <Content Include="Tests\Integration\Template\Templates\template3.template.htm" />
+    <Content Include="Tests\Integration\Zip.tests.js" />
+    <Content Include="Tests\Integration\Zip\Child\test.js" />
+    <Content Include="Tests\Integration\Zip\pack.js" />
+    <Content Include="Tests\Integration\Zip\test.js" />
+    <Content Include="Tests\Infrastructure\setup.js" />
+    <Content Include="Tests\Output.tests.js" />
+    <Content Include="Tests\Pack.tests.js" />
+    <Content Include="Tests\Path.tests.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tests\resources.tests.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tests\Transforms\transforms.files.tests.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tests\Transforms\transforms.minify.tests.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tests\Transforms\transforms.other.tests.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tests\Transforms\transforms.outputTemplate.tests.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tests\Transforms\transforms.syncTo.tests.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tests\Transforms\transforms.template.tests.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tests\Transforms\Transforms.tests.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Tests\utils.tests.js">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Core\throttle.js" />
+    <Content Include="Core\Container.js" />
+    <Content Include="Embedded\Tribe\T.webTargets.pack.config.js" />
+    <Content Include="Embedded\Tribe\T.Script.template.js" />
+    <Content Include="Embedded\Tribe\Tribe.pack.config.js" />
+    <Content Include="Core\Transforms\json.js" />
+    <Content Include="Core\Transforms\syncTo.js" />
+    <Content Include="Core\Transforms\zipTo.js" />
+    <Content Include="Embedded\1.pack.config.js" />
+    <Content Include="Embedded\Tribe\T.Style.template.js" />
+    <Content Include="Embedded\Tribe\T.Template.template.js" />
+    <Content Include="Embedded\Pack.embedTemplate.template.js" />
+    <Content Include="Embedded\T.document.pack.config.js" />
+    <Content Include="Embedded\T.document.template.js" />
+    <Content Include="Embedded\T.mockjax.outer.template.js" />
+    <Content Include="Embedded\T.mockjax.pack.config.js" />
+    <Content Include="Embedded\T.mockjax.template.js" />
+    <Content Include="Embedded\Tribe\T.Model.template.js" />
+    <Content Include="Embedded\Tribe\T.Script.debug.template.js" />
+    <Content Include="Embedded\T.utils.pack.config.js" />
+    <None Include="Core\Transforms\outputTemplate.js" />
+    <None Include="Core\Transforms\files.js" />
+  </ItemGroup>
+  <ItemGroup>
+    <Reference Include="System" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Build\Node\" />
+    <Folder Include="Tests\Integration\TestOutput\" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>if exist "$(SolutionDir)Build\Stable\PackScript.exe" "$(SolutionDir)Build\Stable\PackScript.exe" "$(ProjectDir)"</PreBuildEvent>
+  </PropertyGroup>
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

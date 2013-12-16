@@ -1,0 +1,14 @@
+C:\Projects\PackScript\Build\Binary\Tests\commands.tests.js
+C:\Projects\PackScript\Build\Binary\Tests\FileList.tests.js
+C:\Projects\PackScript\Build\Binary\Tests\Path.tests.js
+C:\Projects\PackScript\Build\Binary\Tests\resources.tests.js
+C:\Projects\PackScript\Build\Binary\Tests\Transforms\transforms.files.tests.js
+C:\Projects\PackScript\Build\Binary\Tests\Transforms\transforms.minify.tests.js
+C:\Projects\PackScript\Build\Binary\Tests\Transforms\transforms.other.tests.js
+C:\Projects\PackScript\Build\Binary\Tests\Transforms\transforms.outputTemplate.tests.js
+C:\Projects\PackScript\Build\Binary\Tests\Transforms\transforms.syncTo.tests.js
+C:\Projects\PackScript\Build\Binary\Tests\Transforms\transforms.template.tests.js
+C:\Projects\PackScript\Build\Binary\Tests\Transforms\Transforms.tests.js
+C:\Projects\PackScript\Build\Binary\Tests\utils.tests.js
+C:\Projects\PackScript\Build\Binary\PackScript.Core.dll
+C:\Projects\PackScript\Build\Binary\PackScript.Core.pdb

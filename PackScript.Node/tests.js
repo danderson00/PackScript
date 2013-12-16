@@ -1,1 +1,0 @@
-﻿require('qunit-ui').start('Build/packscript.tests.js');

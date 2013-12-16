@@ -1,1 +1,0 @@
-﻿Test.AddValue('named config loaded');
