@@ -1,6 +1,6 @@
 {
     "name": "packscript",
-    "version": "0.2.4",
+    "version": "0.2.5",
     "description": "Powerful resource build system for combining, minifying and transforming your resources.",
     "dependencies": {
         "underscore": "~1.5.2",
@@ -8,7 +8,8 @@
 		"uglifycss": "~0.0.7",
 		"node-zip": "~1.0.1",
 		"watchr": "~2.4.4",
-		"optimist": "~0.6.0"
+		"optimist": "~0.6.0",
+		"colors": "~0.6.2"
     },
 	"devDependencies": {
 		"sinon": "~1.7.3"

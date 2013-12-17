@@ -12,6 +12,7 @@ var args = optimist
     .describe("resourcePath", "An additional path to scan for templates and configuration files")
     .describe("excludedDirectories", "A semi-colon delimited list of folder names to exclude.")
     .describe("help", "These usage instructions")
+	.alias("watch", "w")
     .alias("help", "h")
     .alias("help", "?")
     .default("watch", false)
@@ -25,8 +26,10 @@ var args = optimist
     .wrap(80)
     .argv;
 
-if (args.help || args.h || args["?"])
+if (args.help) {
     console.log(optimist.help());
+	return;
+}
 
 var _ = require('underscore');
 require('./packscript.js');

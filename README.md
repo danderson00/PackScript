@@ -7,8 +7,12 @@ To install:
 
 	npm install packscript
 
-To display command line options:
+To run:
 
-	packscript -h
+	./node_modules/.bin/packscript
+
+For command line options:
+
+	./node_modules/.bin/packscript -h
 
 For a full reference, see http://packscript.com.

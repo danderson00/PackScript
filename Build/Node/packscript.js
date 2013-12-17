@@ -1232,6 +1232,8 @@ Pack.prototype.watch = function (path) {
     }
 })();
 Pack.api.Log = (function () {
+    require('colors');
+    
     var level = 4;
     var levels = {
         debug: 4,
@@ -1248,19 +1250,19 @@ Pack.api.Log = (function () {
         },
         debug: function (message) {
             if (level >= 4) 
-                console.log('DEBUG: ' + message);
+                console.log(('DEBUG: ' + message).grey);
         },
         info: function(message) {
             if (level >= 3)
-                console.info('INFO: ' + message);
+                console.info(('INFO: ' + message).white);
         },
         warn: function(message) {
             if (level >= 2)
-                console.warn('WARN: ' + message);
+                console.warn(('WARN: ' + message).yellow);
         },
         error: function(message, error) {
             if (level >= 1)
-                console.error('ERROR: ' + message, error);
+                console.error(('ERROR: ' + message).red, error);
         }
     };
 })();
