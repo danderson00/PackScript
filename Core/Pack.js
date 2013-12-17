@@ -3,6 +3,7 @@
     this.templates = _.extend({}, Pack.templates);
     this.loadedConfigs = [];
     this.transforms = new Pack.TransformRepository(Pack.transforms);
+    this.buildQueue = [];
 
     this.options = _.extend({
         configurationFileFilter: '*pack.config.js',
@@ -16,6 +17,7 @@
 Pack.api = {};
 Pack.templates = {};
 Pack.transforms = {};
+Pack.context = {};
 
 Pack.prototype.setOptions = function(options) {
     _.extend(this.options, options);

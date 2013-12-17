@@ -4,6 +4,7 @@ Pack = function(options) {
     this.templates = _.extend({}, Pack.templates);
     this.loadedConfigs = [];
     this.transforms = new Pack.TransformRepository(Pack.transforms);
+    this.buildQueue = [];
 
     this.options = _.extend({
         configurationFileFilter: '*pack.config.js',
@@ -17,6 +18,7 @@ Pack = function(options) {
 Pack.api = {};
 Pack.templates = {};
 Pack.transforms = {};
+Pack.context = {};
 
 Pack.prototype.setOptions = function(options) {
     _.extend(this.options, options);
@@ -97,8 +99,8 @@ Pack.prototype.removeOutput = function(output) {
     };
 };Path = function(path) {
     path = path ? normalise(path.toString()) : '';
-    var filenameIndex = pathWithSlashes(path).lastIndexOf("/") + 1;
-    var extensionIndex = path.lastIndexOf(".");
+    var filenameIndex = path.lastIndexOf('/') + 1;
+    var extensionIndex = path.lastIndexOf('.');
 
     return {
         withoutFilename: function() {
@@ -114,27 +116,27 @@ Pack.prototype.removeOutput = function(output) {
             return Path(extensionIndex === -1 ? path : path.substring(0, extensionIndex));
         },
         isAbsolute: function() {
-            return pathWithSlashes(path).charAt(0) === '/' ||
-                path.substring(1, 3) == ':\\';
+            return path.charAt(0) === '/' ||
+                path.substring(1, 3) == ':/';
         },
         makeAbsolute: function () {
             return Path('/' + path);
         },
         makeRelative: function () {
-            return Path((path[0] === '/' || path[0] === '\\') ? path.substring(1) : path);
+            return Path(path[0] === '/' ? path.substring(1) : path);
         },
         match: function (spec) {
             var regex = new RegExp(baseMatchRegex(spec) + '$');
-            var result = regex.exec('\\' + path);
+            var result = regex.exec('/' + path);
             return result && result[0];
         },
         matchFolder: function(spec) {
             var regex = new RegExp(baseMatchRegex(spec));
-            var result = regex.exec('\\' + path);
+            var result = regex.exec('/' + path);
             return result && result[0];
         },
         asMarkupIdentifier: function() {
-            return Path(this.withoutExtension().toString().replace(/[\\\/]/g, '-').replace(/\./g, ''));
+            return Path(this.withoutExtension().toString().replace(/\//g, '-').replace(/\./g, ''));
         },
         toString: function() {
             return path.toString();
@@ -142,6 +144,7 @@ Pack.prototype.removeOutput = function(output) {
     };
     
     function normalise(input) {
+        input = normaliseSlashes(input);
         input = removeDoubleSlashes(input);
         input = removeParentPaths(input);
         input = removeCurrentPaths(input);
@@ -149,15 +152,16 @@ Pack.prototype.removeOutput = function(output) {
         return input;
     }
     
-    // These cater for both forward and back slashes. 
-    // Implemented before I changed normalise to change them all to forward slashes
+    function normaliseSlashes(input) {
+        return input.replace(/\\/g, '/');
+    }
+
     function removeDoubleSlashes(input) {
-        return input.replace(/\/\//g, '/')
-            .replace(/\\\\/g, '\\');
+        return input.replace(/\/\//g, '/');
     }
     
     function removeParentPaths(input) {
-        var regex = /[^\/\\\.]+[\/\\]\.\.[\/\\]/;
+        var regex = /[^\/\.]+\/\.\.\//;
 
         while (input.match(regex))
             input = input.replace(regex, '');
@@ -166,16 +170,12 @@ Pack.prototype.removeOutput = function(output) {
     }
     
     function removeCurrentPaths(input) {
-        var regex = /\.[\/\\]/g;
+        var regex = /\.\//g;
         // Ignore leading parent paths - the rest will have been stripped
         // I can't figure out a regex that won't strip the ./ out of ../
-        var startIndex = pathWithSlashes(input).lastIndexOf('../');
+        var startIndex = input.lastIndexOf('../');
         startIndex = startIndex == -1 ? 0 : startIndex + 3;
         return input.substring(0, startIndex) + input.substring(startIndex).replace(regex, '');
-    }
-    
-    function pathWithSlashes(path) {
-        return path.replace(/\\/g, '/');
     }
     
     function baseMatchRegex(spec) {
@@ -330,7 +330,7 @@ Pack.Output.prototype.matches = function (path, transformRepository, refresh) {
         this.currentPaths = transformRepository.applyEventsTo(['includeFiles', 'excludeFiles'], this, { log: false }).files.paths();
     
     return _.any(this.currentPaths, function(filePath) {
-        return Path(path).match(filePath);
+        return path === filePath;// Path(path).match(filePath);
     });
 };
 
@@ -363,9 +363,9 @@ Pack.Output.prototype.targetPath = function () {
 
     Pack.prototype.loadConfig = function (path, source) {
         Pack.api.Log.info("Loading config from " + path);
-        Context.configPath = path;
+        Pack.context.configPath = path;
         Pack.utils.eval(source);
-        delete Context.configPath;
+        delete Pack.context.configPath;
         return this;
     };
 
@@ -401,23 +401,27 @@ Pack.Output.prototype.targetPath = function () {
         return this;
     };
 
-    Pack.prototype.build = function (outputs) {
+    Pack.prototype.build = function(outputs) {
         var self = this;
 
         if (!this.options.throttleTimeout)
             this.buildSync(outputs);
         else {
+            // this should be separated and unit tested
             var timeout = this.options.throttleTimeout;
             this.buildQueue = _.union(this.buildQueue, outputs);
 
-            if (this.buildTimeout)
-                clearTimeout(this.buildTimeout);
-            
-            this.buildTimeout = setTimeout(function() {
-                self.buildSync(this.buildQueue);
-                this.buildQueue = [];
-                this.buildTimeout = undefined;
-            }, timeout);
+            if (this.buildQueue.length > 0) {
+                if (this.buildTimeout)
+                    clearTimeout(this.buildTimeout);
+
+                this.buildTimeout = setTimeout(function() {
+                    var queue = self.buildQueue;
+                    self.buildQueue = [];
+                    self.buildTimeout = undefined;
+                    self.buildSync(queue);
+                }, timeout);
+            }
         }
         return this;
     };
@@ -427,11 +431,17 @@ Pack.Output.prototype.targetPath = function () {
 
         Pack.utils.executeSingleOrArray(outputs, buildOutput);
 
-        var outputPaths = _.isArray(outputs) ? _.pluck(outputs, 'outputPath') : outputs.outputPath;
-        var matchingOutputs = this.matchingOutputs(outputPaths);
-        if (matchingOutputs.length > 0)
-            this.build(matchingOutputs);
-        return this;
+        // if we are in watch mode, the file system watcher will handle recursion
+        if (!this.options.watch) {
+            // determine what files were written
+            var outputPaths = _.isArray(outputs) ? _.pluck(outputs, 'outputPath') : outputs.outputPath;
+            
+            // build any outputs that match the written files
+            var matchingOutputs = this.matchingOutputs(outputPaths);
+            if (matchingOutputs.length > 0)
+                this.build(matchingOutputs);
+            return this;
+        }
 
         function buildOutput(output) {
             return output.build(self.transforms);
@@ -492,7 +502,7 @@ Pack.Api = function (packOptions) {
     };
 
     function addOutputs(options, transformName) {
-        var outputs = self.pack.addOutput(options, Context.configPath);
+        var outputs = self.pack.addOutput(options, Pack.context.configPath);
 
         if (outputs.length === 1)
             return createWrapper(outputs[0]);
@@ -542,17 +552,10 @@ Pack.Api = function (packOptions) {
     // extend the pack member of the api object with a new instance of a Pack object
     _.extend(self.pack, new Pack(packOptions));
 };
-// the assumption here is that the built file will be run as a node module and this variable won't be exposed globally
-// the embedded stuff depends on this. probably should change how it works...
-var instance = new Pack.Api();
-    
 if (typeof exports !== 'undefined') {
     if (typeof module !== 'undefined' && module.exports)
-        exports = module.exports = instance;
-} //else
-    // this is necessary for the Windows console version that runs on Noesis.Javascript
-    _.extend(this, instance);
-Pack.transforms.combine = {
+        exports = module.exports = new Pack.Api();
+}Pack.transforms.combine = {
     event: 'output',
     apply: function(data) {
         var target = data.target;
@@ -1140,10 +1143,10 @@ Pack.templates['T.Template'] = '//<% if(!target.includesTemplateHelper) { %>\nwi
 Pack.utils.listTree = function(filespec, recursive) {
     var fs = require('fs');
 
-    filespec = Path(filespec || './*.*');
+    filespec = Path(filespec);
 
-    var filter = filespec.filename().toString();
-    var basePath = filespec.withoutFilename().toString();
+    var filter = filespec.filename().toString() || '*.*';
+    var basePath = filespec.withoutFilename().toString() || './';
     var paths = [];
     var childDirectories = [];
 
@@ -1170,18 +1173,19 @@ Pack.utils.listTree = function(filespec, recursive) {
 
     // we want to process child directories after the directory contents
     childDirectories.forEach(function(child) {
-        paths.push.apply(paths, Pack.utils.listTree(child + '/' + filter));
+        paths.push.apply(paths, Pack.utils.listTree(child + '/' + filter, recursive));
     });
 
     return paths;
 };
-Pack.Watcher = function (pack, path) {
+Pack.prototype.watch = function (path) {
+    var self = this;
     var watchr = require('watchr');
     watchr.watch({
         paths: [path || '.'],
         listeners: {
             change: function(changeType, filePath) {
-                pack.fileChanged(filePath, changeType);
+                self.fileChanged(Path(filePath).toString(), changeType);
             },
             error: function (error) {
                 Pack.api.Log.error(error, 'Error watching ' + path);

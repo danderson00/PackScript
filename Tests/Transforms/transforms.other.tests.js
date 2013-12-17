@@ -24,6 +24,6 @@
         var data = { output: 'test' };
         Pack.transforms.to.apply(wrap(true, output, data));
         ok(Pack.api.Files.writeFile.calledOnce);
-        ok(Pack.api.Files.writeFile.calledWithExactly('C:\\test.txt', 'test'));
+        ok(Pack.api.Files.writeFile.calledWithExactly('C:/test.txt', 'test'));
     });
 })();

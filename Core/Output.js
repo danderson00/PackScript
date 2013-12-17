@@ -12,7 +12,7 @@ Pack.Output.prototype.matches = function (path, transformRepository, refresh) {
         this.currentPaths = transformRepository.applyEventsTo(['includeFiles', 'excludeFiles'], this, { log: false }).files.paths();
     
     return _.any(this.currentPaths, function(filePath) {
-        return Path(path).match(filePath);
+        return path === filePath;// Path(path).match(filePath);
     });
 };
 

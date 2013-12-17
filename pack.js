@@ -30,9 +30,11 @@ pack({
     to: 'Build/Node/packscript.tests.js',
     include: [
         { files: 'Tests/Infrastructure/*.js', first: 'setup.js' },
-        'Tests/*.js',
+        'Tests/Core/*.js',
         'Tests/Transforms/*.js',
         'Tests/Integration/*.js',
         'Tests/Embedded/*.js'
     ]
-})
+});
+
+sync(['package.json', 'Node/bin/packscript', 'README.md']).to('Build/Node');

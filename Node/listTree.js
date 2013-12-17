@@ -1,10 +1,10 @@
 ﻿Pack.utils.listTree = function(filespec, recursive) {
     var fs = require('fs');
 
-    filespec = Path(filespec || './*.*');
+    filespec = Path(filespec);
 
-    var filter = filespec.filename().toString();
-    var basePath = filespec.withoutFilename().toString();
+    var filter = filespec.filename().toString() || '*.*';
+    var basePath = filespec.withoutFilename().toString() || './';
     var paths = [];
     var childDirectories = [];
 
@@ -31,7 +31,7 @@
 
     // we want to process child directories after the directory contents
     childDirectories.forEach(function(child) {
-        paths.push.apply(paths, Pack.utils.listTree(child + '/' + filter));
+        paths.push.apply(paths, Pack.utils.listTree(child + '/' + filter, recursive));
     });
 
     return paths;

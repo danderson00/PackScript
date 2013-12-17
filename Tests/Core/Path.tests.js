@@ -9,7 +9,7 @@
 
     test("withoutFilename", function () {
         equal(Path("/folder/subfolder/filename.ext").withoutFilename().toString(), "/folder/subfolder/", "Path with slashes");
-        equal(Path("\\folder\\subfolder\\filename.ext").withoutFilename().toString(), "\\folder\\subfolder\\", "Path with backslashes");
+        equal(Path("\\folder\\subfolder\\filename.ext").withoutFilename().toString(), "/folder/subfolder/", "Path with backslashes");
     });
 
     test("filename", function () {
@@ -61,7 +61,7 @@
         equal(Path("/test").makeRelative().toString(), "test");
         equal(Path("/test.txt").makeRelative().toString(), "test.txt");
         equal(Path("/test/test.txt").makeRelative().toString(), "test/test.txt");
-        equal(Path("\\test\\test.txt").makeRelative().toString(), "test\\test.txt");
+        equal(Path("\\test\\test.txt").makeRelative().toString(), "test/test.txt");
     });
 
     test("match", function () {
@@ -74,10 +74,10 @@
 
         equal(Path("c:\\test\\test.js").match("test.js"), "test.js");
         equal(Path("c:\\test\\test.js").match("*.js"), "test.js");
-        equal(Path("c:\\test\\test.js").match("test\\test.js"), "test\\test.js");
-        equal(Path("c:\\test\\test.js").match("test\\*.js"), "test\\test.js");
-        equal(Path("c:\\test\\test.js").match("test/test.js"), "test\\test.js");
-        equal(Path("c:\\test\\test.js").match("test/*.js"), "test\\test.js");
+        equal(Path("c:\\test\\test.js").match("test\\test.js"), "test/test.js");
+        equal(Path("c:\\test\\test.js").match("test\\*.js"), "test/test.js");
+        equal(Path("c:\\test\\test.js").match("test/test.js"), "test/test.js");
+        equal(Path("c:\\test\\test.js").match("test/*.js"), "test/test.js");
 
         equal(Path("c:\\test\\pack.js").match("*pack.js"), "pack.js");
         equal(Path("c:\\test\\test.pack.js").match("*pack.js"), "test.pack.js");
@@ -104,12 +104,12 @@
     });
 
     test("matchFolder", function() {
-        equal(Path("c:\\path\\to\\test.txt").matchFolder("\\path"), "\\path");
-        equal(Path("c:\\path\\to\\test.txt").matchFolder("/path"), "\\path");
-        equal(Path("c:\\path\\to\\test.txt").matchFolder("\\path\\to"), "\\path\\to");
-        equal(Path("c:\\path\\to\\test.txt").matchFolder("/path/to"), "\\path\\to");
-        equal(Path("c:\\path\\to\\test.txt").matchFolder("c:\\path\\to"), "c:\\path\\to");
-        equal(Path("c:\\path\\to\\test.txt").matchFolder("c:\\path/to"), "c:\\path\\to");
+        equal(Path("c:\\path\\to\\test.txt").matchFolder("\\path"), "/path");
+        equal(Path("c:\\path\\to\\test.txt").matchFolder("/path"), "/path");
+        equal(Path("c:\\path\\to\\test.txt").matchFolder("\\path\\to"), "/path/to");
+        equal(Path("c:\\path\\to\\test.txt").matchFolder("/path/to"), "/path/to");
+        equal(Path("c:\\path\\to\\test.txt").matchFolder("c:\\path\\to"), "c:/path/to");
+        equal(Path("c:\\path\\to\\test.txt").matchFolder("c:\\path/to"), "c:/path/to");
     });
 
     test("normalise", function () {
@@ -121,9 +121,9 @@
         equal(Path('./test').toString(), 'test');
         equal(Path('test1/./test2').toString(), 'test1/test2');
         equal(Path('.././test1/../test2').toString(), '../test2');
-        equal(Path('C:\\test\\..\\test.txt').toString(), 'C:\\test.txt');
-        equal(Path('C:\\test\\..\\.\\test.txt').toString(), 'C:\\test.txt');
-        equal(Path('..\\..\\test\\').toString(), '..\\..\\test\\');
+        equal(Path('C:\\test\\..\\test.txt').toString(), 'C:/test.txt');
+        equal(Path('C:\\test\\..\\.\\test.txt').toString(), 'C:/test.txt');
+        equal(Path('..\\..\\test\\').toString(), '../../test/');
     });
 
     test("asPathIdentifier", function() {

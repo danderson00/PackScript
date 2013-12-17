@@ -19,7 +19,7 @@
     };
 
     function addOutputs(options, transformName) {
-        var outputs = self.pack.addOutput(options, Context.configPath);
+        var outputs = self.pack.addOutput(options, Pack.context.configPath);
 
         if (outputs.length === 1)
             return createWrapper(outputs[0]);

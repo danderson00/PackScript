@@ -1,6 +1,6 @@
 {
     "name": "packscript",
-    "version": "0.2.0",
+    "version": "0.2.1",
     "description": "Powerful resource build system for combining, minifying and transforming your resources.",
     "dependencies": {
         "underscore": "~1.5.2",
@@ -14,6 +14,9 @@
 		"sinon": "~1.7.3"
 	},
     "main": "packscript.js",
+	"bin": {
+		"packscript": "packscript"
+	},
     "homepage": "http://github.com/danderson00/packscript",
     "author": {
         "name": "Dale Anderson",

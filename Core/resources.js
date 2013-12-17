@@ -19,9 +19,9 @@
 
     Pack.prototype.loadConfig = function (path, source) {
         Pack.api.Log.info("Loading config from " + path);
-        Context.configPath = path;
+        Pack.context.configPath = path;
         Pack.utils.eval(source);
-        delete Context.configPath;
+        delete Pack.context.configPath;
         return this;
     };
 

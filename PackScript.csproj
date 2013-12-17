@@ -46,6 +46,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="Core\Api.js" />
+    <None Include="Node\package.json" />
     <None Include="node_modules\.bin\nodezip" />
     <None Include="node_modules\.bin\nodezip.cmd" />
     <None Include="node_modules\.bin\uglifycss" />
@@ -263,8 +264,9 @@
     <Content Include="Node\Api\Log.js" />
     <Content Include="Node\Api\Minify.js" />
     <Content Include="Node\Api\Zip.js" />
-    <Content Include="Node\utils.js" />
-    <Content Include="Node\Watcher.js" />
+    <None Include="Node\packscript" />
+    <Content Include="Node\listTree.js" />
+    <Content Include="Node\watch.js" />
     <Content Include="node_modules\node-zip\lib\nodezip-cli.js" />
     <Content Include="node_modules\node-zip\lib\nodezip.js" />
     <Content Include="node_modules\node-zip\test\nodezip_spec.js" />
@@ -549,14 +551,14 @@
     <Content Include="pack.js" />
     <Content Include="PackScript.ico" />
     <Content Include="tests.js" />
-    <Content Include="Tests\Api.tests.js" />
-    <Content Include="Tests\commands.tests.js">
+    <Content Include="Tests\Core\Api.tests.js" />
+    <Content Include="Tests\Core\commands.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Tests\Embedded\source.js" />
     <Content Include="Tests\Embedded\T.document.tests.js" />
     <Content Include="Tests\Embedded\Tribe.tests.js" />
-    <Content Include="Tests\FileList.tests.js">
+    <Content Include="Tests\Core\FileList.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Tests\Infrastructure\apis.js" />
@@ -634,12 +636,12 @@
     <Content Include="Tests\Integration\Zip\pack.js" />
     <Content Include="Tests\Integration\Zip\test.js" />
     <Content Include="Tests\Infrastructure\setup.js" />
-    <Content Include="Tests\Output.tests.js" />
-    <Content Include="Tests\Pack.tests.js" />
-    <Content Include="Tests\Path.tests.js">
+    <Content Include="Tests\Core\Output.tests.js" />
+    <Content Include="Tests\Core\Pack.tests.js" />
+    <Content Include="Tests\Core\Path.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Tests\resources.tests.js">
+    <Content Include="Tests\Core\resources.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="Tests\Transforms\transforms.files.tests.js">
@@ -663,10 +665,9 @@
     <Content Include="Tests\Transforms\Transforms.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Tests\utils.tests.js">
+    <Content Include="Tests\Core\utils.tests.js">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
-    <Content Include="Core\throttle.js" />
     <Content Include="Core\Container.js" />
     <Content Include="Embedded\Tribe\T.webTargets.pack.config.js" />
     <Content Include="Embedded\Tribe\T.Script.template.js" />

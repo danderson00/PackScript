@@ -1,0 +1,43 @@
+#! /usr/bin/env node
+
+var optimist = require("optimist");
+var args = optimist
+    .usage("$0 [path/to/build/] [options]")
+    .describe("watch", "Makes PackScript stay active and watch for file changes.")
+    .describe("throttleTimeout", "The amount of time in milliseconds to queue file changes before building. Use 0 for synchronous.")
+    .describe("logLevel", "Logging verbosity. Can be debug, info, warn, error or none.")
+    .describe("packFileFilter", "A filespec pattern to match pack files.")
+    .describe("configurationFileFilter", "A filespec pattern to match configuration files.")
+    .describe("templateFileExtension", "The file extension for template files.")
+    .describe("resourcePath", "An additional path to scan for templates and configuration files")
+    .describe("excludedDirectories", "A semi-colon delimited list of folder names to exclude.")
+    .describe("help", "These usage instructions")
+    .alias("help", "h")
+    .alias("help", "?")
+    .default("watch", false)
+    .default("throttleTimeout", 200)
+    .default("logLevel", "debug")
+    .default("packFileFilter", "*pack.js")
+    .default("configurationFileFilter", "*pack.config.js")
+    .default("templateFileExtension", ".template.*")
+    .default("excludedDirectories", "csx;bin;obj")
+    .boolean("watch")
+    .wrap(80)
+    .argv;
+
+if (args.help || args.h || args["?"])
+    console.log(optimist.help());
+
+var _ = require('underscore');
+require('./packscript.js');
+
+var api = new Pack.Api(args);
+_.extend(global, api);
+
+var path = (args._.length > 0) ? args._[0] : '.';
+if(path.charAt(path.length - 1) !== '/') path = path + '/';
+
+if(args.watch)
+	api.pack.watch(path);
+
+api.pack.scanForResources(path).all();
