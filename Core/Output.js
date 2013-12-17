@@ -12,12 +12,8 @@ Pack.Output.prototype.matches = function (path, transformRepository, refresh) {
         this.currentPaths = transformRepository.applyEventsTo(['includeFiles', 'excludeFiles'], this, { log: false }).files.paths();
     
     return _.any(this.currentPaths, function(filePath) {
-        return path === filePath;// Path(path).match(filePath);
+        return path === filePath;
     });
-};
-
-Pack.Output.prototype.build = function(transformRepository) {
-    return transformRepository.applyTo(this);
 };
 
 Pack.Output.prototype.targetPath = function () {

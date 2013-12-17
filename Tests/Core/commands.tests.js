@@ -18,13 +18,13 @@
     test("build recurses when output path matches other outputs", function () {
         Pack.api.Files.getFilenames = getFilenames;
         Pack.api.Files.getFileContents = getFileContents;
-        var parent = p.addOutput({ include: 'parent', to: 'child' }, '');
-        var child = p.addOutput({ include: 'child', to: 'output' }, '');
+        p.addOutput({ include: 'parent', to: 'child' }, '');
+        p.addOutput({ include: 'child', to: 'output' }, '');
         var spy = sinon.spy();
-        child.build = spy;
+        p.transforms.applyTo = spy;
 
         p.all();
-        ok(spy.called);
+        equal(spy.callCount, 3);
 
         function getFilenames(name) {
             return name === 'parent' ? ['parent'] : ['child'];

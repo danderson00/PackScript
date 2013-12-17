@@ -1,6 +1,6 @@
 ﻿Pack.transforms.combine = {
     event: 'output',
-    apply: function(data) {
+    apply: function(data, pack) {
         var target = data.target;
         var output = data.output;
 

@@ -2,7 +2,7 @@
 require('./packscript.js');
 var sinon = require('sinon');
 var _ = require('underscore');
-_.extend(global, new Pack.Api({ throttleTimeout: 0 }));
+//_.extend(global, new Pack.Api({ throttleTimeout: 0 }));
 var originalFiles = Pack.api.Files;
 
 var originalMinifyJavascript = Pack.api.MinifyJavascript;
@@ -238,13 +238,13 @@ function minifierAsSpy() {
     test("build recurses when output path matches other outputs", function () {
         Pack.api.Files.getFilenames = getFilenames;
         Pack.api.Files.getFileContents = getFileContents;
-        var parent = p.addOutput({ include: 'parent', to: 'child' }, '');
-        var child = p.addOutput({ include: 'child', to: 'output' }, '');
+        p.addOutput({ include: 'parent', to: 'child' }, '');
+        p.addOutput({ include: 'child', to: 'output' }, '');
         var spy = sinon.spy();
-        child.build = spy;
+        p.transforms.applyTo = spy;
 
         p.all();
-        ok(spy.called);
+        equal(spy.callCount, 3);
 
         function getFilenames(name) {
             return name === 'parent' ? ['parent'] : ['child'];
@@ -756,22 +756,20 @@ function minifierAsSpy() {
 
     test("excludeDefaults excludes config files", function () {
         var data = { files: new Pack.FileList('1', '3') };
-        pack.loadedConfigs = ['3'];
-        Pack.transforms.excludeDefaults.apply(wrap(true, { transforms: {} }, data));
+        Pack.transforms.excludeDefaults.apply(wrap(true, { transforms: {} }, data), { loadedConfigs: ['3'] });
         equal(data.files.list.length, 1);
         equal(data.files.list[0].path, '1');
     });
 
     test("excludeDefaults includes config files if includeConfigs transform is specified", function() {
         var data = { files: new Pack.FileList('1', '3') };
-        pack.loadedConfigs = ['3'];
-        Pack.transforms.excludeDefaults.apply(wrap(true, { transforms: { includeConfigs: true } }, data));
+        Pack.transforms.excludeDefaults.apply(wrap(true, { transforms: { includeConfigs: true } }, data), { loadedConfigs: ['3'] });
         equal(data.files.list.length, 2);
     });
     
     test("excludeDefaults excludes output file", function () {
         var data = { files: new Pack.FileList('1', '3') };
-        Pack.transforms.excludeDefaults.apply(wrap(true, { outputPath: '3', transforms: { } }, data));
+        Pack.transforms.excludeDefaults.apply(wrap(true, { outputPath: '3', transforms: { } }, data), {});
         equal(data.files.list.length, 1);
         equal(data.files.list[0].path, '1');
     });
@@ -824,24 +822,24 @@ function minifierAsSpy() {
 
     test("outputTemplate renders underscore template", function () {
         var data = { output: '' };
-        pack.templates = { 'template': 'templatecontent' };
-        Pack.transforms.outputTemplate.apply(wrap('template', { transforms: { to: 'test' } }, data));
+        var pack = { templates: { 'template': 'templatecontent' } };
+        Pack.transforms.outputTemplate.apply(wrap('template', { transforms: { to: 'test' } }, data), pack);
 
         equal(data.output, 'templatecontent');
     });
 
     test("outputTemplate renders multiple underscore templates", function () {
         var data = { output: '' };
-        pack.templates = { 'template': 'templatecontent', 'template2': '<%=content%>2' };
-        Pack.transforms.outputTemplate.apply(wrap(['template', 'template2'], { transforms: { to: 'test' } }, data));
+        var pack = { templates: { 'template': 'templatecontent', 'template2': '<%=content%>2' } };
+        Pack.transforms.outputTemplate.apply(wrap(['template', 'template2'], { transforms: { to: 'test' } }, data), pack);
 
         equal(data.output, 'templatecontent2');
     });
 
     test("outputTemplate renders passed data", function () {
         var data = { output: 'content' };
-        pack.templates = { 'template': '<%=content%><%=data.value%>' };
-        Pack.transforms.outputTemplate.apply(wrap({ name: 'template', data: { value: 'testValue' } }, { transforms: { to: 'test' } }, data));
+        var pack = { templates: { 'template': '<%=content%><%=data.value%>' } };
+        Pack.transforms.outputTemplate.apply(wrap({ name: 'template', data: { value: 'testValue' } }, { transforms: { to: 'test' } }, data), pack);
 
         equal(data.output, 'contenttestValue');
     });
@@ -878,8 +876,8 @@ function minifierAsSpy() {
 
     test("template renders underscore template", function () {
         var data = { files: new Pack.FileList({ path: 'filepath', content: 'filecontent' }) };
-        pack.templates = { 'template': 'templatecontent' };
-        Pack.transforms.template.apply(wrap('template', {}, data));
+        var pack = mockPack({ 'template': 'templatecontent' });
+        Pack.transforms.template.apply(wrap('template', {}, data), pack);
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, 'templatecontent');
@@ -887,8 +885,8 @@ function minifierAsSpy() {
 
     test("template renders multiple underscore templates", function () {
         var data = { files: new Pack.FileList({ path: 'filepath', content: 'filecontent' }) };
-        pack.templates = { 'template': 'templatecontent', 'template2': '<%=content%>2' };
-        Pack.transforms.template.apply(wrap(['template', 'template2'], {}, data));
+        var pack = mockPack({ 'template': 'templatecontent', 'template2': '<%=content%>2' });
+        Pack.transforms.template.apply(wrap(['template', 'template2'], {}, data), pack);
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, 'templatecontent2');
@@ -897,8 +895,8 @@ function minifierAsSpy() {
     test("template renders built-in data", function () {
         var output = { basePath: '/test/' };
         var data = { files: new Pack.FileList({ path: '/test/files/file', content: 'content', filespec: '/files/*.*', configPath: '/test/', pathRelativeToConfig: 'files/file', includePath: '/test/files/', pathRelativeToInclude: 'file' }) };
-        pack.templates = { 'template': '<%=path%>|<%=content%>|<%=configPath%>|<%=pathRelativeToConfig%>|<%=includePath%>|<%=pathRelativeToInclude%>' };
-        Pack.transforms.template.apply(wrap('template', output, data));
+        var pack = mockPack({ 'template': '<%=path%>|<%=content%>|<%=configPath%>|<%=pathRelativeToConfig%>|<%=includePath%>|<%=pathRelativeToInclude%>' });
+        Pack.transforms.template.apply(wrap('template', output, data), pack);
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, '/test/files/file|content|/test/|files/file|/test/files/|file');
@@ -906,8 +904,8 @@ function minifierAsSpy() {
 
     test("template name can be specified with an object", function () {
         var data = { files: new Pack.FileList({ path: 'filepath', content: 'filecontent' }) };
-        pack.templates = { 'template': 'templatecontent' };
-        Pack.transforms.template.apply(wrap({ name: 'template' }, {}, data));
+        var pack = mockPack({ 'template': 'templatecontent' });
+        Pack.transforms.template.apply(wrap({ name: 'template' }, {}, data), pack);
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, 'templatecontent');
@@ -915,8 +913,8 @@ function minifierAsSpy() {
 
     test("data specified in include transform overrides data in template transform", function() {
         var data = { files: new Pack.FileList({ path: 'filepath', content: 'filecontent', template: { name: 'template', data: { additionalData: 'add1' } } }) };
-        pack.templates = { 'template': '<%=data.additionalData%>' };
-        Pack.transforms.template.apply(wrap({ name: 'template', data: { additionalData: 'add2' } }, {}, data));
+        var pack = mockPack({ 'template': '<%=data.additionalData%>' });
+        Pack.transforms.template.apply(wrap({ name: 'template', data: { additionalData: 'add2' } }, {}, data), pack);
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, 'add1');
@@ -924,8 +922,8 @@ function minifierAsSpy() {
 
     test("Path objects can be used in templates", function () {
         var data = { files: new Pack.FileList({ path: 'path/file.txt', content: 'filecontent' }) };
-        pack.templates = { 'template': '<%=path.withoutFilename()%>' };
-        Pack.transforms.template.apply(wrap('template', {}, data));
+        var pack = mockPack({ 'template': '<%=path.withoutFilename()%>' });
+        Pack.transforms.template.apply(wrap('template', {}, data), pack);
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, 'path/');
@@ -935,16 +933,20 @@ function minifierAsSpy() {
         expect(4);
         var output = {};
         var data = { files: new Pack.FileList({ path: 'filepath', content: 'filecontent' }) };
-        pack.templates = { 'template': 'templatecontent' };
+        var pack = mockPack({ 'template': 'templatecontent' });
         Pack.transforms.template.apply(wrap(function(currentOutput, target) {
             equal(currentOutput, output);
             equal(target, data);
             return 'template';
-        }, output, data));
+        }, output, data), pack);
 
         equal(data.files.list.length, 1);
         equal(data.files.list[0].content, 'templatecontent');
     });
+    
+    function mockPack(templates) {
+        return { templates: templates };
+    }
 })();
 (function () {
     var t;

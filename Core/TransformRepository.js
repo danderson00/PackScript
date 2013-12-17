@@ -10,17 +10,17 @@
         self[name] = { event: event, apply: func };
     };
 
-    this.applyTo = function (output, options) {
-        return self.applyEventsTo(self.events, output, options);
+    this.applyTo = function (output, pack) {
+        return self.applyEventsTo(self.events, output, pack);
     };
 
-    this.applyEventsTo = function(events, output, options) {
+    this.applyEventsTo = function(events, output, pack) {
         var target = new Pack.Container();
         var transforms = _.extend({}, self.defaultTransforms, output.transforms);
         _.each(events, function(event) {
             _.each(transforms, function(value, name) {
                 if (self[name] && self[name].event === event)
-                    self[name].apply({ value: value, output: output, target: target, options: options || {} });
+                    self[name].apply({ value: value, output: output, target: target }, pack);
             });
         });
         return target;

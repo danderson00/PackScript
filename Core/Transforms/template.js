@@ -1,6 +1,6 @@
 ﻿Pack.transforms.template = {
     event: 'content',
-    apply: function(data) {
+    apply: function(data, pack) {
         var value = data.value;
         var output = data.output;
         var target = data.target;

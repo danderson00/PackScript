@@ -1,6 +1,6 @@
 ﻿Pack.transforms.load = {
     event: 'content',
-    apply: function(data) {
+    apply: function(data, pack) {
         var target = data.target;
         var output = data.output;
         var Files = Pack.api.Files;

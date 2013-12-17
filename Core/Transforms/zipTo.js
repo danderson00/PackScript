@@ -1,6 +1,6 @@
 ﻿Pack.transforms.zipTo = {
     event: 'finalise',
-    apply: function(data) {
+    apply: function(data, pack) {
         var path = Path(data.output.basePath + data.value).toString();
         var Zip = Pack.api.Zip;
         var Log = Pack.api.Log;

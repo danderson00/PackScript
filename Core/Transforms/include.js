@@ -4,7 +4,7 @@
 
     transforms.include = {
         event: 'includeFiles',
-        apply: function(data) {
+        apply: function(data, pack) {
             Pack.api.Log.debug('Including ' + formatInclude(data.value, data.output) + ' in ' + data.output.targetPath());
             data.target.files.include(loadFileList(data.value, data.output));
         }
@@ -12,7 +12,7 @@
     
     transforms.exclude = {
         event: 'excludeFiles',
-        apply: function(data) {
+        apply: function(data, pack) {
             Pack.api.Log.debug('Excluding ' + formatInclude(data.value, data.output) + ' from ' + data.output.targetPath());
             data.target.files.exclude(loadFileList(data.value, data.output));
         }

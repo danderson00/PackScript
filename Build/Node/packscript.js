@@ -82,17 +82,17 @@ Pack.prototype.removeOutput = function(output) {
         self[name] = { event: event, apply: func };
     };
 
-    this.applyTo = function (output, options) {
-        return self.applyEventsTo(self.events, output, options);
+    this.applyTo = function (output, pack) {
+        return self.applyEventsTo(self.events, output, pack);
     };
 
-    this.applyEventsTo = function(events, output, options) {
+    this.applyEventsTo = function(events, output, pack) {
         var target = new Pack.Container();
         var transforms = _.extend({}, self.defaultTransforms, output.transforms);
         _.each(events, function(event) {
             _.each(transforms, function(value, name) {
                 if (self[name] && self[name].event === event)
-                    self[name].apply({ value: value, output: output, target: target, options: options || {} });
+                    self[name].apply({ value: value, output: output, target: target }, pack);
             });
         });
         return target;
@@ -330,12 +330,8 @@ Pack.Output.prototype.matches = function (path, transformRepository, refresh) {
         this.currentPaths = transformRepository.applyEventsTo(['includeFiles', 'excludeFiles'], this, { log: false }).files.paths();
     
     return _.any(this.currentPaths, function(filePath) {
-        return path === filePath;// Path(path).match(filePath);
+        return path === filePath;
     });
-};
-
-Pack.Output.prototype.build = function(transformRepository) {
-    return transformRepository.applyTo(this);
 };
 
 Pack.Output.prototype.targetPath = function () {
@@ -444,7 +440,8 @@ Pack.Output.prototype.targetPath = function () {
         }
 
         function buildOutput(output) {
-            return output.build(self.transforms);
+            return self.transforms.applyTo(output, self);
+            //return output.build(self.transforms);
         }
     };
 
@@ -552,12 +549,9 @@ Pack.Api = function (packOptions) {
     // extend the pack member of the api object with a new instance of a Pack object
     _.extend(self.pack, new Pack(packOptions));
 };
-if (typeof exports !== 'undefined') {
-    if (typeof module !== 'undefined' && module.exports)
-        exports = module.exports = new Pack.Api();
-}Pack.transforms.combine = {
+Pack.transforms.combine = {
     event: 'output',
-    apply: function(data) {
+    apply: function(data, pack) {
         var target = data.target;
         var output = data.output;
 
@@ -598,7 +592,7 @@ if (typeof exports !== 'undefined') {
 
     transforms.excludeDefaults = {
         event: 'excludeFiles',
-        apply: function(data) {
+        apply: function(data, pack) {
             data.target.files.exclude(data.output.outputPath);
             if (!data.output.transforms.includeConfigs)
                 data.target.files.exclude(pack.loadedConfigs);
@@ -613,7 +607,7 @@ if (typeof exports !== 'undefined') {
 
     transforms.include = {
         event: 'includeFiles',
-        apply: function(data) {
+        apply: function(data, pack) {
             Pack.api.Log.debug('Including ' + formatInclude(data.value, data.output) + ' in ' + data.output.targetPath());
             data.target.files.include(loadFileList(data.value, data.output));
         }
@@ -621,7 +615,7 @@ if (typeof exports !== 'undefined') {
     
     transforms.exclude = {
         event: 'excludeFiles',
-        apply: function(data) {
+        apply: function(data, pack) {
             Pack.api.Log.debug('Excluding ' + formatInclude(data.value, data.output) + ' from ' + data.output.targetPath());
             data.target.files.exclude(loadFileList(data.value, data.output));
         }
@@ -711,12 +705,12 @@ if (typeof exports !== 'undefined') {
 
 Pack.transforms.json = {
     event: 'output',
-    apply: function(data) {
+    apply: function(data, pack) {
         data.target.output = JSON.stringify(data.value);
     }
 };Pack.transforms.load = {
     event: 'content',
-    apply: function(data) {
+    apply: function(data, pack) {
         var target = data.target;
         var output = data.output;
         var Files = Pack.api.Files;
@@ -735,7 +729,7 @@ Pack.transforms.json = {
 
 Pack.transforms.minify = {
     event: 'output',
-    apply: function(data) {
+    apply: function(data, pack) {
         var output = data.output;
         var target = data.target;
         var Log = Pack.api.Log;
@@ -769,7 +763,7 @@ Pack.transforms.minify = {
 };
 Pack.transforms.outputTemplate = {
     event: 'output',
-    apply: function(data) {
+    apply: function(data, pack) {
         var value = data.value;
         var target = data.target;
         var output = data.output;
@@ -808,7 +802,7 @@ Pack.transforms.outputTemplate = {
 
 Pack.transforms.syncTo = {
     event: 'finalise',
-    apply: function(data) {
+    apply: function(data, pack) {
         var Files = Pack.api.Files;
         var Log = Pack.api.Log;
 
@@ -828,7 +822,7 @@ Pack.transforms.syncTo = {
 
 Pack.transforms.template = {
     event: 'content',
-    apply: function(data) {
+    apply: function(data, pack) {
         var value = data.value;
         var output = data.output;
         var target = data.target;
@@ -878,7 +872,7 @@ Pack.transforms.template = {
     }
 };Pack.transforms.to = {
     event: 'finalise',
-    apply: function(data) {
+    apply: function(data, pack) {
         var Files = Pack.api.Files;
         var Log = Pack.api.Log;
         var path = Path(data.output.basePath + data.output.transforms.to);
@@ -892,7 +886,7 @@ Pack.transforms.template = {
 
 Pack.transforms.zipTo = {
     event: 'finalise',
-    apply: function(data) {
+    apply: function(data, pack) {
         var path = Path(data.output.basePath + data.value).toString();
         var Zip = Pack.api.Zip;
         var Log = Pack.api.Log;
@@ -1140,7 +1134,10 @@ Pack.templates['T.Script.debug'] = 'window.eval("<%= T.prepareForEval(content) +
 Pack.templates['T.Script'] = '// <%= pathRelativeToConfig %>\n<%= content %>\n';
 Pack.templates['T.Style'] = '//<% if(!target.includesStylesheetHelper) { %>\nwindow.__appendStyle = function (content) {\n    var element = document.getElementById(\'__tribeStyles\');\n    if (!element) {\n        element = document.createElement(\'style\');\n        element.className = \'__tribe\';\n        element.id = \'__tribeStyles\';\n        document.getElementsByTagName(\'head\')[0].appendChild(element);\n    }\n\n    if(element.styleSheet)\n        element.styleSheet.cssText += content;\n    else\n        element.appendChild(document.createTextNode(content));\n};//<% target.includesStylesheetHelper = true; } %>\nwindow.__appendStyle(\'<%= api.MinifyStylesheet.minify(content).replace(/\\\'/g, "\\\\\'") %>\');';
 Pack.templates['T.Template'] = '//<% if(!target.includesTemplateHelper) { %>\nwindow.__appendTemplate = function (content, id) {\n    var element = document.createElement(\'script\');\n    element.className = \'__tribe\';\n    element.setAttribute(\'type\', \'text/template\');\n    element.id = id;\n    element.text = content;\n    document.getElementsByTagName(\'head\')[0].appendChild(element);\n};//<% target.includesTemplateHelper = true; } %>\nwindow.__appendTemplate(\'<%=T.embedString(content)%>\', \'<%=T.templateIdentifier(pathRelativeToInclude, data.prefix)%>\');';
-Pack.utils.listTree = function(filespec, recursive) {
+if (typeof exports !== 'undefined') {
+    if (typeof module !== 'undefined' && module.exports)
+        exports = module.exports = new Pack.Api();
+}Pack.utils.listTree = function(filespec, recursive) {
     var fs = require('fs');
 
     filespec = Path(filespec);

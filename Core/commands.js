@@ -47,7 +47,8 @@
         }
 
         function buildOutput(output) {
-            return output.build(self.transforms);
+            return self.transforms.applyTo(output, self);
+            //return output.build(self.transforms);
         }
     };
 

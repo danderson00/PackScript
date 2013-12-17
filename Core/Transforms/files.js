@@ -18,7 +18,7 @@
 
     transforms.excludeDefaults = {
         event: 'excludeFiles',
-        apply: function(data) {
+        apply: function(data, pack) {
             data.target.files.exclude(data.output.outputPath);
             if (!data.output.transforms.includeConfigs)
                 data.target.files.exclude(pack.loadedConfigs);

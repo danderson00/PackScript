@@ -10,10 +10,10 @@
     'Core/commands.js',
     'Core/changeHandlers.js',
     'Core/Api.js',
-    'Core/exports.js',
     { files: 'Core/Transforms/*.js', prioritise: 'combine.js' },
     { files: 'Embedded/*.pack.config.js', recursive: true },
-    { files: 'Embedded/*.template.*', template: 'Pack.embedTemplate', recursive: true }
+    { files: 'Embedded/*.template.*', template: 'Pack.embedTemplate', recursive: true },
+    'Core/exports.js'
 ];
 
 pack({

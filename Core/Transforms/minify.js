@@ -1,6 +1,6 @@
 ﻿Pack.transforms.minify = {
     event: 'output',
-    apply: function(data) {
+    apply: function(data, pack) {
         var output = data.output;
         var target = data.target;
         var Log = Pack.api.Log;

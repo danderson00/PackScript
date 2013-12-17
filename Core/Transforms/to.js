@@ -1,6 +1,6 @@
 ﻿Pack.transforms.to = {
     event: 'finalise',
-    apply: function(data) {
+    apply: function(data, pack) {
         var Files = Pack.api.Files;
         var Log = Pack.api.Log;
         var path = Path(data.output.basePath + data.output.transforms.to);
