@@ -37,4 +37,4 @@ pack({
     ]
 });
 
-sync(['package.json', 'Node/bin/packscript', 'README.md']).to('Build/Node');
+sync(['package.json', 'README.md', 'Node/bin/packscript']).to('Build/Node');

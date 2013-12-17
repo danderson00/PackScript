@@ -13,6 +13,8 @@ Pack = function(options) {
         logLevel: 'debug',
         throttleTimeout: 200
     }, options);
+    
+    if(Pack.api.Log) Pack.api.Log.setLevel(this.options.logLevel);
 };
 
 Pack.api = {};
@@ -1241,7 +1243,8 @@ Pack.api.Log = (function () {
     
     return {
         setLevel: function (newLevel) {
-            level = levels[newLevel] || 4;
+            level = levels[newLevel];
+            if (level === undefined) level = 4;
         },
         debug: function (message) {
             if (level >= 4) 

@@ -12,6 +12,8 @@
         logLevel: 'debug',
         throttleTimeout: 200
     }, options);
+    
+    if(Pack.api.Log) Pack.api.Log.setLevel(this.options.logLevel);
 };
 
 Pack.api = {};

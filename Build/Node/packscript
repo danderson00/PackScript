@@ -38,6 +38,6 @@ var path = (args._.length > 0) ? args._[0] : '.';
 if(path.charAt(path.length - 1) !== '/') path = path + '/';
 
 if(args.watch)
-	api.pack.watch(path);
+    api.pack.watch(path);
 
 api.pack.scanForResources(path).all();

@@ -10,7 +10,8 @@
     
     return {
         setLevel: function (newLevel) {
-            level = levels[newLevel] || 4;
+            level = levels[newLevel];
+            if (level === undefined) level = 4;
         },
         debug: function (message) {
             if (level >= 4) 
