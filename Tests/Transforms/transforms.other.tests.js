@@ -13,7 +13,7 @@
     test("combine joins all files contents", function () {
         var data = { files: new Pack.FileList({ path: 'file1', content: '1' }, { path: 'file2', content: '2' }, { path: 'file3', content: '3' }) };
         Pack.transforms.combine.apply(wrap(true, {}, data));
-        equal(data.output, '123');
+        equal(data.output, '1\n2\n3');
     });
 
 

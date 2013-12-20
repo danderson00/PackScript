@@ -8,11 +8,11 @@
     }, 'js', options);
 };
 
-T.models = function(pathOrOptions, debug) {
+T.resources = T.models = T.sagas = function(pathOrOptions, debug) {
     var options = normaliseOptions(pathOrOptions, debug);
     var template = function(output) {
         return [
-            { name: 'T.Model', data: options },
+            { name: 'T.Resource', data: options },
             { name: (options.debug || output.transforms.debug) ? 'T.Script.debug' : 'T.Script', data: options }
         ];
     };

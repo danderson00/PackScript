@@ -50,10 +50,10 @@ test("T.panes includes relevant files from specified folder", function () {
 
 QUnit.module('Embedded.T.models');
 
-test("T.models uses model and script templates", function () {
+test("T.models uses resource and script templates", function () {
     var include = T.models('Panes');
     var template = include.template({ transforms: {} });
     equal(template.length, 2);
-    equal(template[0].name, 'T.Model');
+    equal(template[0].name, 'T.Resource');
     equal(template[1].name, 'T.Script');
 });

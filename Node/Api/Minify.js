@@ -8,7 +8,7 @@
         ast.compute_char_frequency();
         ast.mangle_names();
         
-        var compressor = uglify.Compressor();
+        var compressor = uglify.Compressor({ warnings: false });
         ast = ast.transform(compressor);
         
         return ast.print_to_string();

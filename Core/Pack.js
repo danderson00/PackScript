@@ -10,7 +10,7 @@
         packFileFilter: '*pack.js',
         templateFileExtension: '.template.*',
         logLevel: 'debug',
-        throttleTimeout: 200
+        throttleTimeout: 100
     }, options);
     
     if(Pack.api.Log) Pack.api.Log.setLevel(this.options.logLevel);

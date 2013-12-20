@@ -8,6 +8,7 @@ var originalFiles = Pack.api.Files;
 var originalMinifyJavascript = Pack.api.MinifyJavascript;
 var originalMinifyStylesheet = Pack.api.MinifyStylesheet;
 var originalMinifyMarkup = Pack.api.MinifyMarkup;
+
 Context = {};
 
 function filesAsMock() {
@@ -51,14 +52,16 @@ function minifierAsSpy() {
     Pack.api.MinifyJavascript = { minify: sinon.spy() };
     Pack.api.MinifyMarkup = { minify: sinon.spy() };
     Pack.api.MinifyStylesheet = { minify: sinon.spy() };
-}function wrap(value, output, target, options) {
+}
+function wrap(value, output, target, options) {
     return {
         value: value,
         output: output,
         target: target || new Pack.Container(),
         options: options || {}
     };
-}function integrationTest(path, name, tests) {
+}
+function integrationTest(path, name, tests) {
     if (arguments[1].constructor === Function) {
         tests = arguments[1];
         name = path;
@@ -132,6 +135,7 @@ function minifierAsSpy() {
         
     }
 }
+
 
 (function () {
     var api;
@@ -218,6 +222,7 @@ function minifierAsSpy() {
         equal(api.pack.outputs.length, 2);
     });
 })();
+
 (function () {
     var p;
     
@@ -269,6 +274,7 @@ function minifierAsSpy() {
         filesAsMock(p);
     }
 })();
+
 (function () {
     QUnit.module("FileList");
 
@@ -355,6 +361,7 @@ function minifierAsSpy() {
         equal(files.list[2].path, 'Path/2.js');
     });
 })();
+
 (function () {
     QUnit.module("Output", { setup: filesAsMock });
 
@@ -403,6 +410,7 @@ function minifierAsSpy() {
         p.executeTransform('test', output);
     });
 })();
+
 (function () {
     var pack;
 
@@ -425,6 +433,7 @@ function minifierAsSpy() {
         equal(pack.outputs.length, 3);
     });
 })();
+
 (function () {
     QUnit.module("Path");
 
@@ -558,6 +567,7 @@ function minifierAsSpy() {
         equal(Path('test/test.txt').asMarkupIdentifier().toString(), 'test-test');
     });
 })();
+
 (function () {
     var p;
     
@@ -619,6 +629,7 @@ function minifierAsSpy() {
         p = new Pack();
     }
 })();
+
 (function () {
     QUnit.module("utils");
 
@@ -641,6 +652,7 @@ function minifierAsSpy() {
         equal(result.length, 3);
     });
 })();
+
 (function () {
     QUnit.module("transforms.files", { setup: filesAsSpy });
 
@@ -775,6 +787,7 @@ function minifierAsSpy() {
     });
 
 })();
+
 (function () {
     QUnit.module("transforms.minify", { setup: minifierAsSpy });
     
@@ -788,6 +801,7 @@ function minifierAsSpy() {
         ok(Pack.api.MinifyStylesheet.minify.calledWithExactly('css'));
     });
 })();
+
 (function () {
     QUnit.module("transforms.content", { setup: filesAsSpy });
 
@@ -803,7 +817,7 @@ function minifierAsSpy() {
     test("combine joins all files contents", function () {
         var data = { files: new Pack.FileList({ path: 'file1', content: '1' }, { path: 'file2', content: '2' }, { path: 'file3', content: '3' }) };
         Pack.transforms.combine.apply(wrap(true, {}, data));
-        equal(data.output, '123');
+        equal(data.output, '1\n2\n3');
     });
 
 
@@ -817,6 +831,7 @@ function minifierAsSpy() {
         ok(Pack.api.Files.writeFile.calledWithExactly('C:/test.txt', 'test'));
     });
 })();
+
 (function () {
     QUnit.module("transforms.outputTemplate");
 
@@ -844,6 +859,7 @@ function minifierAsSpy() {
         equal(data.output, 'contenttestValue');
     });
 })();
+
 (function () {
     QUnit.module("transforms.syncTo", { setup: filesAsSpy });
 
@@ -871,6 +887,7 @@ function minifierAsSpy() {
         deepEqual(Pack.api.Files.copyFile.secondCall.args, ['/path/to2/file2', 'path/target/path/to2/file2']);
     });
 })();
+
 (function () {
     QUnit.module("transforms.template");
 
@@ -948,6 +965,7 @@ function minifierAsSpy() {
         return { templates: templates };
     }
 })();
+
 (function () {
     var t;
     
@@ -1007,20 +1025,22 @@ function minifierAsSpy() {
         ok(spy.thirdCall.args[0].value, '2');
     });
 })();
+
 integrationTest('Combine', function(output) {
-    output('nonrecursive').equals('root.jsroot.txt');
-    output('recursive').equals('root.jsroot.txtsubfolder.jssubfolder.txt');
-    output('individualIncludes').equals('root.jssubfolder.jsroot.txt');
-    output('subfolder').equals('subfolder.jssubfolder.txt');
-    output('excludes').equals('root.jssubfolder.js');
-    output('simplePrioritise').equals('root.txtroot.js');
-    output('prioritise').equals('root.txtsubfolder.txtroot.jssubfolder.js');
-    output('last').equals('root.jssubfolder.jsroot.txtsubfolder.txt');
-    output('multiple1').equals('root.jsroot.txt');
-    output('multiple2').equals('root.txtroot.js');
-    output('alternate').equals('root.jsroot.txt');
-    output('alternateArray').equals('root.jssubfolder.js');
+    output('nonrecursive').equals('root.js\nroot.txt');
+    output('recursive').equals('root.js\nroot.txt\nsubfolder.js\nsubfolder.txt');
+    output('individualIncludes').equals('root.js\nsubfolder.js\nroot.txt');
+    output('subfolder').equals('subfolder.js\nsubfolder.txt');
+    output('excludes').equals('root.js\nsubfolder.js');
+    output('simplePrioritise').equals('root.txt\nroot.js');
+    output('prioritise').equals('root.txt\nsubfolder.txt\nroot.js\nsubfolder.js');
+    output('last').equals('root.js\nsubfolder.js\nroot.txt\nsubfolder.txt');
+    output('multiple1').equals('root.js\nroot.txt');
+    output('multiple2').equals('root.txt\nroot.js');
+    output('alternate').equals('root.js\nroot.txt');
+    output('alternateArray').equals('root.js\nsubfolder.js');
 });
+
 (function() {
     integrationTest('ConfigChange', 'Modify config file triggers build', function(output, api) {
         equal(Pack.api.Files.writeFile.callCount, 1);
@@ -1052,6 +1072,7 @@ integrationTest('Combine', function(output) {
         return 'Tests/Integration/ConfigChange/' + path;
     }
 })();
+
 integrationTest('ConfigLoad', 'scanForConfigs passes correct arguments to getFilenames', function(output, api) {
     equal(Pack.api.Files.getFilenames.firstCall.args[0], "Tests/Integration/ConfigLoad/*pack.config.js");
     equal(Pack.api.Files.getFilenames.secondCall.args[0], "Tests/Integration/ConfigLoad/*pack.js");
@@ -1060,16 +1081,20 @@ integrationTest('ConfigLoad', 'scanForConfigs passes correct arguments to getFil
 integrationTest('ConfigLoad', 'Config files are loaded in expected order', function(output, api) {
     deepEqual(pack.test, ["subfolder config loaded", "named config loaded", "root folder loaded", "subfolder loaded"]);
 });
+
 integrationTest('Embedded', function(output) {
     output('styles').containsOnce("__appendStyle = function");
     output('templates').containsOnce("__appendTemplate = function");
 });
+
 integrationTest('ExcludeConfigAndTarget', function (output) {
     output("output.js").equals("root.js");    
 });
+
 integrationTest('ExcludedDirectories', function(output) {
     output('excluded').equals(undefined);
 });
+
 (function() {
     integrationTest('FileChange', 'Modify excluded file does not trigger build', function(output, api) {
         pack.fileChanged(fullPath("input.txt"), "update");
@@ -1111,6 +1136,7 @@ integrationTest('ExcludedDirectories', function(output) {
         return 'Tests/Integration/FileChange/' + file;
     }
 })();
+
 (function() {
     QUnit.module('Integration.Files', { setup: filesAsOriginal });
 
@@ -1155,21 +1181,25 @@ integrationTest('ExcludedDirectories', function(output) {
         return 'Tests/Integration/Files/' + path;
     }
 })();
+
 integrationTest('Json', function(output) {
     output('json').equals('{"string":"test","number":2.2,"bool":true}');
 });
+
 integrationTest('Minify', function(output) {
     output('javascript.js').equals('function name(n){var r=n;return r}');
     //output('markup.htm').equals('<html>\r\n    <body></body>\r\n</html>');
     output('stylesheet.css').equals('.class{display:none}');
 });
+
 integrationTest('OutputTemplate', function(output) {
     output('outputTemplate').equals("// license\r\nfunction");
 });
+
 integrationTest('Recursive', function(output) {
     equal(Pack.api.Files.writeFile.callCount, 6);
-    output("final").equals("1.js2.js");
-    output("subfolder").equals("3.js4.js");
+    output("final").equals("1.js\n2.js");
+    output("subfolder").equals("3.js\n4.js");
 
     pack.fileChanged("Tests/Integration/Recursive/1.js", "update");
     equal(Pack.api.Files.writeFile.callCount, 8);
@@ -1177,6 +1207,7 @@ integrationTest('Recursive', function(output) {
     pack.fileChanged("Tests/Integration/Recursive/3.js", "update");
     equal(Pack.api.Files.writeFile.callCount, 10);
 });
+
 integrationTest('Sync', function (output) {
     var copyFile = Pack.api.Files.copyFile;
     equal(copyFile.firstCall.args[0], 'Tests/Integration/Sync/test.js');
@@ -1198,6 +1229,7 @@ integrationTest('Sync', function (output) {
         return 'Tests/Integration/' + path;
     }
 });
+
 integrationTest('Template', function (output) {    
     output('builtinData').contains('Tests/Integration/Template/root.txt\r\n', 'path');
     output('builtinData').contains('root\r\n', 'content');
@@ -1217,6 +1249,7 @@ integrationTest('Template', function (output) {
     output('pathRelativeToInclude').contains('subfolder.txt\r\n');
     output('pathRelativeToInclude').contains('Subfolder2/subfolder2.js\r\n');
 });
+
 integrationTest('Zip', function (output) {
     var zip = output.zip('Simple.zip');
     equal(zip['test.js'].data, 'root');
@@ -1228,11 +1261,13 @@ integrationTest('Zip', function (output) {
     equal(zip['test.js'].data, 'root');
     equal(zip['Child/test.js'].data, 'child');
 });
+
 //// namespace('Test.test1');
 //// func({ name: 'blah', 
 ////     description: 'test
 ////                   test', arguments: [{}], returns: 'test' });
-function blah() { }QUnit.module('Embedded.T.document');
+function blah() { }
+QUnit.module('Embedded.T.document');
 
 var source = loadSource();
 
@@ -1278,7 +1313,8 @@ function loadSource() {
     //});
     //return result;
     return '//// namespace(\'Test.test1\');\n//// func({ name: \'blah\', \n////     description: \'test\n////                   test\', arguments: [{}], returns: \'test\' });\nfunction blah() { }';
-}QUnit.module('Embedded.T.scripts');
+}
+QUnit.module('Embedded.T.scripts');
 
 test("Specifying folder includes all js files", function() {
     var include = T.scripts('Scripts');
@@ -1330,10 +1366,10 @@ test("T.panes includes relevant files from specified folder", function () {
 
 QUnit.module('Embedded.T.models');
 
-test("T.models uses model and script templates", function () {
+test("T.models uses resource and script templates", function () {
     var include = T.models('Panes');
     var template = include.template({ transforms: {} });
     equal(template.length, 2);
-    equal(template[0].name, 'T.Model');
+    equal(template[0].name, 'T.Resource');
     equal(template[1].name, 'T.Script');
 });

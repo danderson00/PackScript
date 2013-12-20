@@ -46,7 +46,7 @@
   </PropertyGroup>
   <ItemGroup>
     <None Include="Core\Api.js" />
-    <None Include="Node\package.json" />
+    <None Include="package.json" />
     <None Include="node_modules\.bin\nodezip" />
     <None Include="node_modules\.bin\nodezip.cmd" />
     <None Include="node_modules\.bin\uglifycss" />
@@ -264,7 +264,8 @@
     <Content Include="Node\Api\Log.js" />
     <Content Include="Node\Api\Minify.js" />
     <Content Include="Node\Api\Zip.js" />
-    <None Include="Node\packscript" />
+    <None Include="Node\bin\packscript" />
+    <Content Include="user.pack.js" />
     <Content Include="Node\listTree.js" />
     <Content Include="Node\watch.js" />
     <Content Include="node_modules\node-zip\lib\nodezip-cli.js" />

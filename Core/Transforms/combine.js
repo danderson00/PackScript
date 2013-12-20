@@ -5,7 +5,7 @@
         var output = data.output;
 
         log();
-        target.output = _.pluck(target.files.list, 'content').join('');
+        target.output = _.pluck(target.files.list, 'content').join('\n');
 
         function log() {
             Pack.api.Log.debug('(' + filenames() + ') -> ' + (output.transforms && output.transforms.to));
