@@ -45,6 +45,7 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
+    <None Include=".npmignore" />
     <None Include="Core\Api.js" />
     <None Include="package.json" />
     <None Include="node_modules\.bin\nodezip" />
@@ -685,7 +686,7 @@
     <Content Include="Embedded\T.mockjax.outer.template.js" />
     <Content Include="Embedded\T.mockjax.pack.config.js" />
     <Content Include="Embedded\T.mockjax.template.js" />
-    <Content Include="Embedded\Tribe\T.Model.template.js" />
+    <Content Include="Embedded\Tribe\T.Resource.template.js" />
     <Content Include="Embedded\Tribe\T.Script.debug.template.js" />
     <Content Include="Embedded\T.utils.pack.config.js" />
     <None Include="Core\Transforms\outputTemplate.js" />
