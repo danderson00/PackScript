@@ -17,7 +17,7 @@
                     return originalFiles.getFileContents(files);
                 },
                 writeFile: sinon.spy(),
-                copyFile: sinon.spy(),
+                copy: sinon.spy(),
                 excludedDirectories: 'excluded'
             };
             sinon.spy(Pack.api.Files, 'getFilenames');

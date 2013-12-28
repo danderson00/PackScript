@@ -1,5 +1,5 @@
 ﻿(function () {
-    var fs = require('fs');
+    var fs = require('fs-extra');
 
     Pack.api.Files = {
         getFilenames: function (filespec, recursive) {
@@ -21,9 +21,10 @@
                 Pack.api.Log.error('Error writing to ' + path, ex);
             }
         },
-        copyFile: function (from, to) {
-            this.writeFile(to, this.getFileContents(from));
-        },
+        copy: function (from, to) {
+            fs.mkdirpSync(Path(to).withoutFilename().toString());
+            fs.copySync(from, to);
+        },        
         excludedDirectories: ['csx', 'bin', 'obj']
     };
 

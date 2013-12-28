@@ -23,7 +23,7 @@ function filesAsSpy() {
         getFilenames: sinon.spy(),
         getFileContents: sinon.spy(),
         writeFile: sinon.spy(),
-        copyFile: sinon.spy()
+        copy: sinon.spy()
     };
 }
 

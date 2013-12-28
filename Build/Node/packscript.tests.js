@@ -34,7 +34,7 @@ function filesAsSpy() {
         getFilenames: sinon.spy(),
         getFileContents: sinon.spy(),
         writeFile: sinon.spy(),
-        copyFile: sinon.spy()
+        copy: sinon.spy()
     };
 }
 
@@ -80,7 +80,7 @@ function integrationTest(path, name, tests) {
                     return originalFiles.getFileContents(files);
                 },
                 writeFile: sinon.spy(),
-                copyFile: sinon.spy(),
+                copy: sinon.spy(),
                 excludedDirectories: 'excluded'
             };
             sinon.spy(Pack.api.Files, 'getFilenames');
@@ -848,7 +848,7 @@ function integrationTest(path, name, tests) {
         var pack = { templates: { 'template': 'templatecontent', 'template2': '<%=content%>2' } };
         Pack.transforms.outputTemplate.apply(wrap(['template', 'template2'], { transforms: { to: 'test' } }, data), pack);
 
-        equal(data.output, 'templatecontent2');
+        equal(data.output, '\ntemplatecontent2');
     });
 
     test("outputTemplate renders passed data", function () {
@@ -856,7 +856,7 @@ function integrationTest(path, name, tests) {
         var pack = { templates: { 'template': '<%=content%><%=data.value%>' } };
         Pack.transforms.outputTemplate.apply(wrap({ name: 'template', data: { value: 'testValue' } }, { transforms: { to: 'test' } }, data), pack);
 
-        equal(data.output, 'contenttestValue');
+        equal(data.output, '\ncontenttestValue');
     });
 })();
 
@@ -873,18 +873,18 @@ function integrationTest(path, name, tests) {
         }
     };
 
-    test("syncTo executes copyFile for each file in list", function () {
+    test("syncTo executes copy for each file in list", function () {
         Pack.transforms.syncTo.apply(wrap('target/path', new Pack.Output({}, 'path/'), data));
-        ok(Pack.api.Files.copyFile.calledTwice);
-        deepEqual(Pack.api.Files.copyFile.firstCall.args, ['/path/to1/file1', 'path/target/path/to1/file1']);
-        deepEqual(Pack.api.Files.copyFile.secondCall.args, ['/path/to2/file2', 'path/target/path/to2/file2']);
+        ok(Pack.api.Files.copy.calledTwice);
+        deepEqual(Pack.api.Files.copy.firstCall.args, ['/path/to1/file1', 'path/target/path/to1/file1']);
+        deepEqual(Pack.api.Files.copy.secondCall.args, ['/path/to2/file2', 'path/target/path/to2/file2']);
     });
 
     test("syncTo handles absolute paths", function() {
         Pack.transforms.syncTo.apply(wrap('/target/path/', new Pack.Output({}, 'path/'), data));
-        ok(Pack.api.Files.copyFile.calledTwice);
-        deepEqual(Pack.api.Files.copyFile.firstCall.args, ['/path/to1/file1', 'path/target/path/to1/file1']);
-        deepEqual(Pack.api.Files.copyFile.secondCall.args, ['/path/to2/file2', 'path/target/path/to2/file2']);
+        ok(Pack.api.Files.copy.calledTwice);
+        deepEqual(Pack.api.Files.copy.firstCall.args, ['/path/to1/file1', 'path/target/path/to1/file1']);
+        deepEqual(Pack.api.Files.copy.secondCall.args, ['/path/to2/file2', 'path/target/path/to2/file2']);
     });
 })();
 
@@ -906,7 +906,7 @@ function integrationTest(path, name, tests) {
         Pack.transforms.template.apply(wrap(['template', 'template2'], {}, data), pack);
 
         equal(data.files.list.length, 1);
-        equal(data.files.list[0].content, 'templatecontent2');
+        equal(data.files.list[0].content, '\ntemplatecontent2');
     });
 
     test("template renders built-in data", function () {
@@ -916,7 +916,7 @@ function integrationTest(path, name, tests) {
         Pack.transforms.template.apply(wrap('template', output, data), pack);
 
         equal(data.files.list.length, 1);
-        equal(data.files.list[0].content, '/test/files/file|content|/test/|files/file|/test/files/|file');
+        equal(data.files.list[0].content, '/test/files/file|\ncontent|/test/|files/file|/test/files/|file');
     });
 
     test("template name can be specified with an object", function () {
@@ -1170,9 +1170,9 @@ integrationTest('ExcludedDirectories', function(output) {
         require('fs').unlinkSync(fullPath('test.txt'));
     });
 
-    test("copyFile copies specified source file to target", function() {
+    test("copy copies specified source file to target", function() {
         var value = _.random(1, 10);
-        Pack.api.Files.copyFile(fullPath('root.txt'), fullPath(value));
+        Pack.api.Files.copy(fullPath('root.txt'), fullPath(value));
         equal(Pack.api.Files.getFileContents(fullPath(value)), 'root');
         require('fs').unlinkSync(fullPath(value));
     });
@@ -1193,7 +1193,7 @@ integrationTest('Minify', function(output) {
 });
 
 integrationTest('OutputTemplate', function(output) {
-    output('outputTemplate').equals("// license\r\nfunction");
+    output('outputTemplate').equals("// license\r\n\nfunction");
 });
 
 integrationTest('Recursive', function(output) {
@@ -1209,21 +1209,21 @@ integrationTest('Recursive', function(output) {
 });
 
 integrationTest('Sync', function (output) {
-    var copyFile = Pack.api.Files.copyFile;
-    equal(copyFile.firstCall.args[0], 'Tests/Integration/Sync/test.js');
-    equal(copyFile.firstCall.args[0], fullPath('Sync/test.js'), 'simple');
-    equal(copyFile.firstCall.args[1], fullPath('TestOutput/Sync/Simple/test.js'), 'simple');
+    var copy = Pack.api.Files.copy;
+    equal(copy.firstCall.args[0], 'Tests/Integration/Sync/test.js');
+    equal(copy.firstCall.args[0], fullPath('Sync/test.js'), 'simple');
+    equal(copy.firstCall.args[1], fullPath('TestOutput/Sync/Simple/test.js'), 'simple');
 
-    equal(copyFile.secondCall.args[0], fullPath('Sync/Child/test.js'), 'child');
-    equal(copyFile.secondCall.args[1], fullPath('TestOutput/Sync/Child/test.js'), 'child');
+    equal(copy.secondCall.args[0], fullPath('Sync/Child/test.js'), 'child');
+    equal(copy.secondCall.args[1], fullPath('TestOutput/Sync/Child/test.js'), 'child');
 
-    equal(copyFile.thirdCall.args[0], fullPath('Sync/test.js'), 'recursive');
-    equal(copyFile.thirdCall.args[1], fullPath('TestOutput/Sync/Recursive/test.js'), 'recursive');
-    equal(copyFile.getCall(3).args[0], fullPath('Sync/Child/test.js'), 'recursive');
-    equal(copyFile.getCall(3).args[1], fullPath('TestOutput/Sync/Recursive/Child/test.js'), 'recursive');
+    equal(copy.thirdCall.args[0], fullPath('Sync/test.js'), 'recursive');
+    equal(copy.thirdCall.args[1], fullPath('TestOutput/Sync/Recursive/test.js'), 'recursive');
+    equal(copy.getCall(3).args[0], fullPath('Sync/Child/test.js'), 'recursive');
+    equal(copy.getCall(3).args[1], fullPath('TestOutput/Sync/Recursive/Child/test.js'), 'recursive');
 
-    equal(copyFile.getCall(4).args[0], fullPath('Sync/test.js'), 'alternate');
-    equal(copyFile.getCall(4).args[1], fullPath('TestOutput/Sync/Alternate/test.js'), 'alternate');
+    equal(copy.getCall(4).args[0], fullPath('Sync/test.js'), 'alternate');
+    equal(copy.getCall(4).args[1], fullPath('TestOutput/Sync/Alternate/test.js'), 'alternate');
 
     function fullPath(path) {
         return 'Tests/Integration/' + path;

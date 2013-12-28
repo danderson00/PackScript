@@ -16,7 +16,7 @@
         Pack.transforms.template.apply(wrap(['template', 'template2'], {}, data), pack);
 
         equal(data.files.list.length, 1);
-        equal(data.files.list[0].content, 'templatecontent2');
+        equal(data.files.list[0].content, '\ntemplatecontent2');
     });
 
     test("template renders built-in data", function () {
@@ -26,7 +26,7 @@
         Pack.transforms.template.apply(wrap('template', output, data), pack);
 
         equal(data.files.list.length, 1);
-        equal(data.files.list[0].content, '/test/files/file|content|/test/|files/file|/test/files/|file');
+        equal(data.files.list[0].content, '/test/files/file|\ncontent|/test/|files/file|/test/files/|file');
     });
 
     test("template name can be specified with an object", function () {

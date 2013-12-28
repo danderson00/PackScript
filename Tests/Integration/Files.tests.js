@@ -31,9 +31,9 @@
         require('fs').unlinkSync(fullPath('test.txt'));
     });
 
-    test("copyFile copies specified source file to target", function() {
+    test("copy copies specified source file to target", function() {
         var value = _.random(1, 10);
-        Pack.api.Files.copyFile(fullPath('root.txt'), fullPath(value));
+        Pack.api.Files.copy(fullPath('root.txt'), fullPath(value));
         equal(Pack.api.Files.getFileContents(fullPath(value)), 'root');
         require('fs').unlinkSync(fullPath(value));
     });

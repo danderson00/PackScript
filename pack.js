@@ -21,7 +21,7 @@ pack({
     include: [
         'Node/setup.js',
         core,
-        { files: 'Node/*.js', exclude: 'Node/setup.js', recursive: true }
+        { files: 'Node/*.js', exclude: 'Node/setup.js', last: 'exports.js', recursive: true }
     ],
     includeConfigs: true
 });

@@ -14,7 +14,7 @@
                 Log.debug('Applying output template ' + templateSettings.name + ' to ' + output.transforms.to);
 
                 var templateData = {
-                    content: target.output,
+                    content: '\n' + target.output,
                     configPath: Path(output.configPath),
                     data: value.data || {},
                     output: output,

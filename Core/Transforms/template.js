@@ -20,7 +20,7 @@
                 if (template) {
                     Log.debug('Applying template ' + templateSettings.name + ' to ' + Path(file.path).filename());
                     var templateData = {
-                        content: file.content,
+                        content: '\n' + file.content,
                         path: Path(file.path),
                         configPath: file.configPath,
                         pathRelativeToConfig: file.pathRelativeToConfig,

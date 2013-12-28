@@ -5,16 +5,27 @@
         var Log = Pack.api.Log;
 
         var targetFolder = Path(data.output.basePath + data.value + '/');
-        var files = data.target.files.list;
+        var sourceDirectory = data.output.transforms.directory;
+        
+        if (sourceDirectory) {
+            // sync an entire folder
+            Files.copy(sourceDirectory, targetFolder.toString());
+            Log.info('Copied directory ' + sourceDirectory + ' to ' + targetFolder);
 
-        _.each(files, function(file) {
-            Files.copyFile(file.path.toString(), targetFolder + file.pathRelativeToInclude);
-        });
+            data.output.getCurrentPaths = function() {
+                // match the folder sync when any of the files change
+                return Files.getFilenames(sourceDirectory + '/*.*', true);
+            };
+        } else {
+            // copy included files
+            var files = data.target.files.list;
+            _.each(files, function(file) {
+                Files.copy(file.path.toString(), targetFolder + file.pathRelativeToInclude);
+            });
+            Log.info('Copied ' + files.length + ' files to ' + targetFolder);
 
-        Log.info('Copied ' + files.length + ' files to ' + targetFolder);
-
-        // this should be moved to a separate transform. It is consumed by Output.matches
-        data.output.currentPaths = data.target.files && data.target.files.paths();
+            // this is a bit nasty. It is consumed by Output.matches
+            data.output.currentPaths = data.target.files && data.target.files.paths();
+        }
     }
 };
-

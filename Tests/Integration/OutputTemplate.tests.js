@@ -1,3 +1,3 @@
 ﻿integrationTest('OutputTemplate', function(output) {
-    output('outputTemplate').equals("// license\r\nfunction");
+    output('outputTemplate').equals("// license\r\n\nfunction");
 });

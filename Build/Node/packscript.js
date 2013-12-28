@@ -326,17 +326,24 @@ Pack.FileList = function() {
 };
 
 Pack.Output = function (transforms, configPath) {
+    var self = this;
+    
     this.configPath = configPath;
     this.basePath = Path(configPath).withoutFilename().toString();
     this.outputPath = Path(this.basePath + (transforms && transforms.to)).toString();
     this.transforms = transforms || {};
+    
+    // the currentPaths property is a cached list of file paths so we don't need to hit the filesystem 
+    // for each call to matches. currentPaths gets set by finalise transforms to, zipTo and syncTo
+    // the syncTo transform can also replace this function to override the default dehaviour
+    this.getCurrentPaths = function(transformRepository) {
+        return transformRepository.applyEventsTo(['includeFiles', 'excludeFiles'], self, { log: false }).files.paths();
+    };
 };
 
 Pack.Output.prototype.matches = function (path, transformRepository, refresh) {
-    // we save the list of file paths so we don't need to hit the filesystem for each check
-    // this gets set by finalise transforms to, zipTo and syncTo
-    if(refresh || !this.currentPaths)
-        this.currentPaths = transformRepository.applyEventsTo(['includeFiles', 'excludeFiles'], this, { log: false }).files.paths();
+    if (refresh || !this.currentPaths)
+        this.currentPaths = this.getCurrentPaths(transformRepository);
     
     return _.any(this.currentPaths, function(filePath) {
         return path === filePath;
@@ -587,6 +594,11 @@ Pack.transforms.combine = {
 };
 
 
+Pack.transforms.directory = {
+    event: 'includeFiles',
+    apply: function() {}
+};
+
 (function () {
     var utils = Pack.utils;
     var transforms = Pack.transforms;
@@ -797,7 +809,7 @@ Pack.transforms.outputTemplate = {
                 Log.debug('Applying output template ' + templateSettings.name + ' to ' + output.transforms.to);
 
                 var templateData = {
-                    content: target.output,
+                    content: '\n' + target.output,
                     configPath: Path(output.configPath),
                     data: value.data || {},
                     output: output,
@@ -828,19 +840,30 @@ Pack.transforms.syncTo = {
         var Log = Pack.api.Log;
 
         var targetFolder = Path(data.output.basePath + data.value + '/');
-        var files = data.target.files.list;
+        var sourceDirectory = data.output.transforms.directory;
+        
+        if (sourceDirectory) {
+            // sync an entire folder
+            Files.copy(sourceDirectory, targetFolder.toString());
+            Log.info('Copied directory ' + sourceDirectory + ' to ' + targetFolder);
 
-        _.each(files, function(file) {
-            Files.copyFile(file.path.toString(), targetFolder + file.pathRelativeToInclude);
-        });
+            data.output.getCurrentPaths = function() {
+                // match the folder sync when any of the files change
+                return Files.getFilenames(sourceDirectory + '/*.*', true);
+            };
+        } else {
+            // copy included files
+            var files = data.target.files.list;
+            _.each(files, function(file) {
+                Files.copy(file.path.toString(), targetFolder + file.pathRelativeToInclude);
+            });
+            Log.info('Copied ' + files.length + ' files to ' + targetFolder);
 
-        Log.info('Copied ' + files.length + ' files to ' + targetFolder);
-
-        // this should be moved to a separate transform. It is consumed by Output.matches
-        data.output.currentPaths = data.target.files && data.target.files.paths();
+            // this is a bit nasty. It is consumed by Output.matches
+            data.output.currentPaths = data.target.files && data.target.files.paths();
+        }
     }
 };
-
 
 Pack.transforms.template = {
     event: 'content',
@@ -864,7 +887,7 @@ Pack.transforms.template = {
                 if (template) {
                     Log.debug('Applying template ' + templateSettings.name + ' to ' + Path(file.path).filename());
                     var templateData = {
-                        content: file.content,
+                        content: '\n' + file.content,
                         path: Path(file.path),
                         configPath: file.configPath,
                         pathRelativeToConfig: file.pathRelativeToConfig,
@@ -1156,28 +1179,24 @@ function normaliseOptions(pathOrOptions, debug) {
         pathOrOptions.debug = true;
     return pathOrOptions;
 }
-Pack.templates['Pack.embedTemplate'] = 'Pack.templates[\'<%=path.filename().toString().replace(".template.js", "")%>\'] = \'<%=T.embedString(content)%>\';\n';
+Pack.templates['Pack.embedTemplate'] = '\nPack.templates[\'<%=path.filename().toString().replace(".template.js", "")%>\'] = \'<%=T.embedString(content)%>\';\n';
 
-Pack.templates['T.document'] = '<%= data.documentation(content) %>';
+Pack.templates['T.document'] = '\n<%= data.documentation(content) %>';
 
-Pack.templates['T.mockjax.outer'] = '<%= content %>\n<%= data.mockGaps() %>';
+Pack.templates['T.mockjax.outer'] = '\n<%= content %>\n<%= data.mockGaps() %>';
 
-Pack.templates['T.mockjax'] = '$.mockjax({\n    url: \'<%= pathRelativeToConfig %>\',\n    responseText: \'<%= T.embedString(content) %>\',\n    responseTime: 0\n});\n<% data.registerUrl(pathRelativeToConfig) %>';
+Pack.templates['T.mockjax'] = '\n$.mockjax({\n    url: \'<%= pathRelativeToConfig %>\',\n    responseText: \'<%= T.embedString(content) %>\',\n    responseTime: 0\n});\n<% data.registerUrl(pathRelativeToConfig) %>';
 
-Pack.templates['T.Resource'] = '<%=T.modelScriptEnvironment(pathRelativeToInclude, data.prefix)%>\n<%=content%>\n';
+Pack.templates['T.Resource'] = '\n<%=T.modelScriptEnvironment(pathRelativeToInclude, data.prefix)%>\n<%=content%>\n';
 
-Pack.templates['T.Script.debug'] = 'window.eval("<%= T.prepareForEval(content) + T.sourceUrlTag(pathRelativeToConfig, data.domain, data.protocol) %>");\n';
+Pack.templates['T.Script.debug'] = '\nwindow.eval("<%= T.prepareForEval(content) + T.sourceUrlTag(pathRelativeToConfig, data.domain, data.protocol) %>");\n';
 
-Pack.templates['T.Script'] = '// <%= pathRelativeToConfig %>\n<%= content %>\n';
+Pack.templates['T.Script'] = '\n// <%= pathRelativeToConfig %>\n<%= content %>\n';
 
-Pack.templates['T.Style'] = '//<% if(!target.includesStylesheetHelper) { %>\nwindow.__appendStyle = function (content) {\n    var element = document.getElementById(\'__tribeStyles\');\n    if (!element) {\n        element = document.createElement(\'style\');\n        element.className = \'__tribe\';\n        element.id = \'__tribeStyles\';\n        document.getElementsByTagName(\'head\')[0].appendChild(element);\n    }\n\n    if(element.styleSheet)\n        element.styleSheet.cssText += content;\n    else\n        element.appendChild(document.createTextNode(content));\n};//<% target.includesStylesheetHelper = true; } %>\nwindow.__appendStyle(\'<%= api.MinifyStylesheet.minify(content).replace(/\\\'/g, "\\\\\'") %>\');';
+Pack.templates['T.Style'] = '\n//<% if(!target.includesStylesheetHelper) { %>\nwindow.__appendStyle = function (content) {\n    var element = document.getElementById(\'__tribeStyles\');\n    if (!element) {\n        element = document.createElement(\'style\');\n        element.className = \'__tribe\';\n        element.id = \'__tribeStyles\';\n        document.getElementsByTagName(\'head\')[0].appendChild(element);\n    }\n\n    if(element.styleSheet)\n        element.styleSheet.cssText += content;\n    else\n        element.appendChild(document.createTextNode(content));\n};//<% target.includesStylesheetHelper = true; } %>\nwindow.__appendStyle(\'<%= api.MinifyStylesheet.minify(content).replace(/\\\'/g, "\\\\\'") %>\');';
 
-Pack.templates['T.Template'] = '//<% if(!target.includesTemplateHelper) { %>\nwindow.__appendTemplate = function (content, id) {\n    var element = document.createElement(\'script\');\n    element.className = \'__tribe\';\n    element.setAttribute(\'type\', \'text/template\');\n    element.id = id;\n    element.text = content;\n    document.getElementsByTagName(\'head\')[0].appendChild(element);\n};//<% target.includesTemplateHelper = true; } %>\nwindow.__appendTemplate(\'<%=T.embedString(content)%>\', \'<%=T.templateIdentifier(pathRelativeToInclude, data.prefix)%>\');';
+Pack.templates['T.Template'] = '\n//<% if(!target.includesTemplateHelper) { %>\nwindow.__appendTemplate = function (content, id) {\n    var element = document.createElement(\'script\');\n    element.className = \'__tribe\';\n    element.setAttribute(\'type\', \'text/template\');\n    element.id = id;\n    element.text = content;\n    document.getElementsByTagName(\'head\')[0].appendChild(element);\n};//<% target.includesTemplateHelper = true; } %>\nwindow.__appendTemplate(\'<%=T.embedString(content)%>\', \'<%=T.templateIdentifier(pathRelativeToInclude, data.prefix)%>\');';
 
-if (typeof exports !== 'undefined') {
-    if (typeof module !== 'undefined' && module.exports)
-        exports = module.exports = new Pack.Api();
-}
 Pack.utils.listTree = function(filespec, recursive) {
     var fs = require('fs');
 
@@ -1231,9 +1250,10 @@ Pack.prototype.watch = function (path) {
             }
         }
     });
+    return this;
 };
 (function () {
-    var fs = require('fs');
+    var fs = require('fs-extra');
 
     Pack.api.Files = {
         getFilenames: function (filespec, recursive) {
@@ -1255,9 +1275,10 @@ Pack.prototype.watch = function (path) {
                 Pack.api.Log.error('Error writing to ' + path, ex);
             }
         },
-        copyFile: function (from, to) {
-            this.writeFile(to, this.getFileContents(from));
-        },
+        copy: function (from, to) {
+            fs.mkdirpSync(Path(to).withoutFilename().toString());
+            fs.copySync(from, to);
+        },        
         excludedDirectories: ['csx', 'bin', 'obj']
     };
 
@@ -1353,3 +1374,7 @@ Pack.api.MinifyStylesheet = {
         }
     };
 })();
+if (typeof exports !== 'undefined') {
+    if (typeof module !== 'undefined' && module.exports)
+        exports = module.exports = new Pack.Api();
+}
