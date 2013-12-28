@@ -21,7 +21,7 @@ var args = optimist
     .default("packFileFilter", "*pack.js")
     .default("configurationFileFilter", "*pack.config.js")
     .default("templateFileExtension", ".template.*")
-    .default("excludedDirectories", "csx;bin;obj")
+    .default("excludedDirectories", "csx;obj")
     .boolean("watch")
     .wrap(80)
     .argv;

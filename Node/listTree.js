@@ -22,11 +22,11 @@
                 if (stat.isDirectory() && recursive && Pack.api.Files.excludedDirectories.indexOf(child) === -1)
                     childDirectories.push(fullChild);
             } catch(ex) {
-                Pack.api.Log.error('Error getting file information for ' + fullChild, ex);
+                Pack.api.Log.warn('Unable to get file information for ' + fullChild);
             }
         });
     } catch(ex) {
-        Pack.api.Log.error('Error getting directory contents from ' + basePath, ex);
+        Pack.api.Log.warn('Unable to get directory contents from ' + basePath);
     }
 
     // we want to process child directories after the directory contents

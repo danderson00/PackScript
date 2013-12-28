@@ -25,7 +25,7 @@
             fs.mkdirpSync(Path(to).withoutFilename().toString());
             fs.copySync(from, to);
         },        
-        excludedDirectories: ['csx', 'bin', 'obj']
+        excludedDirectories: ['csx', 'obj']
     };
 
     function readFile(path) {

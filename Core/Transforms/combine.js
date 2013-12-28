@@ -9,7 +9,7 @@
 
         function log() {
             Pack.api.Log.debug('(' + filenames() + ') -> ' + (output.transforms && output.transforms.to));
-            if (target.files.list.length === 0)
+            if (target.files.list.length === 0 && output.transforms.include && !output.transforms.syncTo)
                 Pack.api.Log.warn('No files to include for ' + (output.transforms && output.transforms.to));
         }
 
