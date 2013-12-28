@@ -1,6 +1,6 @@
 {
     "name": "packscript",
-    "version": "0.2.7",
+    "version": "0.2.8",
     "description": "Powerful resource build system for combining, minifying and transforming your resources.",
     "dependencies": {
         "underscore": "~1.5.2",
