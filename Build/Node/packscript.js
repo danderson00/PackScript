@@ -1081,7 +1081,7 @@ T.sourceUrlTag = function (path, domain, protocol) {
 };
 
 T.modelScriptEnvironment = function (resourcePath, prefix) {
-    return "TC.scriptEnvironment = { resourcePath: '" + Path((prefix || '') + '/' + resourcePath).withoutExtension().makeAbsolute() + "' };";
+    return "T.scriptEnvironment = { resourcePath: '" + Path((prefix || '') + '/' + resourcePath).withoutExtension().makeAbsolute() + "' };";
 };
 
 T.templateIdentifier = function(resourcePath, prefix) {
