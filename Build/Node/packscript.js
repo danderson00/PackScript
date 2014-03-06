@@ -846,6 +846,9 @@ Pack.transforms.syncTo = {
         if (sourceDirectory) {
             // sync an entire folder
             sourceDirectory = Path(output.basePath + sourceDirectory + '/').toString();
+
+            if (output.transforms.clean) Files.remove(targetFolder.toString());
+
             Files.copy(sourceDirectory, targetFolder.toString());
             Log.info('Copied directory ' + sourceDirectory + ' to ' + targetFolder);
 
@@ -1130,7 +1133,7 @@ T.scripts = function (pathOrOptions, debug) {
     }, 'js', options);
 };
 
-T.resources = T.models = T.sagas = function(pathOrOptions, debug) {
+T.resources = T.models = T.sagas = T.staticHandlers = function(pathOrOptions, debug) {
     var options = normaliseOptions(pathOrOptions, debug);
     var template = function(output) {
         return [
@@ -1278,9 +1281,20 @@ Pack.prototype.watch = function (path) {
             }
         },
         copy: function (from, to) {
-            fs.mkdirpSync(Path(to).withoutFilename().toString());
-            fs.copySync(from, to);
-        },        
+            try {
+                fs.mkdirpSync(Path(to).withoutFilename().toString());
+                fs.copySync(from, to);
+            } catch (ex) {
+                Pack.api.Log.error('Error copying from ' + from + ' to ' + to, ex);
+            }
+        },
+        remove: function (directory) {
+            try {
+                fs.removeSync(directory);
+            } catch (ex) {
+                Pack.api.Log.error('Error removing directory ' + directory, ex);
+            }
+        },
         excludedDirectories: ['csx', 'obj']
     };
 

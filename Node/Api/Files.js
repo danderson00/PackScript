@@ -22,9 +22,20 @@
             }
         },
         copy: function (from, to) {
-            fs.mkdirpSync(Path(to).withoutFilename().toString());
-            fs.copySync(from, to);
-        },        
+            try {
+                fs.mkdirpSync(Path(to).withoutFilename().toString());
+                fs.copySync(from, to);
+            } catch (ex) {
+                Pack.api.Log.error('Error copying from ' + from + ' to ' + to, ex);
+            }
+        },
+        remove: function (directory) {
+            try {
+                fs.removeSync(directory);
+            } catch (ex) {
+                Pack.api.Log.error('Error removing directory ' + directory, ex);
+            }
+        },
         excludedDirectories: ['csx', 'obj']
     };
 

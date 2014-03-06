@@ -8,7 +8,7 @@
     }, 'js', options);
 };
 
-T.resources = T.models = T.sagas = function(pathOrOptions, debug) {
+T.resources = T.models = T.sagas = T.staticHandlers = function(pathOrOptions, debug) {
     var options = normaliseOptions(pathOrOptions, debug);
     var template = function(output) {
         return [

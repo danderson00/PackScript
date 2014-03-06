@@ -11,6 +11,9 @@
         if (sourceDirectory) {
             // sync an entire folder
             sourceDirectory = Path(output.basePath + sourceDirectory + '/').toString();
+
+            if (output.transforms.clean) Files.remove(targetFolder.toString());
+
             Files.copy(sourceDirectory, targetFolder.toString());
             Log.info('Copied directory ' + sourceDirectory + ' to ' + targetFolder);
 
