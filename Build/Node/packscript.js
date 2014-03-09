@@ -346,7 +346,7 @@ Pack.Output.prototype.matches = function (path, transformRepository, refresh) {
         this.currentPaths = this.getCurrentPaths(transformRepository);
     
     return _.any(this.currentPaths, function(filePath) {
-        return path === filePath;
+        return path.toUpperCase() === filePath.toUpperCase();
     });
 };
 
@@ -692,7 +692,8 @@ Pack.transforms.directory = {
             }
 
             function getFileNames(filespec) {
-                return Files.getFilenames(output.basePath + filespec, recurse());
+                var isAbsolute = Path(filespec).isAbsolute();
+                return Files.getFilenames((isAbsolute ? '' : output.basePath) + filespec, recurse());
             }
             
             function prioritise() {
@@ -845,16 +846,19 @@ Pack.transforms.syncTo = {
         
         if (sourceDirectory) {
             // sync an entire folder
-            sourceDirectory = Path(output.basePath + sourceDirectory + '/').toString();
-
             if (output.transforms.clean) Files.remove(targetFolder.toString());
 
-            Files.copy(sourceDirectory, targetFolder.toString());
-            Log.info('Copied directory ' + sourceDirectory + ' to ' + targetFolder);
+            Pack.utils.executeSingleOrArray(sourceDirectory, function (directoryPath) {
+                directoryPath = Path(output.basePath + directoryPath + '/').toString();
+                Files.copy(directoryPath, targetFolder.toString());
+                Log.info('Copied directory ' + directoryPath + ' to ' + targetFolder);
+            });
 
             output.getCurrentPaths = function() {
                 // match the folder sync when any of the files change
-                return Files.getFilenames(sourceDirectory + '/*.*', true);
+                return _.flatten(Pack.utils.executeSingleOrArray(sourceDirectory, function (directoryPath) {
+                    return Files.getFilenames(output.basePath + directoryPath + '/*.*', true);
+                }));
             };
         } else {
             // copy included files
@@ -1077,7 +1081,7 @@ T.mockjax = function (to, path) {
 T.sourceUrlTag = function (path, domain, protocol) {
     if (path.toString().indexOf('://') === -1) {
         var fullPath = Path((domain || '') + '/' + path).makeRelative().toString();
-        path = (protocol || 'tribe') + '://' + fullPath;
+        path = (protocol || 'http') + '://' + fullPath;
     }
 
     return ('\\n//@ sourceURL=' + path.replace(/\\/g, '/'));

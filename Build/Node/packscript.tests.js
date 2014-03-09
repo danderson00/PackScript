@@ -680,7 +680,19 @@ function integrationTest(path, name, tests) {
         ok(Pack.api.Files.getFilenames.calledWithExactly('path/*.*', true));
     });
 
-    test("include calls getFilenames twice when two values are passed", function() {
+    test("include calls getFilenames with correct arguments when an absolute path is passed", function () {
+        Pack.transforms.include.apply(wrap('/*.js', new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
+        ok(Pack.api.Files.getFilenames.calledOnce);
+        ok(Pack.api.Files.getFilenames.calledWithExactly('/*.js', true));
+    });
+
+    test("include calls getFilenames with correct arguments when a windows absolute path is passed", function () {
+        Pack.transforms.include.apply(wrap('c:/*.js', new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
+        ok(Pack.api.Files.getFilenames.calledOnce);
+        ok(Pack.api.Files.getFilenames.calledWithExactly('c:/*.js', true));
+    });
+
+    test("include calls getFilenames twice when two values are passed", function () {
         Pack.transforms.include.apply(wrap(['*.js', { files: '*.txt', recursive: true }], new Pack.Output({}, 'path/'), new Pack.Container()));
         ok(Pack.api.Files.getFilenames.calledTwice);
         ok(Pack.api.Files.getFilenames.calledWithExactly('path/*.js', false));
@@ -1224,6 +1236,14 @@ integrationTest('Sync', function (output) {
 
     equal(copy.getCall(4).args[0], fullPath('Sync/test.js'), 'alternate');
     equal(copy.getCall(4).args[1], fullPath('TestOutput/Sync/Alternate/test.js'), 'alternate');
+
+    equal(copy.getCall(5).args[0], fullPath('Sync/Child/'), 'directory');
+    equal(copy.getCall(5).args[1], fullPath('TestOutput/Sync/Directory/'), 'directory');
+
+    equal(copy.getCall(6).args[0], fullPath('Sync/Child/'), 'directoryArray');
+    equal(copy.getCall(6).args[1], fullPath('TestOutput/Sync/DirectoryArray/'), 'directoryArray');
+    equal(copy.getCall(7).args[0], fullPath('Sync/Child2/'), 'directoryArray');
+    equal(copy.getCall(7).args[1], fullPath('TestOutput/Sync/DirectoryArray/'), 'directoryArray');
 
     function fullPath(path) {
         return 'Tests/Integration/' + path;

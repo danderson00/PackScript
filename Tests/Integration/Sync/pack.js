@@ -14,4 +14,7 @@ sync({
     recursive: true
 });
 
-sync('*.js').to('../TestOutput/Sync/Alternate');
+sync('test.js').to('../TestOutput/Sync/Alternate');
+
+sync({ directory: 'Child' }).to('../TestOutput/Sync/Directory');
+sync({ directory: ['Child', 'Child2'] }).to('../TestOutput/Sync/DirectoryArray');

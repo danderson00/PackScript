@@ -15,6 +15,14 @@
     equal(copy.getCall(4).args[0], fullPath('Sync/test.js'), 'alternate');
     equal(copy.getCall(4).args[1], fullPath('TestOutput/Sync/Alternate/test.js'), 'alternate');
 
+    equal(copy.getCall(5).args[0], fullPath('Sync/Child/'), 'directory');
+    equal(copy.getCall(5).args[1], fullPath('TestOutput/Sync/Directory/'), 'directory');
+
+    equal(copy.getCall(6).args[0], fullPath('Sync/Child/'), 'directoryArray');
+    equal(copy.getCall(6).args[1], fullPath('TestOutput/Sync/DirectoryArray/'), 'directoryArray');
+    equal(copy.getCall(7).args[0], fullPath('Sync/Child2/'), 'directoryArray');
+    equal(copy.getCall(7).args[1], fullPath('TestOutput/Sync/DirectoryArray/'), 'directoryArray');
+
     function fullPath(path) {
         return 'Tests/Integration/' + path;
     }

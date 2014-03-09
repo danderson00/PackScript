@@ -61,7 +61,8 @@
             }
 
             function getFileNames(filespec) {
-                return Files.getFilenames(output.basePath + filespec, recurse());
+                var isAbsolute = Path(filespec).isAbsolute();
+                return Files.getFilenames((isAbsolute ? '' : output.basePath) + filespec, recurse());
             }
             
             function prioritise() {

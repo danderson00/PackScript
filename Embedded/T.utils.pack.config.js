@@ -1,7 +1,7 @@
 ﻿T.sourceUrlTag = function (path, domain, protocol) {
     if (path.toString().indexOf('://') === -1) {
         var fullPath = Path((domain || '') + '/' + path).makeRelative().toString();
-        path = (protocol || 'tribe') + '://' + fullPath;
+        path = (protocol || 'http') + '://' + fullPath;
     }
 
     return ('\\n//@ sourceURL=' + path.replace(/\\/g, '/'));

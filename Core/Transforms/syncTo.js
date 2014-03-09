@@ -10,16 +10,19 @@
         
         if (sourceDirectory) {
             // sync an entire folder
-            sourceDirectory = Path(output.basePath + sourceDirectory + '/').toString();
-
             if (output.transforms.clean) Files.remove(targetFolder.toString());
 
-            Files.copy(sourceDirectory, targetFolder.toString());
-            Log.info('Copied directory ' + sourceDirectory + ' to ' + targetFolder);
+            Pack.utils.executeSingleOrArray(sourceDirectory, function (directoryPath) {
+                directoryPath = Path(output.basePath + directoryPath + '/').toString();
+                Files.copy(directoryPath, targetFolder.toString());
+                Log.info('Copied directory ' + directoryPath + ' to ' + targetFolder);
+            });
 
             output.getCurrentPaths = function() {
                 // match the folder sync when any of the files change
-                return Files.getFilenames(sourceDirectory + '/*.*', true);
+                return _.flatten(Pack.utils.executeSingleOrArray(sourceDirectory, function (directoryPath) {
+                    return Files.getFilenames(output.basePath + directoryPath + '/*.*', true);
+                }));
             };
         } else {
             // copy included files

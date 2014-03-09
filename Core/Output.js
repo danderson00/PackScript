@@ -19,7 +19,7 @@ Pack.Output.prototype.matches = function (path, transformRepository, refresh) {
         this.currentPaths = this.getCurrentPaths(transformRepository);
     
     return _.any(this.currentPaths, function(filePath) {
-        return path === filePath;
+        return path.toUpperCase() === filePath.toUpperCase();
     });
 };
 

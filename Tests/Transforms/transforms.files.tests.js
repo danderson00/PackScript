@@ -25,7 +25,19 @@
         ok(Pack.api.Files.getFilenames.calledWithExactly('path/*.*', true));
     });
 
-    test("include calls getFilenames twice when two values are passed", function() {
+    test("include calls getFilenames with correct arguments when an absolute path is passed", function () {
+        Pack.transforms.include.apply(wrap('/*.js', new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
+        ok(Pack.api.Files.getFilenames.calledOnce);
+        ok(Pack.api.Files.getFilenames.calledWithExactly('/*.js', true));
+    });
+
+    test("include calls getFilenames with correct arguments when a windows absolute path is passed", function () {
+        Pack.transforms.include.apply(wrap('c:/*.js', new Pack.Output({ recursive: true }, 'path/'), new Pack.Container()));
+        ok(Pack.api.Files.getFilenames.calledOnce);
+        ok(Pack.api.Files.getFilenames.calledWithExactly('c:/*.js', true));
+    });
+
+    test("include calls getFilenames twice when two values are passed", function () {
         Pack.transforms.include.apply(wrap(['*.js', { files: '*.txt', recursive: true }], new Pack.Output({}, 'path/'), new Pack.Container()));
         ok(Pack.api.Files.getFilenames.calledTwice);
         ok(Pack.api.Files.getFilenames.calledWithExactly('path/*.js', false));
